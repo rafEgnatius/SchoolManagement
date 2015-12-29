@@ -35,7 +35,7 @@ import session.ProgramFacade;
 @Stateless
 public class PersistenceManager {
 
-    @PersistenceContext(unitName = "Szkola004PU")
+    @PersistenceContext(unitName = "SchoolPU")
     private EntityManager em;
 
     @EJB

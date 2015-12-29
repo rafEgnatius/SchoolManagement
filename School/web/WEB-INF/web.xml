@@ -59,8 +59,8 @@
         <location>/error.jsp</location>
     </error-page>
     <resource-ref>
-        <description>Connects to database for Szkola004 application</description>
-        <res-ref-name>jdbc/szkola004</res-ref-name>
+        <description>Connects to database for School application</description>
+        <res-ref-name>jdbc/schoolManagement</res-ref-name>
         <res-type>javax.sql.ConnectionPoolDataSource</res-type>
         <res-auth>Container</res-auth>
         <res-sharing-scope>Shareable</res-sharing-scope>
