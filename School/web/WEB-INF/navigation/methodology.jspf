@@ -1,0 +1,27 @@
+<%-- any content can be specified here e.g.: --%>
+
+<%@ page pageEncoding="UTF-8" %>
+
+<nav class="nav-section">
+    <a href="lektorzy">
+        <p class="sectionMenuButton">
+            <span class="sectionMenuText">
+                Lektorzy
+            </span>
+        </p>
+    </a>
+    <a href="jezyki">
+        <p class="sectionMenuButton">
+            <span class="sectionMenuText">
+                Języki
+            </span>
+        </p>
+    </a>
+    <a href="podreczniki">
+        <p class="sectionMenuButton">
+            <span class="sectionMenuText">
+                Podręczniki
+            </span>
+        </p>
+    </a>
+</nav>

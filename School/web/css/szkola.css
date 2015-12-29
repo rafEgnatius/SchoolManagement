@@ -1,0 +1,371 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 01-Dec-2015, 09:25:45
+    Author     : Rafa
+*/
+
+
+body {
+    margin: 5%;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    background-color: #CCCCFF;
+}
+
+header {
+    background: #aaa;
+    height: 100px;
+    border-radius: 15px;
+}
+
+#logo {
+    height: 100px;
+    width: 400px;
+    float: left;
+    margin-left: 33px;
+    margin-top: -33px;
+}
+
+nav.nav-szkola {
+    margin: -15px 0px 15px 15px;
+}
+
+nav.nav-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#section-szkola-left-column {
+    height: 400px;
+    width: 80%;
+    float: left;
+    background: #eee;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 15px;
+}
+
+#section-szkola-one-column {
+    background: #eee;
+    padding: 20px 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 15px;
+}
+
+#section-szkola-confirmation {
+    background: #eee;
+    padding: 20px 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 15px;
+}
+
+#aside-szkola {
+    height: 400px;
+    width: 15%;
+    float: right;
+    font-size: larger;
+    background: #ccc;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 15px;
+}
+
+footer {
+    height: 60px;
+    clear: both;
+    background: #aaa;
+    border-radius: 15px;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* HORIZONTAL RULE */
+
+hr {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: #CCCCFF;
+    background-color: #CCCCFF;
+}
+
+
+/* FORMS */
+
+select.inputForm {
+    width: 240px;
+}
+
+input.inputForm {
+    width: 234px;
+}
+
+textarea.inputForm {
+    width: 234px;
+}
+
+
+/* BUTTONS */
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+tr a.email {
+    color: purple;
+}
+
+tr a.email:hover {
+    text-decoration: underline;
+}
+
+/* main navigation */
+
+.mainMenuButton {
+    padding: 10px;
+    background-color: #9999ff;
+    border-radius: 15px;
+    width: 150px;
+    display: table-cell;
+    text-align: center;
+}
+
+.mainMenuButton:hover {
+    background-color: #6666ff;
+    color: white;
+}
+
+.mainMenuText {
+    line-height: 25px;
+    font-size: large;
+    text-decoration: none;
+}
+
+/* section */
+
+.sectionMenuButton {
+    padding: 10px;
+    background-color: #CCC;
+    border-radius: 15px;
+    width: 150px;
+    display: table-cell;
+    text-align: center;
+}
+
+.sectionMenuButton:hover {
+    background-color: #AAA;
+    color: white;
+}
+
+.sectionMenuText {
+    line-height: 25px;
+    font-size: large;
+    text-decoration: none;
+}
+
+/* small buttons */
+
+.smallButton {
+    padding: 5px;
+    background-color: #CCCCFF;
+    border-radius: 5px;
+    /*    display: table-cell;*/
+    text-align: center;
+    margin: 10px 10px 10px 20px;
+    padding: 4px 10px;
+}
+
+.smallButton:hover {
+    background-color: #9999ff;
+    color: white;
+}
+
+.smallButtonText {
+    font-size: medium;
+    text-decoration: none;
+}
+
+.smallButtonText:hover {
+    color: white;
+}
+
+/* tiny buttons */
+
+.tinyButton {
+    padding: 5px;
+    background-color: #CCCCFF;
+    border-radius: 5px;
+    /*    display: table-cell;*/
+    text-align: center;
+    margin: 10px 10px 10px 20px;
+    padding: 2px 5px;
+}
+
+.tinyButton:hover {
+    background-color: #9999ff;
+    color: white;
+}
+
+.tinyButtonText {
+    text-decoration: none;
+}
+
+.tinyButtonText:hover {
+    color: white;
+}
+
+/* end of BUTTONS */
+
+
+
+/* TABLES */
+
+table {
+    margin: 10px 20px;
+    border-spacing: 0;
+    text-align: center;
+    
+}
+
+.tableHeading {
+    font-weight: bold;
+    background-color: #ccc;
+}
+
+/* list */
+
+.listTable {
+    text-align: left;
+    background-color: #EDF8F7;
+    border: solid 1px #CCCCFF;
+}
+
+.listTable th { padding: 10px 20px }
+
+.listTable td {
+    padding: 10px 40px;
+    font-size: small;
+    font-family: "Courier New", courier, monospace;
+}
+
+/* detailed */
+
+.detailedTable {
+    text-align: left;
+    background-color: #EDF8F7;
+    border: solid 1px #CCCCFF;
+}
+
+.detailedTable th { padding: 5px 50px }
+
+.detailedTable td {
+    padding: 10px;
+}
+
+/* forms */
+
+.formTable {
+    border: none;
+    text-align: right;
+}
+
+.formTable th {
+    text-align: left;
+    padding-bottom: 10px;
+}
+
+.formTable td {
+    padding: 5px 20px 5px 20px;
+}
+
+table.formTable td.formError {
+    color: red;
+    text-align: left;
+}
+
+table.formTable td.formErrorAsterix {
+    color: red;
+    text-align: left;
+    padding-left: 0px;
+}
+
+/* cancel-save table */
+
+table.cancelSaveTable {
+}
+
+table.cancelSaveTable td.leftCell {
+    padding-right: 15px;
+}
+
+table.cancelSaveTable td.rightCell {
+    padding-left: 15px;
+}
+
+
+/* table with pagination */
+
+td.cellWithPagination {
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+/* general */
+
+.lightBlue { background-color: #edf8f7 }
+
+.white { background-color: #fff }
+
+/*this one for JavaScript*/
+.selectedRow {
+    background-color: #CCCCFF;
+    cursor: pointer;
+}
+
+/* end of TABLES */
+
+
+/* PAGINATION */
+
+ul.pagination {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+}
+
+ul.pagination li {
+    display: inline
+}
+
+ul.pagination li a {
+    float: left;
+    padding: 8px 16px;
+    border-radius: 5px;
+}
+
+ul.pagination a.active {
+    background-color: #CCCCFF;
+    color: white;
+}
+
+ul.pagination a.active:hover {
+    background-color: #9999ff;
+}
+
+
+
+.pagination li a:hover:not(.active) {
+    background-color: #CCC;
+    color: white;
+}
+
+
+/* end of PAGINATION */
+
+
