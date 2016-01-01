@@ -41,7 +41,7 @@
                 </a>
             </td>
             <td class="rightCell">
-                <a class="smallButton" href="dodajFaktureZapisz?id=${id}&nazwa=${param.nazwa}&symbol=${param.symbol}">
+                <a class="smallButton" href="dodajFaktureZapisz?id=${id}&numer=${numer}&data=${data}&kwota=${kwota}&opis=${opis}&firmaId=${firma.id}">
                     <span class="smallButtonText">zapisz &#x21AA;</span>
                 </a>
             </td>

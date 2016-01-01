@@ -5,6 +5,7 @@
  */
 package session.persistence;
 
+import entity.Faktura;
 import entity.Firma;
 import entity.Jezyk;
 import entity.JezykLektora;
@@ -13,13 +14,18 @@ import entity.Kurs;
 import entity.Lektor;
 import entity.Podrecznik;
 import entity.Program;
+import entity.StawkaFirmy;
+import entity.StawkaFirmyPK;
 import entity.Wypozyczenie;
 import entity.WypozyczeniePK;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import session.FakturaFacade;
 import session.FirmaFacade;
 import session.JezykFacade;
 import session.KursFacade;
@@ -39,31 +45,30 @@ public class PersistenceManager {
     private EntityManager em;
 
     @EJB
+    private FakturaFacade fakturaFacade;
+
+    @EJB
     private FirmaFacade firmaFacade;
-    
+
     @EJB
     private KursFacade kursFacade;
-    
+
     @EJB
     private LektorFacade lektorFacade;
 
     @EJB
     private JezykFacade jezykFacade;
-    
+
     @EJB
     private PodrecznikFacade podrecznikFacade;
-    
+
     @EJB
     private ProgramFacade programFacade;
-    
 
 //    METHODS
-    
-    
-    
-    
     /**
      * Handles removal of the entity from the database
+     *
      * @param lektor Lektor
      * @param podrecznik Podrecznik
      */
@@ -97,23 +102,38 @@ public class PersistenceManager {
         em.remove(jezykLektora);
     }
 
+    public void deleteCustomerLectorRateFromDatabase(int mainEntityId) {
+        StawkaFirmyPK stawkaFirmyPK = new StawkaFirmyPK(mainEntityId, false); // false because not native
+        StawkaFirmy stawkaFirmy = em.find(StawkaFirmy.class, stawkaFirmyPK);
+
+        em.remove(stawkaFirmy);
+    }
+
+    public void deleteCustomerNativeSpeakerRateFromDatabase(int mainEntityId) {
+
+        StawkaFirmyPK stawkaFirmyPK = new StawkaFirmyPK(mainEntityId, true); // true because native
+        StawkaFirmy stawkaFirmy = em.find(StawkaFirmy.class, stawkaFirmyPK);
+
+        em.remove(stawkaFirmy);
+    }
+
     public void deleteCustomerCourseFromDatabase(String kursId) {
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
-        
+
         kurs.setFirmaId(null);
         em.flush();
     }
-    
+
     public void deleteLectorFromCourseFromDatabase(String kursId) {
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
-        
+
         kurs.setLektorId(null);
         em.flush();
     }
-    
-     public void deleteProgrammeCourseFromDatabase(String kursId) {
+
+    public void deleteProgrammeCourseFromDatabase(String kursId) {
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
-        
+
         kurs.setProgram(null);
         em.flush();
     }
@@ -121,29 +141,27 @@ public class PersistenceManager {
     public void saveAddingCustomerToCourseToDatabase(String firmaId, String kursId) {
         Firma firma = firmaFacade.find(Integer.parseInt(firmaId)); // we should try/catch it later
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
-        
+
         kurs.setFirmaId(firma);
         em.flush();
     }
-    
+
     public void saveAddingLectorToCourseToDatabase(String lektorId, String kursId) {
         Lektor lektor = lektorFacade.find(Integer.parseInt(lektorId)); // we should try/catch it later
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
-        
+
         kurs.setLektorId(lektor);
         em.flush();
     }
-    
-    
+
     public void saveAddingProgrammeToCourseToDatabase(String programId, String kursId) {
         Program program = programFacade.find(Integer.parseInt(programId)); // we should try/catch it later
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
-        
+
         kurs.setProgram(program);
         em.flush();
     }
-    
-    
+
     /**
      *
      * @param lektor
@@ -162,14 +180,13 @@ public class PersistenceManager {
 
         // set
         wypozyczenie.setPodrecznik(podrecznik);
-        
+
         // set
         wypozyczenie.setData(LocalDate.now());
 
         em.persist(wypozyczenie);
     }
-    
-    
+
     public int saveCourseToDatabase(String id, String rok, String semestr, Jezyk jezyk, String symbol, String opis, String sala) {
         Kurs kurs; // we have to check whether creating or editing
         if (id.equals("-1")) {
@@ -190,12 +207,30 @@ public class PersistenceManager {
 
         return kurs.getId();
     }
+
+    public void saveCustomerLectorRateToDatabase(int mainEntityId, BigDecimal bigDecimalKwota) {
+
+        StawkaFirmyPK stawkaFirmyPK = new StawkaFirmyPK(mainEntityId, false); // false because not native
+        StawkaFirmy stawkaFirmy = new StawkaFirmy(stawkaFirmyPK);
+
+        stawkaFirmy.setFirma(firmaFacade.find(mainEntityId));
+        stawkaFirmy.setStawka(bigDecimalKwota);
+        em.persist(stawkaFirmy);
+    }
     
-    
-    
-     /**
-     * 
-     * 
+    public void saveCustomerNativeSpeakerRateToDatabase(int mainEntityId, BigDecimal bigDecimalKwota) {
+
+        StawkaFirmyPK stawkaFirmyPK = new StawkaFirmyPK(mainEntityId, true); // true becausee native
+        StawkaFirmy stawkaFirmy = new StawkaFirmy(stawkaFirmyPK);
+
+        stawkaFirmy.setFirma(firmaFacade.find(mainEntityId));
+        stawkaFirmy.setStawka(bigDecimalKwota);
+        em.persist(stawkaFirmy);
+    }
+
+    /**
+     *
+     *
      * @param id
      * @param nip
      * @param nazwa
@@ -206,10 +241,10 @@ public class PersistenceManager {
      * @param email
      * @param telefon
      * @param adres
-     * @return 
+     * @return
      */
     public int saveCustomerToDatabase(String id, String nip, String nazwa, String symbol, String miasto, String osoba, String telefon, String komorka, String email, String adres) {
-        
+
         Firma firma; // we have to check whether creating or editing
         if (id.equals("-1")) {
             firma = new Firma(); // new one
@@ -232,14 +267,33 @@ public class PersistenceManager {
 
         return firma.getId();
     }
-    
+
+    public int saveInvoiceToDatabase(String id, String numer, String data, String kwota, String opis, Firma firma) {
+        Faktura faktura; // we have to check whether creating or editing
+        if (id.equals("-1")) {
+            faktura = new Faktura(); // new one
+        } else {
+            faktura = fakturaFacade.find(Integer.parseInt(id)); // existing one
+        }
+
+        faktura.setNumer(numer);
+        faktura.setData(LocalDate.parse(data)); // it should be ok at this point
+        faktura.setKwota(new BigDecimal(kwota).setScale(2, RoundingMode.HALF_DOWN));
+        faktura.setOpis(opis);
+        faktura.setFirma(firma);
+
+        em.persist(faktura);
+        em.flush();
+
+        return faktura.getId();
+    }
 
     /**
-     * 
+     *
      * @param id
      * @param nazwa
      * @param symbol
-     * @return 
+     * @return
      */
     public int saveLanguageToDatabase(String id, String nazwa, String symbol) {
         Jezyk jezyk; // we have to check whether creating or editing
@@ -308,7 +362,7 @@ public class PersistenceManager {
 
         em.persist(jezykLektora);
     }
-    
+
     public int saveProgrammeToDatabase(String id, String referencja, String metoda) {
         Program program; // we have to check whether creating or editing
         if (id.equals("-1")) {
@@ -327,7 +381,7 @@ public class PersistenceManager {
     }
 
     public int saveTextbookToDatabase(String id, String nazwa, String poziom, Jezyk jezyk) {
-        
+
         Podrecznik podrecznik; // we have to check whether creating or editing
         if (id.equals("-1")) {
             podrecznik = new Podrecznik(); // new one
@@ -344,12 +398,5 @@ public class PersistenceManager {
 
         return podrecznik.getId();
     }
-
-   
-
-    
-
-    
-
 
 }

@@ -115,7 +115,7 @@ public class Faktura extends AbstractEntity implements Serializable {
         return firma;
     }
 
-    public void setFirmaId(Firma firma) {
+    public void setFirma(Firma firma) {
         this.firma = firma;
     }
 

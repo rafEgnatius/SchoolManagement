@@ -122,10 +122,12 @@ public class InvoiceController extends HttpServlet {
                     // and this is so because of the form validation
                     // when we give the form values that are correct
                     request.setAttribute("id", mainEntity.getId());
-                    request.setAttribute("nazwa", mainEntity.getNazwa());
-                    request.setAttribute("miasto", mainEntity.getMiasto());
-                    request.setAttribute("telefon", mainEntity.getTelefon());
-                    request.setAttribute("email", mainEntity.getEmail());
+                    request.setAttribute("numer", mainEntity.getNumer());
+                    request.setAttribute("data", mainEntity.getData());
+                    request.setAttribute("kwota", mainEntity.getKwota());
+                    request.setAttribute("opis", mainEntity.getOpis());
+                    request.setAttribute("firma", mainEntity.getFirma());
+                    request.setAttribute("firmaList", firmaFacade.findAll());
                 }
                 // then ask for a form 
                 userPath = "/organisation/invoice/form";
@@ -136,14 +138,13 @@ public class InvoiceController extends HttpServlet {
                 // it is confirmed (in POST) so add to database
 
                 String id = request.getParameter("id");
-                String nazwa = request.getParameter("nazwa");
-                String miasto = request.getParameter("miasto");
-                String telefon = request.getParameter("telefon");
-                String email = request.getParameter("email");
-                String umowa = request.getParameter("umowa");
-                String nip = request.getParameter("nip");
+                String numer = request.getParameter("numer");
+                String data = request.getParameter("data");
+                String kwota = request.getParameter("kwota");
+                String opis = request.getParameter("opis");
+                String firmaId = request.getParameter("firmaId");
 
-                intMainEntityId = persistenceManager.saveLectorToDatabase(id, nazwa, miasto, telefon, email, umowa, nip);
+                intMainEntityId = persistenceManager.saveInvoiceToDatabase(id, numer, data, kwota, opis, firmaFacade.find(Integer.parseInt(firmaId)));
 
                 mainEntityId = intMainEntityId + "";
                 request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
@@ -261,10 +262,9 @@ public class InvoiceController extends HttpServlet {
     private HttpServletRequest prepareRequest(HttpServletRequest request, String mainEntityId) {
 
         mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId));
-        firmaList = firmaFacade.findAll();
 
         request.setAttribute("mainEntity", mainEntity);
-        request.setAttribute("firmaList", firmaList);
+        request.setAttribute("firma", mainEntity.getFirma());
 
         return request;
     }

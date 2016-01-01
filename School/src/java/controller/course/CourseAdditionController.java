@@ -5,9 +5,7 @@
  */
 package controller.course;
 
-import entity.Jezyk;
 import entity.Kurs;
-import entity.Lektor;
 import helper.CustomerListHelper;
 import helper.LectorListHelper;
 import helper.ProgrammeListHelper;

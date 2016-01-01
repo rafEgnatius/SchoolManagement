@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import session.FirmaFacade;
+import session.StawkaFirmyFacade;
 import session.persistence.PersistenceManager;
 import validator.FormValidator;
 
@@ -38,6 +39,11 @@ public class CustomerController extends HttpServlet {
     private FirmaFacade firmaFacade;
     private Firma firma;
     private List firmaList = new ArrayList();
+    
+    @EJB
+    private StawkaFirmyFacade stawkaFirmyFacade;
+    private List stawkaFirmyList = new ArrayList();
+    
     @EJB
     private PersistenceManager persistenceManager;
 
@@ -170,9 +176,8 @@ public class CustomerController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: entity etc.
 
-                firmaId = request.getQueryString();
-                firma = firmaFacade.find(Integer.parseInt(firmaId));
-                request.setAttribute("firma", firma);
+                request = prepareRequest(request, request.getQueryString());
+                                
                 userPath = "/organisation/customer/viewOne";
                 break;
 
@@ -304,9 +309,14 @@ public class CustomerController extends HttpServlet {
      * This one prepares request to show one entity it is not to multiply code
      * when adding and showing new Entity entity
      */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String podrecznikId) {
+    private HttpServletRequest prepareRequest(HttpServletRequest request, String firmaId) {
 
-        // ANYTHING THAT WE WOULD NEED HERE
+        firma = firmaFacade.find(Integer.parseInt(firmaId));
+        request.setAttribute("firma", firma);
+        
+        stawkaFirmyList = stawkaFirmyFacade.findAll();
+        request.setAttribute("stawkaFirmyList", stawkaFirmyList);
+                
         return request;
     }
 

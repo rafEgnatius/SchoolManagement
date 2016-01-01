@@ -13,19 +13,31 @@
 
         <table class="detailedTable">
             <tr class="tableHeading">
-                <th colspan="2">język: szczegóły</th>
+                <th colspan="2">faktura: szczegóły</th>
             </tr>
             <tr>
                 <th>Id:</th>
                 <td>${mainEntity.id}</td>
             </tr>
             <tr>
-                <th>Język:</th>
-                <td>${mainEntity.nazwa}</td>
+                <th>Firma: </th>
+                <td>${firma.nazwa}</td>
             </tr>
             <tr>
-                <th>Symbol:</th>
-                <td>${mainEntity.symbol}</td>
+                <th>Numer: </th>
+                <td>${mainEntity.numer}</td>
+            </tr>
+            <tr>
+                <th>Data: </th>
+                <td>${mainEntity.data}</td>
+            </tr>
+            <tr>
+                <th>Kwota: </th>
+                <td>${mainEntity.kwota} PLN</td>
+            </tr>
+            <tr>
+                <th>Opis: </th>
+                <td>${mainEntity.opis}</td>
             </tr>
         </table>
 

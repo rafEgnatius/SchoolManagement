@@ -18,7 +18,7 @@
                 <td class="formErrorAsterix">${numerError}</td>
             </tr>
             <tr>
-                <td><label for="data">Data: </label></td>
+                <td><label for="data">Data (rrrr-mm-dd): </label></td>
                 <td><input type="date" name="data" value="${data}" /></td>
                 <td class="formErrorAsterix">${dataError}</td>
             </tr>
