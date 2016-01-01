@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import session.ProgramFacade;
 import session.persistence.PersistenceManager;
-import sorter.FieldSorter;
 import validator.FormValidator;
 
 /**

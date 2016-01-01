@@ -7,22 +7,29 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link rel="stylesheet" type="text/css" href="css/szkola.css">
-        
+
         <script src="js/jquery-1.4.2.js" type="text/javascript"></script>
-        
+
         <script type="text/javascript">
             $(document).ready(function () {
-                $('tr.tableRow').hover(
-                        function () {
-                            $(this).addClass('selectedRow');
-                        },
-                        function () {
-                            $(this).removeClass('selectedRow');
-                        }
-                );
-            });
+            $('tr.tableRow').hover(
+                    function () {
+                    $(this).addClass('selectedRow');
+                    },
+                    function () {
+                    $(this).removeClass('selectedRow');
+                    }
+            );
+            };
+                    function() {
+                    $("#cssmenu li").on("click", function () {
+                    $("#cssmenu li").removeClass("active");
+                            $(this).addClass("active");
+                    });
+                    }
+            );
         </script>
-        
+
         <title>Szkoła językowa online</title>
     </head>
     <body>
@@ -31,26 +38,35 @@
                 <img src="img/logo.png" id="logo" alt="Szkoła logo">
             </a>
         </header>
+                
         <nav class="nav-szkola">
-            <a href="metodyka">
-                <p class="mainMenuButton">
-                    <span class="mainMenuText">
-                        Metodyka
-                    </span>
-                </p>
-            </a>
-            <a href="kurs">
-                <p class="mainMenuButton">
-                    <span class="mainMenuText">
-                        Kursy
-                    </span>
-                </p>
-            </a>
-            <a href="organizacja">
-                <p class="mainMenuButton">
-                    <span class="mainMenuText">
-                        Organizacja
-                    </span>
-                </p>
-            </a>
+            <ul>
+                <li>
+                    <a href="lektorzy">
+                        <p class="mainMenuButton">
+                            <span class="mainMenuText">
+                                Metodyka
+                            </span>
+                        </p>
+                    </a>
+                </li>
+                <li>
+                    <a href="kursy">
+                        <p class="mainMenuButton">
+                            <span class="mainMenuText">
+                                Kursy
+                            </span>
+                        </p>
+                    </a>
+                </li>
+                <li>
+                    <a href="firmy">
+                        <p class="mainMenuButton">
+                            <span class="mainMenuText">
+                                Organizacja
+                            </span>
+                        </p>
+                    </a>
+                </li>
+            </ul>
         </nav>

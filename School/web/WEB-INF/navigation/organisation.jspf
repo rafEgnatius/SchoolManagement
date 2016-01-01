@@ -3,25 +3,35 @@
 <%@ page pageEncoding="UTF-8" %>
 
 <nav class="nav-section">
-    <a href="firmy">
-        <p class="sectionMenuButton">
-            <span class="sectionMenuText">
-                Firmy
-            </span>
-        </p>
-    </a>
-    <a href="faktury">
-        <p class="sectionMenuButton">
-            <span class="sectionMenuText">
-                Faktury
-            </span>
-        </p>
-    </a>
-    <a href="stawkiFirm">
-        <p class="sectionMenuButton">
-            <span class="sectionMenuText">
-                Stawki firm
-            </span>
-        </p>
-    </a>
+
+    <ul>
+        <li>
+            <a href="firmy">
+                <p class="sectionMenuButton">
+                    <span class="sectionMenuText">
+                        Firmy
+                    </span>
+                </p>
+            </a>
+        </li>
+        <li>
+            <a href="faktury">
+                <p class="sectionMenuButton">
+                    <span class="sectionMenuText">
+                        Faktury
+                    </span>
+                </p>
+            </a>
+        </li>
+        <li>
+            <a href="stawkiFirm">
+                <p class="sectionMenuButton">
+                    <span class="sectionMenuText">
+                        Stawki firm
+                    </span>
+                </p>
+            </a>
+        </li>
+    </ul>
+    
 </nav>

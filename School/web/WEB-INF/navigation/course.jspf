@@ -3,18 +3,26 @@
 <%@ page pageEncoding="UTF-8" %>
 
 <nav class="nav-section">
-    <a href="kursy">
-        <p class="sectionMenuButton">
-            <span class="sectionMenuText">
-                Kursy
-            </span>
-        </p>
-    </a>
-    <a href="programy">
-        <p class="sectionMenuButton">
-            <span class="sectionMenuText">
-                Programy
-            </span>
-        </p>
-    </a>
+
+    <ul>
+        <li>
+            <a href="kursy">
+                <p class="sectionMenuButton">
+                    <span class="sectionMenuText">
+                        Kursy
+                    </span>
+                </p>
+            </a>
+        </li>
+        <li>
+            <a href="programy">
+                <p class="sectionMenuButton">
+                    <span class="sectionMenuText">
+                        Programy
+                    </span>
+                </p>
+            </a>
+        </li>
+    </ul>
+
 </nav>

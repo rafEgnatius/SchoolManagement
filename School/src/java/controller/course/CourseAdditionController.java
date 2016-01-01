@@ -6,10 +6,12 @@
 package controller.course;
 
 import entity.Kurs;
+import helper.CourseHelper;
 import helper.CustomerListHelper;
 import helper.LectorListHelper;
 import helper.ProgrammeListHelper;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
@@ -24,7 +26,9 @@ import session.JezykLektoraFacade;
 import session.KursFacade;
 import session.LektorFacade;
 import session.ProgramFacade;
+import session.StawkaFirmyFacade;
 import session.persistence.PersistenceManager;
+import validator.FormValidator;
 
 /**
  *
@@ -35,9 +39,11 @@ import session.persistence.PersistenceManager;
         urlPatterns = {"/dodajFirmeDoKursu",
             "/dodajLektoraDoKursu",
             "/dodajProgramDoKursu",
+            "/dodajStawkeLektora",
             "/usunFirmeZKursu",
             "/usunLektoraZKursu",
             "/usunProgramZKursu",
+            "/usunStawkeLektora",
             "/zapiszDodanieFirmyDoKursu",
             "/zapiszDodanieLektoraDoKursu",
             "/zapiszDodanieProgramuDoKursu"})
@@ -68,11 +74,14 @@ public class CourseAdditionController extends HttpServlet {
     private List programList = new ArrayList();
 
     @EJB
+    private StawkaFirmyFacade stawkaFirmyFacade;
+    
+    @EJB
     private PersistenceManager persistenceManager;
 
 //    main
-    int intKursId = 0;
-    String kursId = "";
+    int intMainEntityId = 0;
+    String mainEntityId = "";
 
 // additional
     int intFirmaId = 0;
@@ -108,6 +117,8 @@ public class CourseAdditionController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        CourseHelper courseHelper = new CourseHelper();
+        
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
         userPath = request.getServletPath(); // this way we know where to go
@@ -116,7 +127,7 @@ public class CourseAdditionController extends HttpServlet {
 //  ADD CUSTOMER
             case "/dodajFirmeDoKursu":
 
-                kursId = request.getParameter("kursId"); // it should be set if we are here
+                mainEntityId = request.getParameter("kursId"); // it should be set if we are here
 
                 customerListHelper = new CustomerListHelper(); //  we need a helper
 
@@ -127,7 +138,7 @@ public class CourseAdditionController extends HttpServlet {
                 request = customerListHelper.prepareEntityList(request, firmaList);
 
                 // tell the kurs id
-                request.setAttribute("kursId", kursId);
+                request.setAttribute("kursId", mainEntityId);
 
                 // and tell the container where to redirect
                 userPath = "/course/course/addCustomer";
@@ -139,13 +150,15 @@ public class CourseAdditionController extends HttpServlet {
 
                 // check parameters
                 firmaId = request.getParameter("firmaId");
-                kursId = request.getParameter("kursId");
+                mainEntityId = request.getParameter("kursId");
 
                 // now persist:
-                persistenceManager.saveAddingCustomerToCourseToDatabase(firmaId, kursId);
+                persistenceManager.saveAddingCustomerToCourseToDatabase(firmaId, mainEntityId);
 
-                kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
-                request.setAttribute("kurs", kurs);
+                // use helper to get lektor list prepared in our request
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade);
+                
+                // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
 
@@ -153,12 +166,12 @@ public class CourseAdditionController extends HttpServlet {
             case "/usunFirmeZKursu":
 
                 // check parameters
-                kursId = request.getQueryString();
+                mainEntityId = request.getQueryString();
 
                 // now persist:
-                persistenceManager.deleteCustomerCourseFromDatabase(kursId);
+                persistenceManager.deleteCustomerCourseFromDatabase(mainEntityId);
 
-                kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
+                kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
                 request.setAttribute("kurs", kurs);
                 userPath = "/course/course/viewOne";
                 break;
@@ -166,7 +179,7 @@ public class CourseAdditionController extends HttpServlet {
 //  ADD LECTOR
             case "/dodajLektoraDoKursu":
 
-                kursId = request.getParameter("kursId"); // it should be set if we are here
+                mainEntityId = request.getParameter("kursId"); // it should be set if we are here
 
                 lectorListHelper = new LectorListHelper(); //  we need a helper
 
@@ -179,7 +192,7 @@ public class CourseAdditionController extends HttpServlet {
                 request = lectorListHelper.prepareEntityList(request, lektorList, jezykList, jezykLektoraList);
 
                 // tell the kurs id
-                request.setAttribute("kursId", kursId);
+                request.setAttribute("kursId", mainEntityId);
 
                 // and tell the container where to redirect
                 userPath = "/course/course/addLector";
@@ -191,13 +204,15 @@ public class CourseAdditionController extends HttpServlet {
 
                 // check parameters
                 lektorId = request.getParameter("lektorId");
-                kursId = request.getParameter("kursId");
+                mainEntityId = request.getParameter("kursId");
 
                 // now persist:
-                persistenceManager.saveAddingLectorToCourseToDatabase(lektorId, kursId);
+                persistenceManager.saveAddingLectorToCourseToDatabase(lektorId, mainEntityId);
 
-                kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
-                request.setAttribute("kurs", kurs);
+                // use helper to get lektor list prepared in our request
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade);
+                
+                // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
 
@@ -205,12 +220,12 @@ public class CourseAdditionController extends HttpServlet {
             case "/usunLektoraZKursu":
 
                 // check parameters
-                kursId = request.getQueryString();
+                mainEntityId = request.getQueryString();
 
                 // now persist:
-                persistenceManager.deleteLectorFromCourseFromDatabase(kursId);
+                persistenceManager.deleteLectorFromCourseFromDatabase(mainEntityId);
 
-                kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
+                kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
                 request.setAttribute("kurs", kurs);
                 userPath = "/course/course/viewOne";
                 break;
@@ -226,8 +241,8 @@ public class CourseAdditionController extends HttpServlet {
                 request = programmeListHelper.prepareEntityList(request, programList);
 
                 // tell the kurs id
-                kursId = request.getParameter("kursId"); // it should be set if we are here
-                request.setAttribute("kursId", kursId);
+                mainEntityId = request.getParameter("kursId"); // it should be set if we are here
+                request.setAttribute("kursId", mainEntityId);
                 
                 userPath = "/course/course/addProgramme";
                 break;
@@ -238,13 +253,15 @@ public class CourseAdditionController extends HttpServlet {
 
                 // check parameters
                 programId = request.getParameter("programId");
-                kursId = request.getParameter("kursId");
+                mainEntityId = request.getParameter("kursId");
 
                 // now persist:
-                persistenceManager.saveAddingProgrammeToCourseToDatabase(programId, kursId);
+                persistenceManager.saveAddingProgrammeToCourseToDatabase(programId, mainEntityId);
 
-                kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
-                request.setAttribute("kurs", kurs);
+                // use helper to get lektor list prepared in our request
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade);
+                
+                // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
 
@@ -252,16 +269,33 @@ public class CourseAdditionController extends HttpServlet {
             case "/usunProgramZKursu":
 
                 // check parameters
-                kursId = request.getQueryString();
+                mainEntityId = request.getQueryString();
 
                 // now persist:
-                persistenceManager.deleteProgrammeCourseFromDatabase(kursId);
+                persistenceManager.deleteProgrammeCourseFromDatabase(mainEntityId);
 
-                kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
+                kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
                 request.setAttribute("kurs", kurs);
                 userPath = "/course/course/viewOne";
                 break;
                 
+// REMOVE RATE (Lector)
+            case "/usunStawkeLektora":
+
+                // check parameters
+                mainEntityId = request.getParameter("id");
+                lektorId = request.getParameter("lektorId");
+
+                // now persist:
+                persistenceManager.deleteLectorRateFromDatabase(Integer.parseInt(mainEntityId), Integer.parseInt(lektorId));
+
+                // set attributes
+                kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
+                request.setAttribute("kurs", kurs);
+                
+                // and tell the container where to redirect
+                userPath = "/course/course/viewOne";
+                break;
                 
 // FORWARD
         } // close main swith
@@ -287,12 +321,36 @@ public class CourseAdditionController extends HttpServlet {
             throws ServletException, IOException {
         //processRequest(request, response);
 
+        BigDecimal bigDecimalAmount;
+        String stawka;
+        
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
         userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
+            
+//  ADD RATE (lector)
+            case "/dodajStawkeLektora":
 
+                // get Parameters
+                mainEntityId = request.getParameter("id"); // it should be set if we are here
+                lektorId = request.getParameter("lektorId");
+                stawka = request.getParameter("stawka");
+                
+                if ((bigDecimalAmount = FormValidator.validateMoney(stawka)) == null) {
+                    request.setAttribute("stawkaNativeError", "błędne dane");
+                } else {
+                    persistenceManager.saveLectorRateToDatabase(Integer.parseInt(mainEntityId), Integer.parseInt(lektorId), bigDecimalAmount);
+                }
+                
+                // set attributes
+                kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
+                request.setAttribute("kurs", kurs);
+                
+                // and tell the container where to redirect
+                userPath = "/course/course/viewOne";
+                break;
 
 // FORWARD
         } // close main swith

@@ -150,5 +150,96 @@
             </c:if>
         </table>
 
+        <hr />
+
+        Stawka lektora
+
+
+        <hr />
+
+
+        <!--CUSTOMER rates-->
+
+        <c:if test="${!empty firma}">
+            <table class="detailedTable">
+            <tr class="tableHeading">
+                <th colspan="2">stawka firmy</th>
+            </tr>
+            <c:set var="foundNative" value="false"></c:set>
+            <c:set var="foundNotNative" value="false"></c:set>
+            <c:forEach var="stawkaFirmy" items="${stawkaFirmyList}">
+                <c:choose>
+                    <c:when test="${stawkaFirmy.firma eq firma}">
+
+                        <c:choose>
+                            <c:when test="${stawkaFirmy.stawkaFirmyPK.natywny}">
+                                <c:set var="foundNative" value="true"></c:set>
+                                    <tr>
+                                        <td>
+                                            stawka dla native speakera wynosi: ${stawkaFirmy.stawka} PLN
+                                    </td>
+                                    <td>
+                                        <a class="tinyButton" href="usunStawkeNativeSpeakeraDlaFirmy?${firma.id}">
+                                            <span class="tinyButtonText">zmień &#x279f;</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </c:when>
+                        </c:choose>
+
+                        <c:choose>
+                            <c:when test="${not stawkaFirmy.stawkaFirmyPK.natywny}">
+                                <c:set var="foundNotNative" value="true"></c:set>
+                                    <tr>
+                                        <td>
+                                            stawka dla lektora wynosi: ${stawkaFirmy.stawka} PLN
+                                    </td>
+                                    <td>
+                                        <a class="tinyButton" href="usunStawkeLektoraDlaFirmy?${firma.id}">
+                                            <span class="tinyButtonText">zmień &#x279f;</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </c:when>
+                        </c:choose>
+
+                    </c:when>
+                </c:choose>
+            </c:forEach>
+
+            <!--                                add-->
+
+            <c:choose>
+                <c:when test="${foundNative eq false}">
+                    <tr>
+                        <td colspan="2">
+                            <a class="tinyButton" href="pokazFirme?${firma.id}">
+                                <span class="tinyButtonText">dodaj stawkę dla native speakera &#x279f;</span>
+                            </a>
+                        </td>
+                    </tr>
+                </c:when>
+            </c:choose>
+
+            <c:choose>
+                <c:when test="${foundNotNative eq false}">
+                    <tr>
+                        <td colspan="2">
+                            <a class="tinyButton" href="pokazFirme?${firma.id}">
+                                <span class="tinyButtonText">dodaj stawkę dla lektora &#x279f;</span>
+                            </a>
+                        </td>
+                    </tr>
+                </c:when>
+            </c:choose>
+
+        </table>
+        </c:if>
+        
+        
+
+
+
+
     </section>
 </c:if>

@@ -63,7 +63,7 @@
 
         <hr />
 
-        <!--invoice-->
+        <!--rates-->
 
         <table class="detailedTable">
             <tr class="tableHeading">

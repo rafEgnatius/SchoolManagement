@@ -29,15 +29,6 @@ header {
     margin-top: -33px;
 }
 
-nav.nav-szkola {
-    margin: -15px 0px 15px 15px;
-}
-
-nav.nav-section {
-    margin-top: 15px;
-    margin-bottom: 15px;
-}
-
 #section-szkola-left-column {
     height: 400px;
     width: 80%;
@@ -125,7 +116,32 @@ tr a.email:hover {
     text-decoration: underline;
 }
 
-/* main navigation */
+
+/* NAVIGATION general */
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+nav li {
+    float: left;
+}
+
+nav li a {
+    display: block;
+    text-align: center;
+    padding: 0px 5px;
+    text-decoration: none;
+}
+
+/* NAVIGATION main */
+
+nav.nav-szkola {
+    margin: -15px 0px 15px 15px;
+}
 
 .mainMenuButton {
     padding: 10px;
@@ -147,7 +163,12 @@ tr a.email:hover {
     text-decoration: none;
 }
 
-/* section */
+/* NAVIGATION section */
+
+nav.nav-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
 
 .sectionMenuButton {
     padding: 10px;

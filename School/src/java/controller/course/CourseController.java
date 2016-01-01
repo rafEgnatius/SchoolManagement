@@ -8,6 +8,7 @@ package controller.course;
 import entity.Jezyk;
 import entity.Kurs;
 import finder.SchoolFinder;
+import helper.CourseHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import session.FirmaFacade;
 import session.JezykFacade;
 import session.KursFacade;
 import session.LektorFacade;
+import session.StawkaFirmyFacade;
 import session.persistence.PersistenceManager;
 import sorter.FieldSorter;
 import sorter.EntitySorter;
@@ -59,11 +61,14 @@ public class CourseController extends HttpServlet {
     private List lektorList = new ArrayList();
 
     @EJB
+    private StawkaFirmyFacade stawkaFirmyFacade;
+    
+    @EJB
     private PersistenceManager persistenceManager;
 
 //    main
-    int intKursId = 0;
-    String kursId = "";
+    int intMainEntityId = 0;
+    String mainEntityId = "";
 
 //    other
 //    GENERAL 
@@ -96,6 +101,8 @@ public class CourseController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        CourseHelper courseHelper = new CourseHelper();
+        
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
         userPath = request.getServletPath(); // this way we know where to go
@@ -243,21 +250,21 @@ public class CourseController extends HttpServlet {
 // EDIT             
             case "/edytujKurs":
                 // get id from request
-                kursId = request.getQueryString();
+                mainEntityId = request.getQueryString();
 
                 // cast it to the integer
                 try {
-                    intKursId = Integer.parseInt(kursId);
+                    intMainEntityId = Integer.parseInt(mainEntityId);
                 } catch (NumberFormatException e) {
-                    intKursId = 0; // (it seems that we have some kind of a problem)
+                    intMainEntityId = 0; // (it seems that we have some kind of a problem)
                 }
 
-                if (intKursId > 0) {
+                if (intMainEntityId > 0) {
                     // find the lektor entity
-                    kurs = kursFacade.find(intKursId);
+                    kurs = kursFacade.find(intMainEntityId);
                     //request.setAttribute("kurs", kurs);
 
-                    request.setAttribute("id", kursId);
+                    request.setAttribute("id", mainEntityId);
                     request.setAttribute("rok", kurs.getRok());
                     request.setAttribute("semestr", kurs.getSemestr());
                     request.setAttribute("symbol", kurs.getSymbol());
@@ -291,9 +298,10 @@ public class CourseController extends HttpServlet {
                 int intJezykId = Integer.parseInt(jezykId);
                 jezyk = jezykFacade.find(intJezykId);
 
-                intKursId = persistenceManager.saveCourseToDatabase(id, rok, semestr, jezyk, symbol, opis, sala);
-
-                request.setAttribute("kurs", kursFacade.find(intKursId));
+                // use helper to get lektor list prepared in our request
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade);
+                
+                // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
 
@@ -303,10 +311,12 @@ public class CourseController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: entity etc.
 
-                kursId = request.getQueryString();
-                kurs = kursFacade.find(Integer.parseInt(kursId));
-                request.setAttribute("kurs", kurs);
-
+                mainEntityId = request.getQueryString();
+                
+                // use helper to get lektor list prepared in our request
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade);
+                
+                // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
 

@@ -16,6 +16,8 @@ import entity.Podrecznik;
 import entity.Program;
 import entity.StawkaFirmy;
 import entity.StawkaFirmyPK;
+import entity.StawkaLektora;
+import entity.StawkaLektoraPK;
 import entity.Wypozyczenie;
 import entity.WypozyczeniePK;
 import java.math.BigDecimal;
@@ -84,6 +86,15 @@ public class PersistenceManager {
         em.remove(wypozyczenie);
 
     }
+    
+    public void deleteLectorRateFromDatabase(int intKursId, int intLectorId) {
+        
+        StawkaLektoraPK stawkaLektoraPK = new StawkaLektoraPK(intKursId, intLectorId); // false because not native
+        StawkaLektora stawkaLektora = new StawkaLektora(stawkaLektoraPK);
+        
+        em.remove(stawkaLektora);
+    }
+    
 
     /**
      *
@@ -217,7 +228,7 @@ public class PersistenceManager {
         stawkaFirmy.setStawka(bigDecimalKwota);
         em.persist(stawkaFirmy);
     }
-    
+
     public void saveCustomerNativeSpeakerRateToDatabase(int mainEntityId, BigDecimal bigDecimalKwota) {
 
         StawkaFirmyPK stawkaFirmyPK = new StawkaFirmyPK(mainEntityId, true); // true becausee native
@@ -310,6 +321,16 @@ public class PersistenceManager {
         em.flush();
 
         return jezyk.getId();
+    }
+    
+    public void saveLectorRateToDatabase(int intKursId, int intLectorId, BigDecimal bigDecimalAmount) {
+        StawkaLektoraPK stawkaLektoraPK = new StawkaLektoraPK(intKursId, intLectorId); // false because not native
+        StawkaLektora stawkaLektora = new StawkaLektora(stawkaLektoraPK);
+
+        stawkaLektora.setKurs(kursFacade.find(intKursId));
+        stawkaLektora.setLektor(lektorFacade.find(intLectorId));
+        stawkaLektora.setStawka(bigDecimalAmount);
+        em.persist(stawkaLektora);
     }
 
     /**
