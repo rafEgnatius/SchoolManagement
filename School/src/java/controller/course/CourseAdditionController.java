@@ -27,6 +27,7 @@ import session.KursFacade;
 import session.LektorFacade;
 import session.ProgramFacade;
 import session.StawkaFirmyFacade;
+import session.StawkaLektoraFacade;
 import session.persistence.PersistenceManager;
 import validator.FormValidator;
 
@@ -75,6 +76,9 @@ public class CourseAdditionController extends HttpServlet {
 
     @EJB
     private StawkaFirmyFacade stawkaFirmyFacade;
+    
+    @EJB
+    private StawkaLektoraFacade stawkaLektoraFacade;
     
     @EJB
     private PersistenceManager persistenceManager;
@@ -156,7 +160,7 @@ public class CourseAdditionController extends HttpServlet {
                 persistenceManager.saveAddingCustomerToCourseToDatabase(firmaId, mainEntityId);
 
                 // use helper to get lektor list prepared in our request
-                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade);
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
                 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -171,8 +175,10 @@ public class CourseAdditionController extends HttpServlet {
                 // now persist:
                 persistenceManager.deleteCustomerCourseFromDatabase(mainEntityId);
 
-                kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
-                request.setAttribute("kurs", kurs);
+                // use helper to get lektor list prepared in our request
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
+                
+                // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
                 
@@ -210,7 +216,7 @@ public class CourseAdditionController extends HttpServlet {
                 persistenceManager.saveAddingLectorToCourseToDatabase(lektorId, mainEntityId);
 
                 // use helper to get lektor list prepared in our request
-                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade);
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
                 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -225,8 +231,10 @@ public class CourseAdditionController extends HttpServlet {
                 // now persist:
                 persistenceManager.deleteLectorFromCourseFromDatabase(mainEntityId);
 
-                kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
-                request.setAttribute("kurs", kurs);
+                // use helper to get lektor list prepared in our request
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
+                
+                // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
 
@@ -259,7 +267,7 @@ public class CourseAdditionController extends HttpServlet {
                 persistenceManager.saveAddingProgrammeToCourseToDatabase(programId, mainEntityId);
 
                 // use helper to get lektor list prepared in our request
-                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade);
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
                 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -274,8 +282,10 @@ public class CourseAdditionController extends HttpServlet {
                 // now persist:
                 persistenceManager.deleteProgrammeCourseFromDatabase(mainEntityId);
 
-                kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
-                request.setAttribute("kurs", kurs);
+                // use helper to get lektor list prepared in our request
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
+                
+                // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
                 
@@ -289,11 +299,10 @@ public class CourseAdditionController extends HttpServlet {
                 // now persist:
                 persistenceManager.deleteLectorRateFromDatabase(Integer.parseInt(mainEntityId), Integer.parseInt(lektorId));
 
-                // set attributes
-                kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
-                request.setAttribute("kurs", kurs);
+                // use helper to get lektor list prepared in our request
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
                 
-                // and tell the container where to redirect
+                // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
                 
@@ -324,6 +333,8 @@ public class CourseAdditionController extends HttpServlet {
         BigDecimal bigDecimalAmount;
         String stawka;
         
+        CourseHelper courseHelper = new CourseHelper();
+        
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
         userPath = request.getServletPath(); // this way we know where to go
@@ -339,16 +350,15 @@ public class CourseAdditionController extends HttpServlet {
                 stawka = request.getParameter("stawka");
                 
                 if ((bigDecimalAmount = FormValidator.validateMoney(stawka)) == null) {
-                    request.setAttribute("stawkaNativeError", "błędne dane");
+                    request.setAttribute("stawkaError", "błędne dane");
                 } else {
                     persistenceManager.saveLectorRateToDatabase(Integer.parseInt(mainEntityId), Integer.parseInt(lektorId), bigDecimalAmount);
                 }
                 
-                // set attributes
-                kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
-                request.setAttribute("kurs", kurs);
+                // use helper to get lektor list prepared in our request
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
                 
-                // and tell the container where to redirect
+                // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
 

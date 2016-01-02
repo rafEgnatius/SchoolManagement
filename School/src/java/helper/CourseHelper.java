@@ -8,10 +8,10 @@ package helper;
 import entity.Firma;
 import entity.Kurs;
 import java.util.List;
-import javax.ejb.EJB;
 import javax.servlet.http.HttpServletRequest;
 import session.KursFacade;
 import session.StawkaFirmyFacade;
+import session.StawkaLektoraFacade;
 
 /**
  *
@@ -19,7 +19,8 @@ import session.StawkaFirmyFacade;
  */
 public class CourseHelper {
 
-        public HttpServletRequest prepareEntityView(HttpServletRequest request, String mainEntityId, KursFacade kursFacade, StawkaFirmyFacade stawkaFirmyFacade) {
+        public HttpServletRequest prepareEntityView(HttpServletRequest request, String mainEntityId,
+                KursFacade kursFacade, StawkaFirmyFacade stawkaFirmyFacade, StawkaLektoraFacade stawkaLektoraFacade) {
 
         // set attributes
         Kurs kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
@@ -30,6 +31,9 @@ public class CourseHelper {
         
         List stawkaFirmyList = stawkaFirmyFacade.findAll();
         request.setAttribute("stawkaFirmyList", stawkaFirmyList);
+        
+        List stawkaLektoraList = stawkaLektoraFacade.findAll();
+        request.setAttribute("stawkaLektoraList", stawkaLektoraList);
         
         return request;
     }

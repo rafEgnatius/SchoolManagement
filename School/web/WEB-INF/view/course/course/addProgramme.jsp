@@ -34,7 +34,7 @@
 
             <tr class="tableHeading">
                 <td><a href="dodajProgramDoKursu?kursId=${kursId}&sortBy=id&changeSort=true&sortAsc=${sortAsc}">&#x25B2; id &#x25BC;</a></td>
-                <td><a href="dodajProgramDoKursu?kursId=${kursId}&sortBy=nazwa&changeSort=true&sortAsc=${sortAsc}">&#x25B2; metoda &#x25BC;</a></td>
+                <td><a href="dodajProgramDoKursu?kursId=${kursId}&sortBy=metoda&changeSort=true&sortAsc=${sortAsc}">&#x25B2; metoda &#x25BC;</a></td>
                 <td><a href="dodajProgramDoKursu?kursId=${kursId}&sortBy=symbol&changeSort=true&sortAsc=${sortAsc}">&#x25B2; referencja &#x25BC;</a></td>
             </tr>
 

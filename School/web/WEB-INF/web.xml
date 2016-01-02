@@ -17,25 +17,39 @@
         <session-timeout>5</session-timeout>
     </session-config>
     <jsp-config>
+        
         <jsp-property-group>
             <description>header and footer (INDEX)</description>
             <url-pattern>/index.jsp</url-pattern>
             <include-prelude>/WEB-INF/jspf/header.jspf</include-prelude>
             <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
         </jsp-property-group>
+        
         <jsp-property-group>
             <description>header and footer (ERROR)</description>
             <url-pattern>/error.jsp</url-pattern>
             <include-prelude>/WEB-INF/jspf/header.jspf</include-prelude>
             <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
         </jsp-property-group>
+        
         <jsp-property-group>
-            <description>header and footer (COURSE)</description>
+            <description>header and footer (COURSE) - menu script for COURSE</description>
             <url-pattern>/WEB-INF/view/course/*</url-pattern>
             <include-prelude>/WEB-INF/jspf/header.jspf</include-prelude>
             <include-prelude>/WEB-INF/navigation/course.jspf</include-prelude>
             <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
         </jsp-property-group>
+        <jsp-property-group>
+            <description>header and footer (COURSE) - menu script for COURSE</description>
+            <url-pattern>/WEB-INF/view/course/course/*</url-pattern>
+            <include-prelude>/WEB-INF/script/course/course.jspf</include-prelude>
+        </jsp-property-group>
+        <jsp-property-group>
+            <description>header and footer (COURSE) - menu script for PROGRAMME</description>
+            <url-pattern>/WEB-INF/view/course/programme/*</url-pattern>
+            <include-prelude>/WEB-INF/script/course/programme.jspf</include-prelude>
+        </jsp-property-group>
+        
         <jsp-property-group>
             <description>header and footer (METHODOLOGY)</description>
             <url-pattern>/WEB-INF/view/methodology/*</url-pattern>
@@ -44,12 +58,49 @@
             <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
         </jsp-property-group>
         <jsp-property-group>
-            <description>header and footer (ORGANISATION)</description>
+            <description>header and footer (METHODOLOGY) - menu script for LANGUAGE</description>
+            <url-pattern>/WEB-INF/view/methodology/language/*</url-pattern>
+            <include-prelude>/WEB-INF/script/methodology/language.jspf</include-prelude>
+        </jsp-property-group>
+        <jsp-property-group>
+            <description>header and footer (METHODOLOGY) - menu script for LECTOR</description>
+            <url-pattern>/WEB-INF/view/methodology/lector/*</url-pattern>
+            <include-prelude>/WEB-INF/script/methodology/lector.jspf</include-prelude>
+        </jsp-property-group>
+         <jsp-property-group>
+            <description>header and footer (METHODOLOGY) - menu script for LIBRARY</description>
+            <url-pattern>/WEB-INF/view/methodology/library/*</url-pattern>
+            <include-prelude>/WEB-INF/script/methodology/textbook.jspf</include-prelude>
+        </jsp-property-group>
+        <jsp-property-group>
+            <description>header and footer (METHODOLOGY) - menu script for TEXTBOOK</description>
+            <url-pattern>/WEB-INF/view/methodology/textbook/*</url-pattern>
+            <include-prelude>/WEB-INF/script/methodology/textbook.jspf</include-prelude>
+        </jsp-property-group>
+        
+        <jsp-property-group>
+            <description>header and footer (ORGANISATION) - menu script for CUSTOMER</description>
             <url-pattern>/WEB-INF/view/organisation/*</url-pattern>
             <include-prelude>/WEB-INF/jspf/header.jspf</include-prelude>
             <include-prelude>/WEB-INF/navigation/organisation.jspf</include-prelude>
             <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
         </jsp-property-group>
+        <jsp-property-group>
+            <description>header and footer (ORGANISATION) - menu script for BILL</description>
+            <url-pattern>/WEB-INF/view/organisation/bill/*</url-pattern>
+            <include-prelude>/WEB-INF/script/organisation/bill.jspf</include-prelude>
+        </jsp-property-group>
+        <jsp-property-group>
+            <description>header and footer (ORGANISATION) - menu script for CUSTOMER</description>
+            <url-pattern>/WEB-INF/view/organisation/customer/*</url-pattern>
+            <include-prelude>/WEB-INF/script/organisation/customer.jspf</include-prelude>
+        </jsp-property-group>
+        <jsp-property-group>
+            <description>header and footer (ORGANISATION) - menu script for INVOICE</description>
+            <url-pattern>/WEB-INF/view/organisation/invoice/*</url-pattern>
+            <include-prelude>/WEB-INF/script/organisation/invoice.jspf</include-prelude>
+        </jsp-property-group>
+        
     </jsp-config>
     <welcome-file-list>
         <welcome-file>faces/index.jsp</welcome-file>

@@ -2,12 +2,21 @@
 
 <%@ page pageEncoding="UTF-8" %>
 
+<script type="text/javascript">
+    $(document).ready(
+            function () {
+                var activeMenuItem = document.getElementById("methodology");
+                activeMenuItem.className = "mainMenuButtonActive";
+            }
+    );
+</script>
+
 <nav class="nav-section">
 
     <ul>
         <li>
             <a href="lektorzy">
-                <p class="sectionMenuButton">
+                <p id="lector" class="sectionMenuButton">
                     <span class="sectionMenuText">
                         Lektorzy
                     </span>
@@ -16,7 +25,7 @@
         </li>
         <li>
             <a href="jezyki">
-                <p class="sectionMenuButton">
+                <p id="language" class="sectionMenuButton">
                     <span class="sectionMenuText">
                         Języki
                     </span>
@@ -25,7 +34,7 @@
         </li>
         <li>
             <a href="podreczniki">
-                <p class="sectionMenuButton">
+                <p id="textbook" class="sectionMenuButton">
                     <span class="sectionMenuText">
                         Podręczniki
                     </span>
@@ -33,5 +42,5 @@
             </a>
         </li>
     </ul>
-
 </nav>
+

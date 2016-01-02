@@ -1,0 +1,12 @@
+<%-- any content can be specified here e.g.: --%>
+<%@ page pageEncoding="UTF-8" %>
+
+<script type="text/javascript">
+    $(document).ready(
+            function () {
+                var activeMenuItem = document.getElementById("lector");
+                activeMenuItem.className = "sectionMenuButtonActive";
+            }
+    );
+</script>
+

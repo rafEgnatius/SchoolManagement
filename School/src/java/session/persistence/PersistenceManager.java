@@ -14,6 +14,7 @@ import entity.Kurs;
 import entity.Lektor;
 import entity.Podrecznik;
 import entity.Program;
+import entity.Rachunek;
 import entity.StawkaFirmy;
 import entity.StawkaFirmyPK;
 import entity.StawkaLektora;
@@ -34,6 +35,7 @@ import session.KursFacade;
 import session.LektorFacade;
 import session.PodrecznikFacade;
 import session.ProgramFacade;
+import session.RachunekFacade;
 
 /**
  * Simple class with methods creating new entities and saving them to database
@@ -66,6 +68,9 @@ public class PersistenceManager {
 
     @EJB
     private ProgramFacade programFacade;
+    
+    @EJB
+    private RachunekFacade rachunekFacade;
 
 //    METHODS
     /**
@@ -90,7 +95,7 @@ public class PersistenceManager {
     public void deleteLectorRateFromDatabase(int intKursId, int intLectorId) {
         
         StawkaLektoraPK stawkaLektoraPK = new StawkaLektoraPK(intKursId, intLectorId); // false because not native
-        StawkaLektora stawkaLektora = new StawkaLektora(stawkaLektoraPK);
+        StawkaLektora stawkaLektora = em.find(StawkaLektora.class, stawkaLektoraPK);
         
         em.remove(stawkaLektora);
     }
@@ -173,6 +178,36 @@ public class PersistenceManager {
         em.flush();
     }
 
+    /**
+     *
+     * @param id
+     * @param numer
+     * @param data
+     * @param opis
+     * @param lektor
+     * @param kwota
+     * @return 
+     */
+    public int saveBillToDatabase(String id, String numer, String data, String kwota, String opis, Lektor lektor) {
+        Rachunek rachunek; // we have to check whether creating or editing
+        if (id.equals("-1")) {
+            rachunek = new Rachunek(); // new one
+        } else {
+            rachunek = rachunekFacade.find(Integer.parseInt(id)); // existing one
+        }
+
+        rachunek.setNumer(numer);
+        rachunek.setData(LocalDate.parse(data)); // it should be ok at this point
+        rachunek.setKwota(new BigDecimal(kwota).setScale(2, RoundingMode.HALF_DOWN));
+        rachunek.setOpis(opis);
+        rachunek.setLektor(lektor);
+
+        em.persist(rachunek);
+        em.flush();
+
+        return rachunek.getId();
+    }
+    
     /**
      *
      * @param lektor
@@ -419,5 +454,7 @@ public class PersistenceManager {
 
         return podrecznik.getId();
     }
+
+    
 
 }

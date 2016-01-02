@@ -2,12 +2,21 @@
 
 <%@ page pageEncoding="UTF-8" %>
 
+<script type="text/javascript">
+    $(document).ready(
+            function () {
+                var activeMenuItem = document.getElementById("organisation");
+                activeMenuItem.className = "mainMenuButtonActive";
+            }
+    );
+</script>
+
 <nav class="nav-section">
 
     <ul>
         <li>
             <a href="firmy">
-                <p class="sectionMenuButton">
+                <p id="customer" class="sectionMenuButton">
                     <span class="sectionMenuText">
                         Firmy
                     </span>
@@ -16,7 +25,7 @@
         </li>
         <li>
             <a href="faktury">
-                <p class="sectionMenuButton">
+                <p id="invoice" class="sectionMenuButton">
                     <span class="sectionMenuText">
                         Faktury
                     </span>
@@ -24,10 +33,10 @@
             </a>
         </li>
         <li>
-            <a href="stawkiFirm">
-                <p class="sectionMenuButton">
+            <a href="rachunki">
+                <p id="bill" class="sectionMenuButton">
                     <span class="sectionMenuText">
-                        Stawki firm
+                        Rachunki
                     </span>
                 </p>
             </a>

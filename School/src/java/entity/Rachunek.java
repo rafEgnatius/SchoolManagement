@@ -9,7 +9,6 @@ import converter.LocalDateAttributeConverter;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -63,7 +62,7 @@ public class Rachunek extends AbstractEntity implements Serializable {
     private String opis;
     @JoinColumn(name = "lektor_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Lektor lektorId;
+    private Lektor lektor;
 
     public Rachunek() {
     }
@@ -112,12 +111,12 @@ public class Rachunek extends AbstractEntity implements Serializable {
         this.opis = opis;
     }
 
-    public Lektor getLektorId() {
-        return lektorId;
+    public Lektor getLektor() {
+        return lektor;
     }
 
-    public void setLektorId(Lektor lektorId) {
-        this.lektorId = lektorId;
+    public void setLektor(Lektor lektor) {
+        this.lektor = lektor;
     }
 
     @Override

@@ -12,22 +12,16 @@
 
         <script type="text/javascript">
             $(document).ready(function () {
-            $('tr.tableRow').hover(
-                    function () {
-                    $(this).addClass('selectedRow');
-                    },
-                    function () {
-                    $(this).removeClass('selectedRow');
-                    }
-            );
-            };
-                    function() {
-                    $("#cssmenu li").on("click", function () {
-                    $("#cssmenu li").removeClass("active");
-                            $(this).addClass("active");
-                    });
-                    }
-            );
+                $('tr.tableRow').hover(
+                        function () {
+                            $(this).addClass('selectedRow');
+                        },
+                        function () {
+                            $(this).removeClass('selectedRow');
+                        }
+                );
+            }
+                    );
         </script>
 
         <title>Szkoła językowa online</title>
@@ -38,12 +32,12 @@
                 <img src="img/logo.png" id="logo" alt="Szkoła logo">
             </a>
         </header>
-                
+
         <nav class="nav-szkola">
             <ul>
                 <li>
                     <a href="lektorzy">
-                        <p class="mainMenuButton">
+                        <p id="methodology" class="mainMenuButton">
                             <span class="mainMenuText">
                                 Metodyka
                             </span>
@@ -52,7 +46,7 @@
                 </li>
                 <li>
                     <a href="kursy">
-                        <p class="mainMenuButton">
+                        <p id="mainCourse" class="mainMenuButton">
                             <span class="mainMenuText">
                                 Kursy
                             </span>
@@ -61,7 +55,7 @@
                 </li>
                 <li>
                     <a href="firmy">
-                        <p class="mainMenuButton">
+                        <p id="organisation" class="mainMenuButton">
                             <span class="mainMenuText">
                                 Organizacja
                             </span>

@@ -23,6 +23,7 @@ import session.JezykFacade;
 import session.KursFacade;
 import session.LektorFacade;
 import session.StawkaFirmyFacade;
+import session.StawkaLektoraFacade;
 import session.persistence.PersistenceManager;
 import sorter.FieldSorter;
 import sorter.EntitySorter;
@@ -62,6 +63,9 @@ public class CourseController extends HttpServlet {
 
     @EJB
     private StawkaFirmyFacade stawkaFirmyFacade;
+    
+    @EJB
+    private StawkaLektoraFacade stawkaLektoraFacade;
     
     @EJB
     private PersistenceManager persistenceManager;
@@ -299,7 +303,7 @@ public class CourseController extends HttpServlet {
                 jezyk = jezykFacade.find(intJezykId);
 
                 // use helper to get lektor list prepared in our request
-                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade);
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
                 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -314,7 +318,7 @@ public class CourseController extends HttpServlet {
                 mainEntityId = request.getQueryString();
                 
                 // use helper to get lektor list prepared in our request
-                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade);
+                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
                 
                 // prepare redirect
                 userPath = "/course/course/viewOne";

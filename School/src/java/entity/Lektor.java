@@ -74,7 +74,7 @@ public class Lektor extends AbstractEntity implements Serializable {
     private Collection<Wyplata> wyplataCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "lektor")
     private Collection<Wypozyczenie> wypozyczenieCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "lektorId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "lektor")
     private Collection<Rachunek> rachunekCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "lektor")
     private Collection<Kurs> kursCollection;

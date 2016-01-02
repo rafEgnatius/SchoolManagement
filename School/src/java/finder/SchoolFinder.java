@@ -13,6 +13,7 @@ import entity.JezykLektora;
 import entity.Kurs;
 import entity.Lektor;
 import entity.Podrecznik;
+import entity.Rachunek;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -105,20 +106,6 @@ public class SchoolFinder {
         return resultList;
     }
 
-//    // find by option:
-//    public static List findLanguageForEntity(List podrecznikList, String searchOption) {
-//        List resultList = new ArrayList<>(); // to send back
-////        for every entity
-////        check if its language equals with search option that was chosen
-//        for (Iterator it = podrecznikList.iterator(); it.hasNext();) {
-//            AbstractEntity entity = (AbstractEntity) it.next();
-//            Jezyk jezyk = (Jezyk) entity.getJezyk();
-//            if (jezyk.getId().toString().equals(searchOption)) {
-//                resultList.add(entity);
-//            }
-//        }
-//        return resultList;
-//    }
     // find by option:
     public static List<Lektor> findLanguageForLector(List<Lektor> lektorList, List<JezykLektora> jezykLektoraList, String searchOption) {
         List resultList = new ArrayList<>(); // to send back
@@ -166,6 +153,32 @@ public class SchoolFinder {
             }
         }
         return resultList;
+    }
+    
+    /**
+     * 
+     * @param mainEntityList
+     * @param lektorList
+     * @param searchPhrase
+     * @return 
+    */
+    public static List findRachunek(List mainEntityList, List lektorList, String searchPhrase) {
+        List resultList = new ArrayList<>(); // to send back
+
+//        for every field in entity check whether it contains searchPhrase
+//        use toLower to find everything no matter wheter capital      
+        Iterator it = mainEntityList.iterator();
+        while (it.hasNext()) {
+            Rachunek rachunek = (Rachunek) it.next();
+            if (rachunek.getNumer().toLowerCase().contains(searchPhrase.toLowerCase())
+                    || rachunek.getOpis().toLowerCase().contains(searchPhrase.toLowerCase())
+                    || rachunek.getLektor().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())) {
+                resultList.add(rachunek);
+            }
+        }
+
+        return resultList;
+        
     }
 
     public static Object findSmallestCustomer(List<AbstractEntity> entityList) {
@@ -231,5 +244,7 @@ public class SchoolFinder {
         // and get the first one
         return mainList.get(0);
     }
+
+    
 
 }

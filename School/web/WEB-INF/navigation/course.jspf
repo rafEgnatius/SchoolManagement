@@ -2,12 +2,21 @@
 
 <%@ page pageEncoding="UTF-8" %>
 
+<script type="text/javascript">
+    $(document).ready(
+            function () {
+                var activeMenuItem = document.getElementById("mainCourse");
+                activeMenuItem.className = "mainMenuButtonActive";
+            }
+    );
+</script>
+
 <nav class="nav-section">
 
     <ul>
         <li>
             <a href="kursy">
-                <p class="sectionMenuButton">
+                <p id="course" class="sectionMenuButton">
                     <span class="sectionMenuText">
                         Kursy
                     </span>
@@ -16,7 +25,7 @@
         </li>
         <li>
             <a href="programy">
-                <p class="sectionMenuButton">
+                <p id="programme" class="sectionMenuButton">
                     <span class="sectionMenuText">
                         Programy
                     </span>

@@ -5,8 +5,8 @@
  */
 package controller.organisation;
 
-import entity.Faktura;
-import helper.InvoiceListHelper;
+import entity.Rachunek;
+import helper.BillHelper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,8 +18,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import session.FakturaFacade;
-import session.FirmaFacade;
+import session.LektorFacade;
+import session.RachunekFacade;
 import session.persistence.PersistenceManager;
 import validator.FormValidator;
 
@@ -27,34 +27,30 @@ import validator.FormValidator;
  *
  * @author Rafa
  */
-@WebServlet(name = "InvoiceController",
+@WebServlet(name = "BillController",
         loadOnStartup = 1,
-        urlPatterns = {"/faktury",
-            "/pokazFakture",
-            "/dodajFakture",
-            "/dodajFakturePotwierdz",
-            "/dodajFaktureZapisz",
-            "/edytujFakture"})
-public class InvoiceController extends HttpServlet {
+        urlPatterns = {"/rachunki",
+            "/pokazRachunek",
+            "/dodajRachunek",
+            "/dodajRachunekPotwierdz",
+            "/dodajRachunekZapisz",
+            "/edytujRachunek"})
+public class BillController extends HttpServlet {
 
     // mainEntity meaning entity of this controller
     @EJB
-    private FakturaFacade mainEntityFacade;
-    private Faktura mainEntity;
+    private RachunekFacade mainEntityFacade;
+    private Rachunek mainEntity;
     private List mainEntityList = new ArrayList();
 
     @EJB
-    private FirmaFacade firmaFacade;
-    private List firmaList = new ArrayList();
+    LektorFacade lektorFacade;
+    private List lektorList = new ArrayList();
 
     @EJB
     private PersistenceManager persistenceManager;
 
 //    main
-    int intMainEntityId = 0;
-    String mainEntityId = "";
-    InvoiceListHelper mainEntityListHelper;
-
 //    GENERAL 
     private String userPath; // this one to see what to do
 
@@ -74,38 +70,42 @@ public class InvoiceController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        int intMainEntityId;
+        String mainEntityId;
+        BillHelper mainEntityListHelper;
+
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
         userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  VIEW ALL
-            case "/faktury":
+            case "/rachunki":
 
                 // get the necessary lists for the request
                 mainEntityList = mainEntityFacade.findAll();
-                firmaList = firmaFacade.findAll();
+                lektorList = lektorFacade.findAll();
 
                 // use helper to get lektor list prepared in our request
-                mainEntityListHelper = new InvoiceListHelper(); //  we need a helper
-                request = mainEntityListHelper.prepareEntityList(request, mainEntityList, firmaList);
+                mainEntityListHelper = new BillHelper(); //  we need a helper
+                request = mainEntityListHelper.prepareEntityList(request, mainEntityList, lektorList);
 
                 // and tell the container where to redirect
-                userPath = "/organisation/invoice/viewAll";
+                userPath = "/organisation/bill/viewAll";
                 break;
 // ADD             
-            case "/dodajFakture":
+            case "/dodajRachunek":
                 // just ask for a form
 
                 // we need this list for this form
-                firmaList = firmaFacade.findAll();
-                request.setAttribute("firmaList", firmaList);
+                lektorList = lektorFacade.findAll();
+                request.setAttribute("lektorList", lektorList);
 
-                userPath = "/organisation/invoice/form";
+                userPath = "/organisation/bill/form";
                 break;
 // EDIT             
-            case "/edytujFakture":
-                // get lektorId from request
+            case "/edytujRachunek":
+                // get id from request
                 mainEntityId = request.getQueryString();
 
                 // cast it to the integer
@@ -126,15 +126,15 @@ public class InvoiceController extends HttpServlet {
                     request.setAttribute("data", mainEntity.getData());
                     request.setAttribute("kwota", mainEntity.getKwota());
                     request.setAttribute("opis", mainEntity.getOpis());
-                    request.setAttribute("firma", mainEntity.getFirma());
-                    request.setAttribute("firmaList", firmaFacade.findAll());
+                    request.setAttribute("lektor", mainEntity.getLektor());
+                    request.setAttribute("lektorList", lektorFacade.findAll());
                 }
                 // then ask for a form 
-                userPath = "/organisation/invoice/form";
+                userPath = "/organisation/bill/form";
 
                 break;
 // SAVE
-            case "/dodajFaktureZapisz":
+            case "/dodajRachunekZapisz":
                 // it is confirmed (in POST) so add to database
 
                 String id = request.getParameter("id");
@@ -142,25 +142,25 @@ public class InvoiceController extends HttpServlet {
                 String data = request.getParameter("data");
                 String kwota = request.getParameter("kwota");
                 String opis = request.getParameter("opis");
-                String firmaId = request.getParameter("firmaId");
+                String lektorId = request.getParameter("lektorId");
 
-                intMainEntityId = persistenceManager.saveInvoiceToDatabase(id, numer, data, kwota, opis, firmaFacade.find(Integer.parseInt(firmaId)));
+                intMainEntityId = persistenceManager.saveBillToDatabase(id, numer, data, kwota, opis, lektorFacade.find(Integer.parseInt(lektorId)));
 
                 mainEntityId = intMainEntityId + "";
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
+                request = prepareRequest(request, mainEntityId); // set all the attributes that request to view one needs
 
                 // finally show the newly created lector (so it can be further processed)
-                userPath = "/organisation/invoice/viewOne";
+                userPath = "/organisation/bill/viewOne";
                 break;
 // VIEW ONE
-            case "/pokazFakture":
+            case "/pokazRachunek":
                 // first get lektor id from request
                 // then prepare another lists that we will need
                 // meaning: jezyk, jezykLektora, wypozyczenia etc.
 
                 request = prepareRequest(request, request.getQueryString()); // set all the attributes that request needs
 
-                userPath = "/organisation/invoice/viewOne";
+                userPath = "/organisation/bill/viewOne";
                 break;
 
 // FORWARD
@@ -192,7 +192,7 @@ public class InvoiceController extends HttpServlet {
 
         switch (userPath) {
 // CONFIRM
-            case "/dodajFakturePotwierdz":
+            case "/dodajRachunekPotwierdz":
 
                 // check with id whether editing or creating
                 String id = request.getParameter("id");
@@ -204,7 +204,7 @@ public class InvoiceController extends HttpServlet {
                 String data = request.getParameter("data");
                 String kwota = request.getParameter("kwota");
                 String opis = request.getParameter("opis");
-                String firmaId = request.getParameter("firmaId");
+                String lektorId = request.getParameter("lektorId");
 
                 boolean formError = false;
 
@@ -229,9 +229,9 @@ public class InvoiceController extends HttpServlet {
 
                 if (formError) {
                     request.setAttribute("formError", "formError");
-                    userPath = "/organisation/invoice/form";
+                    userPath = "/organisation/bill/form";
                 } else {
-                    userPath = "/organisation/invoice/confirm";
+                    userPath = "/organisation/bill/confirm";
                 }
 
                 request.setAttribute("id", id);
@@ -239,8 +239,8 @@ public class InvoiceController extends HttpServlet {
                 request.setAttribute("data", localDateData);
                 request.setAttribute("kwota", bigDecimalKwota);
                 request.setAttribute("opis", opis);
-                request.setAttribute("firma", firmaFacade.find(Integer.parseInt(firmaId)));
-                request.setAttribute("firmaList", firmaFacade.findAll());
+                request.setAttribute("lektor", lektorFacade.find(Integer.parseInt(lektorId)));
+                request.setAttribute("lektorList", lektorFacade.findAll());
 
                 // forward it to confirmation
                 break;
@@ -264,7 +264,7 @@ public class InvoiceController extends HttpServlet {
         mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId));
 
         request.setAttribute("mainEntity", mainEntity);
-        request.setAttribute("firma", mainEntity.getFirma());
+        request.setAttribute("lektor", mainEntity.getLektor());
 
         return request;
     }
