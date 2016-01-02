@@ -63,10 +63,10 @@ public class CourseController extends HttpServlet {
 
     @EJB
     private StawkaFirmyFacade stawkaFirmyFacade;
-    
+
     @EJB
     private StawkaLektoraFacade stawkaLektoraFacade;
-    
+
     @EJB
     private PersistenceManager persistenceManager;
 
@@ -106,7 +106,7 @@ public class CourseController extends HttpServlet {
             throws ServletException, IOException {
 
         CourseHelper courseHelper = new CourseHelper();
-        
+
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
         userPath = request.getServletPath(); // this way we know where to go
@@ -229,6 +229,10 @@ public class CourseController extends HttpServlet {
                 request.setAttribute("numberOfPages", numberOfPages);
                 request.setAttribute("pageNumber", pageNumber);
                 request.setAttribute("sortBy", sortBy);
+                request.setAttribute("sortAsc", sortAsc);
+
+                request.setAttribute("searchPhrase", searchPhrase);
+                request.setAttribute("searchOption", searchOption);
 
                 // set main list
                 request.setAttribute("kursList", pageToDisplay);
@@ -274,7 +278,7 @@ public class CourseController extends HttpServlet {
                     request.setAttribute("symbol", kurs.getSymbol());
                     request.setAttribute("opis", kurs.getOpis());
                     request.setAttribute("sala", kurs.getSala());
-                    
+
                     request.setAttribute("jezyk", kurs.getJezyk());
 
                     // set additional list
@@ -304,7 +308,7 @@ public class CourseController extends HttpServlet {
 
                 // use helper to get lektor list prepared in our request
                 request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
-                
+
                 // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
@@ -316,10 +320,10 @@ public class CourseController extends HttpServlet {
                 // meaning: entity etc.
 
                 mainEntityId = request.getQueryString();
-                
+
                 // use helper to get lektor list prepared in our request
                 request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
-                
+
                 // prepare redirect
                 userPath = "/course/course/viewOne";
                 break;
