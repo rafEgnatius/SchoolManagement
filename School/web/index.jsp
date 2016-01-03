@@ -7,7 +7,7 @@
 
 <section id="section-szkola-one-column">
     <p>
-        This application is is designed to assist workflow of the school offering corporate language classes.
+        This application is designed to assist workflow of the school offering corporate language classes.
     </p>
     <p>
         It has limited functionality at the  moment as it is still not ready.

@@ -1,5 +1,5 @@
 <%-- 
-    Document   : BILL confirm
+    Document   : MONEYOUT confirm
     Author     : Rafa
 --%>
 
@@ -9,12 +9,8 @@
 
     <table class="detailedTable">
         <tr class="tableHeading">
-            <th colspan="2">${id eq "-1" ? "czy zapisać nowy rachunek w bazie?" : "czy zatwierdzić zmienione dane?"}</th>
+            <th colspan="2">${id eq "-1" ? "czy zapisać nową wypłatę w bazie?" : "czy zatwierdzić zmienione dane?"}</th>
             <th colspan="2"></th>
-        </tr>
-        <tr>
-            <th>Rachunek nr: </th>
-            <td>${numer}</td>
         </tr>
         <tr>
             <th>Data: </th>
@@ -36,12 +32,12 @@
     <table class="cancelSaveTable">
         <tr>
             <td class="leftCell">
-                <a class="smallButton" href="${id eq "-1" ? "rachunki" : "edytujRachunek?"}${id eq "-1" ? "" : id}">
+                <a class="smallButton" href="${id eq "-1" ? "wyplaty" : "edytujWyplate?"}${id eq "-1" ? "" : id}">
                     <span class="smallButtonText">&#x21A9; anuluj</span>
                 </a>
             </td>
             <td class="rightCell">
-                <a class="smallButton" href="dodajRachunekZapisz?id=${id}&numer=${numer}&data=${data}&kwota=${kwota}&opis=${opis}&lektorId=${lektor.id}">
+                <a class="smallButton" href="dodajWyplateZapisz?id=${id}&data=${data}&kwota=${kwota}&opis=${opis}&lektorId=${lektor.id}">
                     <span class="smallButtonText">zapisz &#x21AA;</span>
                 </a>
             </td>

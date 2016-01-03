@@ -5,7 +5,7 @@
  */
 package helper;
 
-import entity.Rachunek;
+import entity.Wplata;
 import finder.SchoolFinder;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import sorter.FieldSorter;
  *
  * @author Rafa
  */
-public class BillHelper {
+public class MoneyInHelper {
 
     private static final int pageSize = 10; // number of records on one page
 
@@ -32,18 +32,18 @@ public class BillHelper {
     // private String searchOption;
 
     /**
-     * Handles preparation of the rachunek list
+     * Handles preparation of the list
      *
      * 
      * @param request
      * @param mainEntityList
-     * @param lektorList
+     * @param firmaList
      * @return HttpServletRequest
      */
     public HttpServletRequest prepareEntityList(HttpServletRequest request,
-            List mainEntityList, List lektorList) {
+            List mainEntityList, List firmaList) {
 
-        List<Rachunek> resultList;
+        List<Wplata> resultList;
 
         try {
             pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
@@ -73,7 +73,7 @@ public class BillHelper {
         // and check if searching
         searchPhrase = request.getParameter("searchPhrase");
         if (searchPhrase != null && !searchPhrase.equals("")) {
-            mainEntityList = SchoolFinder.findRachunek(mainEntityList, lektorList, searchPhrase);
+            mainEntityList = SchoolFinder.findWplata(mainEntityList, firmaList, searchPhrase);
         } else {
             searchPhrase = "";
         }
@@ -88,15 +88,6 @@ public class BillHelper {
                     sortAsc = false;
                 } else {
                     mainEntityList = FieldSorter.sortId(mainEntityList);
-                    sortAsc = true;
-                }
-                break;
-            case ("numer"):
-                if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortNumerDesc(mainEntityList);
-                    sortAsc = false;
-                } else {
-                    mainEntityList = FieldSorter.sortNumer(mainEntityList);
                     sortAsc = true;
                 }
                 break;
@@ -118,12 +109,12 @@ public class BillHelper {
                     sortAsc = true;
                 }
                 break;
-            case ("lektor"):
+            case ("firma"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = EntitySorter.sortLektorDesc(mainEntityList);
+                    mainEntityList = EntitySorter.sortFirmaDesc(mainEntityList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = EntitySorter.sortLektor(mainEntityList);
+                    mainEntityList = EntitySorter.sortFirma(mainEntityList);
                     sortAsc = true;
                 }
                 break;
@@ -150,7 +141,7 @@ public class BillHelper {
         //request.setAttribute("searchOption", searchOption);
 
         request.setAttribute("mainEntityList", resultList);
-        request.setAttribute("lektorList", lektorList);
+        request.setAttribute("firmaList", firmaList);
 
         return request;
     }

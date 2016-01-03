@@ -33,10 +33,28 @@
             </a>
         </li>
         <li>
+            <a href="wplaty">
+                <p id="moneyIn" class="sectionMenuButton">
+                    <span class="sectionMenuText">
+                        Wpłaty na konto
+                    </span>
+                </p>
+            </a>
+        </li>
+        <li>
             <a href="rachunki">
                 <p id="bill" class="sectionMenuButton">
                     <span class="sectionMenuText">
                         Rachunki
+                    </span>
+                </p>
+            </a>
+        </li>
+        <li>
+            <a href="wyplaty">
+                <p id="moneyOut" class="sectionMenuButton">
+                    <span class="sectionMenuText">
+                        Wypłaty z konta
                     </span>
                 </p>
             </a>

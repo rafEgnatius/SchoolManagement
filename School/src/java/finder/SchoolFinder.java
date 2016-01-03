@@ -7,13 +7,13 @@ package finder;
 
 import entity.AbstractEntity;
 import entity.Faktura;
-import entity.Firma;
 import entity.Jezyk;
 import entity.JezykLektora;
 import entity.Kurs;
 import entity.Lektor;
 import entity.Podrecznik;
 import entity.Rachunek;
+import entity.Wplata;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -243,6 +243,23 @@ public class SchoolFinder {
         mainList = FieldSorter.sortNazwa(mainList);
         // and get the first one
         return mainList.get(0);
+    }
+
+    public static List findWplata(List mainEntityList, List firmaList, String searchPhrase) {
+        List resultList = new ArrayList<>(); // to send back
+
+//        for every field in entity check whether it contains searchPhrase
+//        use toLower to find everything no matter wheter capital      
+        Iterator it = mainEntityList.iterator();
+        while (it.hasNext()) {
+            Wplata wplata = (Wplata) it.next();
+            if (wplata.getOpis().toLowerCase().contains(searchPhrase.toLowerCase())
+                    || wplata.getFirma().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())) {
+                resultList.add(wplata);
+            }
+        }
+
+        return resultList;
     }
 
     

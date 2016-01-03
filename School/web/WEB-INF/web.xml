@@ -100,6 +100,16 @@
             <url-pattern>/WEB-INF/view/organisation/invoice/*</url-pattern>
             <include-prelude>/WEB-INF/script/organisation/invoice.jspf</include-prelude>
         </jsp-property-group>
+        <jsp-property-group>
+            <description>header and footer (ORGANISATION) - menu script for MONEY IN</description>
+            <url-pattern>/WEB-INF/view/organisation/moneyIn/*</url-pattern>
+            <include-prelude>/WEB-INF/script/organisation/moneyIn.jspf</include-prelude>
+        </jsp-property-group>
+        <jsp-property-group>
+            <description>header and footer (ORGANISATION) - menu script for MONEY OUT</description>
+            <url-pattern>/WEB-INF/view/organisation/moneyOut/*</url-pattern>
+            <include-prelude>/WEB-INF/script/organisation/moneyOut.jspf</include-prelude>
+        </jsp-property-group>
         
     </jsp-config>
     <welcome-file-list>

@@ -5,7 +5,7 @@
  */
 package helper;
 
-import entity.Rachunek;
+import entity.Wyplata;
 import finder.SchoolFinder;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import sorter.FieldSorter;
  *
  * @author Rafa
  */
-public class BillHelper {
+public class MoneyOutHelper {
 
     private static final int pageSize = 10; // number of records on one page
 
@@ -43,7 +43,7 @@ public class BillHelper {
     public HttpServletRequest prepareEntityList(HttpServletRequest request,
             List mainEntityList, List lektorList) {
 
-        List<Rachunek> resultList;
+        List<Wyplata> resultList;
 
         try {
             pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
@@ -88,15 +88,6 @@ public class BillHelper {
                     sortAsc = false;
                 } else {
                     mainEntityList = FieldSorter.sortId(mainEntityList);
-                    sortAsc = true;
-                }
-                break;
-            case ("numer"):
-                if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortNumerDesc(mainEntityList);
-                    sortAsc = false;
-                } else {
-                    mainEntityList = FieldSorter.sortNumer(mainEntityList);
                     sortAsc = true;
                 }
                 break;

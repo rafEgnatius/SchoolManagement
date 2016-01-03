@@ -19,6 +19,8 @@ import entity.StawkaFirmy;
 import entity.StawkaFirmyPK;
 import entity.StawkaLektora;
 import entity.StawkaLektoraPK;
+import entity.Wplata;
+import entity.Wyplata;
 import entity.Wypozyczenie;
 import entity.WypozyczeniePK;
 import java.math.BigDecimal;
@@ -36,6 +38,8 @@ import session.LektorFacade;
 import session.PodrecznikFacade;
 import session.ProgramFacade;
 import session.RachunekFacade;
+import session.WplataFacade;
+import session.WyplataFacade;
 
 /**
  * Simple class with methods creating new entities and saving them to database
@@ -68,9 +72,15 @@ public class PersistenceManager {
 
     @EJB
     private ProgramFacade programFacade;
-    
+
     @EJB
     private RachunekFacade rachunekFacade;
+    
+    @EJB
+    private WplataFacade wplataFacade;
+    
+    @EJB
+    private WyplataFacade wyplataFacade;
 
 //    METHODS
     /**
@@ -91,15 +101,14 @@ public class PersistenceManager {
         em.remove(wypozyczenie);
 
     }
-    
+
     public void deleteLectorRateFromDatabase(int intKursId, int intLectorId) {
-        
+
         StawkaLektoraPK stawkaLektoraPK = new StawkaLektoraPK(intKursId, intLectorId); // false because not native
         StawkaLektora stawkaLektora = em.find(StawkaLektora.class, stawkaLektoraPK);
-        
+
         em.remove(stawkaLektora);
     }
-    
 
     /**
      *
@@ -186,7 +195,7 @@ public class PersistenceManager {
      * @param opis
      * @param lektor
      * @param kwota
-     * @return 
+     * @return
      */
     public int saveBillToDatabase(String id, String numer, String data, String kwota, String opis, Lektor lektor) {
         Rachunek rachunek; // we have to check whether creating or editing
@@ -207,7 +216,7 @@ public class PersistenceManager {
 
         return rachunek.getId();
     }
-    
+
     /**
      *
      * @param lektor
@@ -357,7 +366,7 @@ public class PersistenceManager {
 
         return jezyk.getId();
     }
-    
+
     public void saveLectorRateToDatabase(int intKursId, int intLectorId, BigDecimal bigDecimalAmount) {
         StawkaLektoraPK stawkaLektoraPK = new StawkaLektoraPK(intKursId, intLectorId); // false because not native
         StawkaLektora stawkaLektora = new StawkaLektora(stawkaLektoraPK);
@@ -417,6 +426,44 @@ public class PersistenceManager {
         jezykLektora.setNatywny(nativeSpeaker);
 
         em.persist(jezykLektora);
+    }
+
+    public int saveMoneyInToDatabase(String id, String data, String kwota, String opis, Firma firma) {
+        Wplata wplata; // we have to check whether creating or editing
+        if (id.equals("-1")) {
+            wplata = new Wplata(); // new one
+        } else {
+            wplata = wplataFacade.find(Integer.parseInt(id)); // existing one
+        }
+
+        wplata.setData(LocalDate.parse(data)); // it should be ok at this point
+        wplata.setKwota(new BigDecimal(kwota).setScale(2, RoundingMode.HALF_DOWN));
+        wplata.setOpis(opis);
+        wplata.setFirma(firma);
+
+        em.persist(wplata);
+        em.flush();
+
+        return wplata.getId();
+    }
+    
+    public int saveMoneyOutToDatabase(String id, String data, String kwota, String opis, Lektor lektor) {
+        Wyplata wyplata; // we have to check whether creating or editing
+        if (id.equals("-1")) {
+            wyplata = new Wyplata(); // new one
+        } else {
+            wyplata = wyplataFacade.find(Integer.parseInt(id)); // existing one
+        }
+
+        wyplata.setData(LocalDate.parse(data)); // it should be ok at this point
+        wyplata.setKwota(new BigDecimal(kwota).setScale(2, RoundingMode.HALF_DOWN));
+        wyplata.setOpis(opis);
+        wyplata.setLektor(lektor);
+
+        em.persist(wyplata);
+        em.flush();
+
+        return wyplata.getId();
     }
 
     public int saveProgrammeToDatabase(String id, String referencja, String metoda) {
