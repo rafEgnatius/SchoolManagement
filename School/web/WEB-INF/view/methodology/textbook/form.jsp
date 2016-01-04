@@ -10,7 +10,7 @@
         <table class="formTable">
             <tr>
                 <th colspan="2">wprowadź informacje dotyczące podręcznika:</th>
-                <td colspan="2" class="formError">${formError eq "formError" ? "Formularz zawiera błędy:" : ""}</td>
+                <td colspan="1" class="formError">${formError eq "formError" ? "Formularz zawiera błędy:" : ""}</td>
             </tr>
             <tr>
                 <td><label for="nazwa">Tytuł: </label></td>
@@ -19,7 +19,13 @@
             </tr>
             <tr>
                 <td><label for="poziom">Poziom: </label></td>
-                <td><input type="text" name="poziom" value="${poziom}" /></td>
+                <td>
+                    <select name="poziom">
+                        <c:forEach var="languageLevel" items="${applicationScope['languageLevels']}">
+                            <option value="${languageLevel}" ${languageLevel eq poziom ? "selected" : ""}>${languageLevel}</option>
+                        </c:forEach>
+                    </select>
+                </td>
                 <td class="formErrorAsterix">${poziomError}</td>
             </tr>
             <tr>

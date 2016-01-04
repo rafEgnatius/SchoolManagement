@@ -4,6 +4,10 @@
         <param-name>javax.faces.PROJECT_STAGE</param-name>
         <param-value>Development</param-value>
     </context-param>
+    <listener>
+        <description>ServletContextListener</description>
+        <listener-class>listener.LanguageLevelListener</listener-class>
+    </listener>
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
         <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
@@ -17,21 +21,18 @@
         <session-timeout>5</session-timeout>
     </session-config>
     <jsp-config>
-        
         <jsp-property-group>
             <description>header and footer (INDEX)</description>
             <url-pattern>/index.jsp</url-pattern>
             <include-prelude>/WEB-INF/jspf/header.jspf</include-prelude>
             <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
         </jsp-property-group>
-        
         <jsp-property-group>
             <description>header and footer (ERROR)</description>
             <url-pattern>/error.jsp</url-pattern>
             <include-prelude>/WEB-INF/jspf/header.jspf</include-prelude>
             <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
         </jsp-property-group>
-        
         <jsp-property-group>
             <description>header and footer (COURSE) - menu script for COURSE</description>
             <url-pattern>/WEB-INF/view/course/*</url-pattern>
@@ -49,7 +50,11 @@
             <url-pattern>/WEB-INF/view/course/programme/*</url-pattern>
             <include-prelude>/WEB-INF/script/course/programme.jspf</include-prelude>
         </jsp-property-group>
-        
+        <jsp-property-group>
+            <description>header and footer (COURSE) - menu script for PARTICIPANT</description>
+            <url-pattern>/WEB-INF/view/course/participant/*</url-pattern>
+            <include-prelude>/WEB-INF/script/course/participant.jspf</include-prelude>
+        </jsp-property-group>
         <jsp-property-group>
             <description>header and footer (METHODOLOGY)</description>
             <url-pattern>/WEB-INF/view/methodology/*</url-pattern>
@@ -67,7 +72,7 @@
             <url-pattern>/WEB-INF/view/methodology/lector/*</url-pattern>
             <include-prelude>/WEB-INF/script/methodology/lector.jspf</include-prelude>
         </jsp-property-group>
-         <jsp-property-group>
+        <jsp-property-group>
             <description>header and footer (METHODOLOGY) - menu script for LIBRARY</description>
             <url-pattern>/WEB-INF/view/methodology/library/*</url-pattern>
             <include-prelude>/WEB-INF/script/methodology/textbook.jspf</include-prelude>
@@ -77,7 +82,6 @@
             <url-pattern>/WEB-INF/view/methodology/textbook/*</url-pattern>
             <include-prelude>/WEB-INF/script/methodology/textbook.jspf</include-prelude>
         </jsp-property-group>
-        
         <jsp-property-group>
             <description>header and footer (ORGANISATION) - menu script for CUSTOMER</description>
             <url-pattern>/WEB-INF/view/organisation/*</url-pattern>
@@ -110,7 +114,6 @@
             <url-pattern>/WEB-INF/view/organisation/moneyOut/*</url-pattern>
             <include-prelude>/WEB-INF/script/organisation/moneyOut.jspf</include-prelude>
         </jsp-property-group>
-        
     </jsp-config>
     <welcome-file-list>
         <welcome-file>faces/index.jsp</welcome-file>
@@ -126,4 +129,13 @@
         <res-auth>Container</res-auth>
         <res-sharing-scope>Shareable</res-sharing-scope>
     </resource-ref>
+    <context-param>
+        <param-name>languageLevels</param-name>
+        <param-value>A0A1A2B1B2C1C2</param-value>
+    </context-param>
+    <listener>
+        <listener-class>
+            listener.LanguageLevelListener
+        </listener-class>
+    </listener>
 </web-app>

@@ -9,54 +9,42 @@
 
     <table class="detailedTable">
         <tr class="tableHeading">
-            <th colspan="2">${id eq "-1" ? "czy zapisać nową firmę w bazie?" : "czy zatwierdzić zmienione dane?"}</th>
-        </tr>
-        <tr>
-            <th>Nazwa: </th>
-            <td>${param.nazwa}</td>
+            <th colspan="2">${id eq "-1" ? "czy zapisać nowy kurs w bazie?" : "czy zatwierdzić zmienione dane?"}</th>
         </tr>
         <tr>
             <th>Symbol: </th>
             <td>${param.symbol}</td>
         </tr>
         <tr>
-            <th>Miasto:</th>
-            <td>${param.miasto}</td>
+            <th>Język: </th>
+            <td>${param.jezykId}</td>
         </tr>
         <tr>
-            <th>Adres: </th>
-            <td>${param.adres}</td>
+            <th>Opis: </th>
+            <td>${param.opis}</td>
         </tr>
         <tr>
-            <th>Osoba do kontaktu: </th>
-            <td>${param.osoba}</td>
+            <th>Rok: </th>
+            <td>${param.rok}</td>
         </tr>
         <tr>
-            <th>Telefon:</th>
-            <td>${param.telefon}</td>
+            <th>Semestr: </th>
+            <td>${param.semestr}</td>
         </tr>
         <tr>
-            <th>Tel. komórkowy:</th>
-            <td>${param.komorka}</td>
-        </tr>
-        <tr>
-            <th>Email:</th>
-            <td>${param.email}</td>
-        </tr>
-        <tr>
-            <th>NIP</th>
-            <td>${param.nip}</td>
+            <th>Sala: </th>
+            <td>${param.sala}</td>
         </tr>
     </table>
     <table class="cancelSaveTable">
         <tr>
             <td class="leftCell">
-                <a class="smallButton" href="${id eq "-1" ? "firmy" : "edytujFirme?"}${id}">
+                <a class="smallButton" href="${id eq "-1" ? "kursy" : "edytujKurs?"}${id eq "-1" ? "" : id}">
                     <span class="smallButtonText">&#x21A9; anuluj</span>
                 </a>
             </td>
             <td class="rightCell">
-                <a class="smallButton" href="dodajFirmeZapisz?id=${id}&nazwa=${param.nazwa}&symbol=${param.symbol}&miasto=${param.miasto}&adres=${param.adres}&osoba=${param.osoba}&telefon=${param.telefon}&komorka=${param.komorka}&email=${param.email}&nip=${param.nip}">
+                <a class="smallButton" href="dodajKursZapisz?id=${id}&symbol=${param.symbol}&jezykId=${param.jezykId}&opis=${param.opis}&rok=${param.rok}&semestr=${param.semestr}&sala=${param.sala}">
                     <span class="smallButtonText">zapisz &#x21AA;</span>
                 </a>
             </td>

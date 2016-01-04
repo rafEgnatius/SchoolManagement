@@ -7,9 +7,11 @@ package finder;
 
 import entity.AbstractEntity;
 import entity.Faktura;
+import entity.Firma;
 import entity.Jezyk;
 import entity.JezykLektora;
 import entity.Kurs;
+import entity.Kursant;
 import entity.Lektor;
 import entity.Podrecznik;
 import entity.Rachunek;
@@ -59,6 +61,32 @@ public class SchoolFinder {
         return resultList;
     }
 
+    public static List findCustomerForParticipant(List mainEntityList, List firmaList, String searchOption) {
+        List resultList = new ArrayList<>(); // to send back
+//        for every entity
+//        find from second list
+
+        Iterator it2 = firmaList.iterator();
+        // first loop -> select only those that equal searchOption
+        while (it2.hasNext()) {
+            Firma firma = (Firma) it2.next();
+            if (firma.getId().toString().equals(searchOption)) {
+
+                // second loop -> select only those that equal firma
+                Iterator it = mainEntityList.iterator();
+                while (it.hasNext()) {
+                    Kursant kursant = (Kursant) it.next();
+                    if(kursant.getFirma().equals(firma)){
+                        resultList.add(kursant);
+                    }
+                }
+
+            }
+        }
+
+        return resultList;
+    }
+
     public static List findFaktura(List fakturaList, List firmaList, String searchPhrase) {
         List resultList = new ArrayList<>(); // to send back
 
@@ -74,6 +102,19 @@ public class SchoolFinder {
             }
         }
 
+        return resultList;
+    }
+
+    public static List findParticipant(List mainEntityList, String searchPhrase) {
+        List resultList = new ArrayList<>(); // to send back
+        for (Iterator it = mainEntityList.iterator(); it.hasNext();) {
+            Kursant mainEntity = (Kursant) it.next();
+            if (mainEntity.getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())
+                    || mainEntity.getEmail().toLowerCase().contains(searchPhrase.toLowerCase())
+                    || mainEntity.getTelefon().toLowerCase().contains(searchPhrase.toLowerCase())) {
+                resultList.add(mainEntity);
+            }
+        }
         return resultList;
     }
 
@@ -154,14 +195,14 @@ public class SchoolFinder {
         }
         return resultList;
     }
-    
+
     /**
-     * 
+     *
      * @param mainEntityList
      * @param lektorList
      * @param searchPhrase
-     * @return 
-    */
+     * @return
+     */
     public static List findRachunek(List mainEntityList, List lektorList, String searchPhrase) {
         List resultList = new ArrayList<>(); // to send back
 
@@ -178,7 +219,7 @@ public class SchoolFinder {
         }
 
         return resultList;
-        
+
     }
 
     public static Object findSmallestCustomer(List<AbstractEntity> entityList) {
@@ -261,7 +302,5 @@ public class SchoolFinder {
 
         return resultList;
     }
-
-    
 
 }

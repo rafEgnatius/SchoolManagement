@@ -8,9 +8,12 @@ package session.persistence;
 import entity.Faktura;
 import entity.Firma;
 import entity.Jezyk;
+import entity.JezykKursanta;
+import entity.JezykKursantaPK;
 import entity.JezykLektora;
 import entity.JezykLektoraPK;
 import entity.Kurs;
+import entity.Kursant;
 import entity.Lektor;
 import entity.Podrecznik;
 import entity.Program;
@@ -34,6 +37,7 @@ import session.FakturaFacade;
 import session.FirmaFacade;
 import session.JezykFacade;
 import session.KursFacade;
+import session.KursantFacade;
 import session.LektorFacade;
 import session.PodrecznikFacade;
 import session.ProgramFacade;
@@ -68,6 +72,9 @@ public class PersistenceManager {
     private JezykFacade jezykFacade;
 
     @EJB
+    private KursantFacade kursantFacade;
+
+    @EJB
     private PodrecznikFacade podrecznikFacade;
 
     @EJB
@@ -75,10 +82,10 @@ public class PersistenceManager {
 
     @EJB
     private RachunekFacade rachunekFacade;
-    
+
     @EJB
     private WplataFacade wplataFacade;
-    
+
     @EJB
     private WyplataFacade wyplataFacade;
 
@@ -110,23 +117,6 @@ public class PersistenceManager {
         em.remove(stawkaLektora);
     }
 
-    /**
-     *
-     *
-     *
-     */
-    public void deleteLectorsLanguageFromDatabase(Lektor lektor, Jezyk jezyk) {
-
-        // to remove we probably have to find a proper primary key object
-        // then try to remove an object with it
-        // will have to check this solution - if we can set the same language for this lector
-        // set up primary key object
-        JezykLektoraPK jezykLektoraPK = new JezykLektoraPK(lektor.getId(), jezyk.getId());
-        JezykLektora jezykLektora = em.find(JezykLektora.class, jezykLektoraPK);
-
-        em.remove(jezykLektora);
-    }
-
     public void deleteCustomerLectorRateFromDatabase(int mainEntityId) {
         StawkaFirmyPK stawkaFirmyPK = new StawkaFirmyPK(mainEntityId, false); // false because not native
         StawkaFirmy stawkaFirmy = em.find(StawkaFirmy.class, stawkaFirmyPK);
@@ -154,6 +144,30 @@ public class PersistenceManager {
 
         kurs.setLektorId(null);
         em.flush();
+    }
+
+    /**
+     *
+     *
+     *
+     */
+    public void deleteLectorsLanguageFromDatabase(Lektor lektor, Jezyk jezyk) {
+
+        // to remove we probably have to find a proper primary key object
+        // then try to remove an object with it
+        // will have to check this solution - if we can set the same language for this lector
+        // set up primary key object
+        JezykLektoraPK jezykLektoraPK = new JezykLektoraPK(lektor.getId(), jezyk.getId());
+        JezykLektora jezykLektora = em.find(JezykLektora.class, jezykLektoraPK);
+
+        em.remove(jezykLektora);
+    }
+
+    public void deleteParticipantsLanguageFromDatabase(Kursant mainEntity, Jezyk jezyk) {
+        JezykKursantaPK jezykKursantaPK = new JezykKursantaPK(mainEntity.getId(), jezyk.getId());
+        JezykKursanta jezykLektora = em.find(JezykKursanta.class, jezykKursantaPK);
+
+        em.remove(jezykLektora);
     }
 
     public void deleteProgrammeCourseFromDatabase(String kursId) {
@@ -446,7 +460,7 @@ public class PersistenceManager {
 
         return wplata.getId();
     }
-    
+
     public int saveMoneyOutToDatabase(String id, String data, String kwota, String opis, Lektor lektor) {
         Wyplata wyplata; // we have to check whether creating or editing
         if (id.equals("-1")) {
@@ -464,6 +478,48 @@ public class PersistenceManager {
         em.flush();
 
         return wyplata.getId();
+    }
+
+    public int saveParticipantToDatabase(String id, String nazwa, String telefon, String email, Firma firma) {
+
+        Kursant kursant; // we have to check whether creating or editing
+        if (id.equals("-1")) {
+            kursant = new Kursant(); // new one
+        } else {
+            kursant = kursantFacade.find(Integer.parseInt(id)); // existing one
+        }
+
+        kursant.setNazwa(nazwa);
+        kursant.setTelefon(telefon);
+        kursant.setEmail(email);
+        kursant.setFirma(firma);
+
+        em.persist(kursant);
+        em.flush();
+
+        return kursant.getId();
+
+    }
+
+    public void saveParticipantsLanguageToDatabase(Kursant mainEntity, Jezyk jezyk, String poziom) {
+
+        // set up primary key object
+        JezykKursantaPK jezykKursantaPK = new JezykKursantaPK(mainEntity.getId(), jezyk.getId());
+
+        // create item using PK object
+        JezykKursanta jezykKursanta = new JezykKursanta(jezykKursantaPK);
+
+        // set
+        jezykKursanta.setKursant(mainEntity);
+
+        // set
+        jezykKursanta.setJezyk(jezyk);
+
+        // set additional field
+        jezykKursanta.setPoziom(poziom);
+
+        em.persist(jezykKursanta);
+
     }
 
     public int saveProgrammeToDatabase(String id, String referencja, String metoda) {
@@ -501,7 +557,5 @@ public class PersistenceManager {
 
         return podrecznik.getId();
     }
-
-    
 
 }

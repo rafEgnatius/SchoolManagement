@@ -306,6 +306,9 @@ public class CourseController extends HttpServlet {
                 int intJezykId = Integer.parseInt(jezykId);
                 jezyk = jezykFacade.find(intJezykId);
 
+                intMainEntityId = persistenceManager.saveCourseToDatabase(id, rok, semestr, jezyk, symbol, opis, sala);
+                mainEntityId = intMainEntityId + ""; // de facto cast it to String
+                
                 // use helper to get lektor list prepared in our request
                 request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
 

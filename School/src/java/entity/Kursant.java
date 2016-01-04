@@ -58,7 +58,7 @@ public class Kursant extends AbstractEntity implements Serializable {
     private Collection<Ankieta> ankietaCollection;
     @JoinColumn(name = "firma_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Firma firmaId;
+    private Firma firma;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursantId")
     private Collection<Test> testCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursant")
@@ -116,12 +116,12 @@ public class Kursant extends AbstractEntity implements Serializable {
         this.ankietaCollection = ankietaCollection;
     }
 
-    public Firma getFirmaId() {
-        return firmaId;
+    public Firma getFirma() {
+        return firma;
     }
 
-    public void setFirmaId(Firma firmaId) {
-        this.firmaId = firmaId;
+    public void setFirma(Firma firma) {
+        this.firma = firma;
     }
 
     @XmlTransient

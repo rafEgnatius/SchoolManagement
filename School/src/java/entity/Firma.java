@@ -76,7 +76,7 @@ public class Firma extends AbstractEntity implements Serializable {
     @Size(max = 45)
     @Column(name = "adres")
     private String adres;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "firmaId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "firma")
     private Collection<Kursant> kursantCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "firma")
     private Collection<Wplata> wplataCollection;
