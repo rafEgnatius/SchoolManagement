@@ -5,11 +5,18 @@
  */
 package helper;
 
+import entity.Kurs;
 import entity.Kursant;
+import entity.Test;
 import finder.SchoolFinder;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
+import session.KursFacade;
+import session.KursantFacade;
 import sorter.EntitySorter;
 import sorter.FieldSorter;
 
@@ -17,7 +24,14 @@ import sorter.FieldSorter;
  *
  * @author Rafa
  */
-public class ParticipantHelper {
+@Stateless
+public class LanguageTestHelper {
+
+    @EJB
+    KursFacade kursFacade;
+    
+    @EJB
+    KursantFacade kursantFacade;
 
     private static final int pageSize = 10; // number of records on one page
 
@@ -30,7 +44,36 @@ public class ParticipantHelper {
 
     private String searchPhrase;
     private String searchOption;
+    
+    // METHODS, MAN
 
+    private List filterKurs(List mainEntityList, String kursId) {
+        List resultList = new ArrayList();
+        Kurs kurs = kursFacade.find(Integer.parseInt(kursId));
+
+        Iterator it = mainEntityList.iterator();
+        while (it.hasNext()) {
+            Test test = (Test) it.next();
+            if (test.getKurs().equals(kurs)) {
+                resultList.add(test);
+            }
+        }
+        return resultList;
+    }
+    
+    private List filterKursant(List mainEntityList, String kursantId) {
+        List resultList = new ArrayList();
+        Kursant kursant = kursantFacade.find(Integer.parseInt(kursantId));
+
+        Iterator it = mainEntityList.iterator();
+        while (it.hasNext()) {
+            Test test = (Test) it.next();
+            if (test.getKursant().equals(kursant)) {
+                resultList.add(test);
+            }
+        }
+        return resultList;
+    }
     
     /**
      * Handles preparation of the list
@@ -42,7 +85,19 @@ public class ParticipantHelper {
      * @return HttpServletRequest
      */
     public HttpServletRequest prepareEntityList(HttpServletRequest request,
-            List mainEntityList, List firmaList) {
+            List mainEntityList, List kursList, List kursantList, List firmaList) {
+
+        // in this case we need to filter the results in case we need specific kurs and kursant (participant)
+        String kursId = request.getParameter("kursId");
+        if (kursId != null && !kursId.equals("")) {
+            mainEntityList = filterKurs(mainEntityList, kursId);
+        }
+
+        // and kursant
+        String kursantId = request.getParameter("kursantId");
+        if (kursantId != null && !kursantId.equals("")) {
+            mainEntityList = filterKursant(mainEntityList, kursantId);
+        }
 
         List<Kursant> resultList;
 
@@ -74,7 +129,7 @@ public class ParticipantHelper {
         // and check if searching
         searchPhrase = request.getParameter("searchPhrase");
         if (searchPhrase != null && !searchPhrase.equals("")) {
-            mainEntityList = SchoolFinder.findParticipant(mainEntityList, searchPhrase);
+            mainEntityList = SchoolFinder.findLanguageTest(mainEntityList, searchPhrase);
         } else {
             searchPhrase = "";
         }
@@ -82,7 +137,7 @@ public class ParticipantHelper {
         // and what option was chosen
         searchOption = request.getParameter("searchOption");
         if (searchOption != null && !searchOption.equals("")) {
-            mainEntityList = SchoolFinder.findCustomerForParticipant(mainEntityList, firmaList, searchOption);
+            mainEntityList = SchoolFinder.findCustomerForLanguageTest(mainEntityList, kursList, searchOption);
         } else {
             searchOption = "";
         }
@@ -99,39 +154,39 @@ public class ParticipantHelper {
                     sortAsc = true;
                 }
                 break;
-            case ("nazwa"):
+            case ("rodzaj"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortNazwaDesc(mainEntityList);
+                    mainEntityList = FieldSorter.sortRodzajDesc(mainEntityList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortNazwa(mainEntityList);
+                    mainEntityList = FieldSorter.sortRodzaj(mainEntityList);
                     sortAsc = true;
                 }
                 break;
-            case ("telefon"):
+            case ("ocena"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortTelefonDesc(mainEntityList);
+                    mainEntityList = FieldSorter.sortOcenaDesc(mainEntityList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortTelefon(mainEntityList);
+                    mainEntityList = FieldSorter.sortOcena(mainEntityList);
                     sortAsc = true;
                 }
                 break;
-            case ("email"):
+            case ("kurs"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortEmailDesc(mainEntityList);
+                    mainEntityList = EntitySorter.sortKursDesc(mainEntityList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortEmail(mainEntityList);
+                    mainEntityList = EntitySorter.sortKurs(mainEntityList);
                     sortAsc = true;
                 }
                 break;
-            case ("firma"):
+            case ("kursant"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = EntitySorter.sortFirmaDesc(mainEntityList);
+                    mainEntityList = EntitySorter.sortKursantDesc(mainEntityList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = EntitySorter.sortFirma(mainEntityList);
+                    mainEntityList = EntitySorter.sortKursant(mainEntityList);
                     sortAsc = true;
                 }
                 break;
@@ -157,13 +212,14 @@ public class ParticipantHelper {
         request.setAttribute("searchPhrase", searchPhrase);
         request.setAttribute("searchOption", searchOption);
 
-        request.setAttribute("kursantList", resultList);
+        request.setAttribute("testList", resultList);
+        request.setAttribute("kursantList", kursantList);
+        request.setAttribute("kursList", kursList);
         request.setAttribute("firmaList", firmaList);
 
         return request;
     }
 
-    
     
 
 }

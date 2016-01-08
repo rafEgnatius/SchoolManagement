@@ -59,11 +59,11 @@ public class Kursant extends AbstractEntity implements Serializable {
     @JoinColumn(name = "firma_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Firma firma;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursantId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursant")
     private Collection<Test> testCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursant")
     private Collection<Obecnosc> obecnoscCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursantId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursant")
     private Collection<KursKursanta> kursKursantaCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursant")
     private Collection<JezykKursanta> jezykKursantaCollection;

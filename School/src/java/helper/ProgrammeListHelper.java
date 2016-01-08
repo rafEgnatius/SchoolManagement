@@ -28,6 +28,7 @@ public class ProgrammeListHelper {
 
 //    private String searchPhrase;
 //    private String searchOption;
+    
 
     /**
      * Handles preparation of the lector list
@@ -38,7 +39,7 @@ public class ProgrammeListHelper {
      */
     public HttpServletRequest prepareEntityList(HttpServletRequest request, List programList) {
 
-         // sorting and pagination works this way:
+        // sorting and pagination works this way:
         // if there is no sortBy it means we are here for the first time
         // so we check if we have pageNumber
         // if not it means that we are really for the first time here

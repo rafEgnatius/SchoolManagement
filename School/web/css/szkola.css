@@ -92,6 +92,12 @@ hr {
     background-color: #CCCCFF;
 }
 
+hr.tableHR {
+    margin-top: 0px;
+    margin-bottom: 5px;
+    color: #CCCCFF;
+    background-color: #CCCCFF;
+}
 
 /* FORMS */
 

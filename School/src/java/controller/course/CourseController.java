@@ -22,8 +22,6 @@ import session.FirmaFacade;
 import session.JezykFacade;
 import session.KursFacade;
 import session.LektorFacade;
-import session.StawkaFirmyFacade;
-import session.StawkaLektoraFacade;
 import session.persistence.PersistenceManager;
 import sorter.FieldSorter;
 import sorter.EntitySorter;
@@ -62,13 +60,10 @@ public class CourseController extends HttpServlet {
     private List lektorList = new ArrayList();
 
     @EJB
-    private StawkaFirmyFacade stawkaFirmyFacade;
-
-    @EJB
-    private StawkaLektoraFacade stawkaLektoraFacade;
-
-    @EJB
     private PersistenceManager persistenceManager;
+    
+    @EJB
+    private CourseHelper mainEntityHelper;
 
 //    main
     int intMainEntityId = 0;
@@ -104,8 +99,6 @@ public class CourseController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        CourseHelper courseHelper = new CourseHelper();
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
@@ -310,7 +303,7 @@ public class CourseController extends HttpServlet {
                 mainEntityId = intMainEntityId + ""; // de facto cast it to String
                 
                 // use helper to get lektor list prepared in our request
-                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
+                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -324,8 +317,10 @@ public class CourseController extends HttpServlet {
 
                 mainEntityId = request.getQueryString();
 
+                System.out.println(kursFacade);
+                
                 // use helper to get lektor list prepared in our request
-                request = courseHelper.prepareEntityView(request, mainEntityId, kursFacade, stawkaFirmyFacade, stawkaLektoraFacade);
+                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";

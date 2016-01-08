@@ -16,6 +16,7 @@ public abstract class AbstractEntity {
 
     private Firma firma;
     private Jezyk jezyk;
+    private Kurs kurs;
     private Lektor lektor;
 
     public LocalDate getData() {
@@ -76,6 +77,22 @@ public abstract class AbstractEntity {
 
     public String getReferencja() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public String getRodzaj() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public Integer getOcena() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public Object getKursant() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public Object getKurs() {
+        return kurs;
     }
 
 }

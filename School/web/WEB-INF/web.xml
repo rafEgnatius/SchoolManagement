@@ -46,6 +46,11 @@
             <include-prelude>/WEB-INF/script/course/course.jspf</include-prelude>
         </jsp-property-group>
         <jsp-property-group>
+            <description>header and footer (COURSE) - menu script for LANGUAGE TEST</description>
+            <url-pattern>/WEB-INF/view/course/languageTest/*</url-pattern>
+            <include-prelude>/WEB-INF/script/course/languageTest.jspf</include-prelude>
+        </jsp-property-group>
+        <jsp-property-group>
             <description>header and footer (COURSE) - menu script for PROGRAMME</description>
             <url-pattern>/WEB-INF/view/course/programme/*</url-pattern>
             <include-prelude>/WEB-INF/script/course/programme.jspf</include-prelude>

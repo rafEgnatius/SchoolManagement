@@ -38,10 +38,10 @@ public class KursKursanta implements Serializable {
     private Integer id;
     @JoinColumn(name = "kurs_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Kurs kursId;
+    private Kurs kurs;
     @JoinColumn(name = "kursant_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Kursant kursantId;
+    private Kursant kursant;
 
     public KursKursanta() {
     }
@@ -58,20 +58,20 @@ public class KursKursanta implements Serializable {
         this.id = id;
     }
 
-    public Kurs getKursId() {
-        return kursId;
+    public Kurs getKurs() {
+        return kurs;
     }
 
-    public void setKursId(Kurs kursId) {
-        this.kursId = kursId;
+    public void setKurs(Kurs kursId) {
+        this.kurs = kursId;
     }
 
-    public Kursant getKursantId() {
-        return kursantId;
+    public Kursant getKursant() {
+        return kursant;
     }
 
-    public void setKursantId(Kursant kursantId) {
-        this.kursantId = kursantId;
+    public void setKursant(Kursant kursantId) {
+        this.kursant = kursantId;
     }
 
     @Override

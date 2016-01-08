@@ -15,6 +15,7 @@ import entity.Kursant;
 import entity.Lektor;
 import entity.Podrecznik;
 import entity.Rachunek;
+import entity.Test;
 import entity.Wplata;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -45,6 +46,23 @@ public class SchoolFinder {
         return resultList;
     }
 
+    public static List findLanguageTest(List mainEntityList, String searchPhrase) {
+        List resultList = new ArrayList<>(); // to send back
+
+        Iterator it = mainEntityList.iterator();
+        while (it.hasNext()) {
+            Test test = (Test) it.next();
+            if (test.getRodzaj().toLowerCase().contains(searchPhrase.toLowerCase())
+                    || test.getKurs().getSymbol().toLowerCase().contains(searchPhrase.toLowerCase())
+                    || test.getKurs().getFirma().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())
+                    || test.getKursant().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())) {
+                resultList.add(test);
+            }
+        }
+
+        return resultList;
+    }
+
     // find by String:
     public static List<Lektor> findLector(List<Lektor> lektorList, String searchPhrase) {
         List resultList = new ArrayList<>(); // to send back
@@ -58,6 +76,33 @@ public class SchoolFinder {
                 resultList.add(lektor);
             }
         }
+        return resultList;
+    }
+    
+    public static List findCustomerForLanguageTest(List mainEntityList, List kursList, String searchOption) {
+        List resultList = new ArrayList<>(); // to send back
+//        for every entity
+//        find from second list
+
+        // search for courses (kurs Entity) with matching customer (firma)
+        Iterator it2 = kursList.iterator();
+        // first loop -> select only those that equal searchOption
+        while (it2.hasNext()) {
+            Kurs kurs = (Kurs) it2.next();
+            Firma firma = kurs.getFirma();
+            if (firma != null && kurs.getFirma().getId().toString().equals(searchOption)) {
+
+                // second loop -> select only those that have this course (kurs)
+                Iterator it = mainEntityList.iterator();
+                while (it.hasNext()) {
+                    Test test = (Test) it.next();
+                    if (test.getKurs().equals(kurs)) {
+                        resultList.add(test);
+                    }
+                }
+            }
+        }
+
         return resultList;
     }
 
@@ -76,7 +121,7 @@ public class SchoolFinder {
                 Iterator it = mainEntityList.iterator();
                 while (it.hasNext()) {
                     Kursant kursant = (Kursant) it.next();
-                    if(kursant.getFirma().equals(firma)){
+                    if (kursant.getFirma().equals(firma)) {
                         resultList.add(kursant);
                     }
                 }
@@ -222,6 +267,22 @@ public class SchoolFinder {
 
     }
 
+    public static Object findSmallestCourse(List<AbstractEntity> entityList) {
+        if (entityList.isEmpty()) {
+            return null; // just in case - it will be easier to find any problems
+        }
+        // LET'S DO IT THIS WAY:
+        // create list of entities
+        List mainList = new ArrayList();
+        for (AbstractEntity abstractEntity : entityList) {
+            mainList.add(abstractEntity.getKurs());
+        }
+        // sort it
+        mainList = FieldSorter.sortSymbol(mainList);
+        // and get the first one
+        return mainList.get(0);
+    }
+    
     public static Object findSmallestCustomer(List<AbstractEntity> entityList) {
         if (entityList.isEmpty()) {
             return null; // just in case - it will be easier to find any problems
@@ -261,6 +322,8 @@ public class SchoolFinder {
         // and get the first one
         return mainList.get(0);
     }
+    
+    
 
     public static Object findSmallestLector(List<AbstractEntity> entityList) {
         if (entityList.isEmpty()) {
@@ -286,6 +349,22 @@ public class SchoolFinder {
         return mainList.get(0);
     }
 
+    public static Object findSmallestParticipant(List<AbstractEntity> entityList) {
+        if (entityList.isEmpty()) {
+            return null; // just in case - it will be easier to find any problems
+        }
+        // LET'S DO IT THIS WAY:
+        // create list of entities
+        List mainList = new ArrayList();
+        for (AbstractEntity abstractEntity : entityList) {
+            mainList.add(abstractEntity.getKursant());
+        }
+        // sort it
+        mainList = FieldSorter.sortNazwa(mainList);
+        // and get the first one
+        return mainList.get(0);
+    }
+    
     public static List findWplata(List mainEntityList, List firmaList, String searchPhrase) {
         List resultList = new ArrayList<>(); // to send back
 
@@ -302,5 +381,7 @@ public class SchoolFinder {
 
         return resultList;
     }
+
+    
 
 }

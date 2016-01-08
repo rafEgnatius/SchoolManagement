@@ -46,10 +46,10 @@ public class Test extends AbstractEntity implements Serializable {
     private Integer ocena;
     @JoinColumn(name = "kurs_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Kurs kursId;
+    private Kurs kurs;
     @JoinColumn(name = "kursant_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Kursant kursantId;
+    private Kursant kursant;
 
     public Test() {
     }
@@ -74,6 +74,7 @@ public class Test extends AbstractEntity implements Serializable {
         this.rodzaj = rodzaj;
     }
 
+    @Override
     public Integer getOcena() {
         return ocena;
     }
@@ -82,20 +83,22 @@ public class Test extends AbstractEntity implements Serializable {
         this.ocena = ocena;
     }
 
-    public Kurs getKursId() {
-        return kursId;
+    @Override
+    public Kurs getKurs() {
+        return kurs;
     }
 
-    public void setKursId(Kurs kursId) {
-        this.kursId = kursId;
+    public void setKurs(Kurs kursId) {
+        this.kurs = kursId;
     }
 
-    public Kursant getKursantId() {
-        return kursantId;
+    @Override
+    public Kursant getKursant() {
+        return kursant;
     }
 
-    public void setKursantId(Kursant kursantId) {
-        this.kursantId = kursantId;
+    public void setKursant(Kursant kursantId) {
+        this.kursant = kursantId;
     }
 
     @Override

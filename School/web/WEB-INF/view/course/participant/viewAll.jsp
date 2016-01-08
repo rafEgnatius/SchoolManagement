@@ -63,15 +63,13 @@
                     <td><a href="pokazKursanta?${kursant.id}">${kursant.nazwa}</a></td>
                     <td><a href="pokazKursanta?${kursant.id}">${kursant.telefon}</a></td>
                     <td><a href="pokazKursanta?${kursant.id}">${kursant.email}</a></td>
-                    <td>
                         <c:forEach var="firma" items="${firmaList}">
                             <c:choose>
                                 <c:when test="${kursant.firma eq firma}">
-                                    ${firma.nazwa}
-                                </c:when>
-                            </c:choose>
-                        </c:forEach>
-                    </td>
+                                <td><a href="pokazKursanta?${kursant.id}">${firma.nazwa}</a></td>
+                            </c:when>
+                        </c:choose>
+                    </c:forEach>
                 </tr>
 
             </c:forEach>

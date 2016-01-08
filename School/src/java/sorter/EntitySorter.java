@@ -8,6 +8,8 @@ package sorter;
 import entity.AbstractEntity;
 import entity.Firma;
 import entity.Jezyk;
+import entity.Kurs;
+import entity.Kursant;
 import entity.Lektor;
 import finder.SchoolFinder;
 import java.util.ArrayList;
@@ -89,7 +91,7 @@ public class EntitySorter {
             for (AbstractEntity abstractEntity : entityList) {
                 if (abstractEntity.getJezyk().equals(jezyk)) {
                     int index = entityList.indexOf(abstractEntity);
-                    resultList.add(entityList.get(index)); // tu jest problem
+                    resultList.add(entityList.get(index));
                 } else {
                     auxiliaryList.add(abstractEntity); // not firma!
                 }
@@ -108,7 +110,83 @@ public class EntitySorter {
         Collections.reverse(resultList); // doing the same but the other way round
         return resultList;
     }
+    
+    public static List sortKurs(List<AbstractEntity> entityList) {
+        // prepare list to be returned
+        List<AbstractEntity> resultList = new ArrayList<>();
 
+        // add in a loop entities to the result list
+        while (!entityList.isEmpty()) {
+
+            // find the smallest item in the list
+            Kurs kurs = (Kurs) SchoolFinder.findSmallestCourse(entityList);
+            // it should not be null because the list is not empty
+
+            // create a new list that will contain all the kurs entities except the first one
+            List<AbstractEntity> auxiliaryList = new ArrayList<>(); // we recreate this list on every loop
+
+            // add in a loop entities to the result list
+            for (AbstractEntity abstractEntity : entityList) {
+                if (abstractEntity.getKurs().equals(kurs)) {
+                    int index = entityList.indexOf(abstractEntity);
+                    resultList.add(entityList.get(index)); // add to result list
+                } else {
+                    auxiliaryList.add(abstractEntity); // add to the list with all but smallest
+                }
+            }
+
+            entityList.clear(); // to make it smaller
+            entityList.addAll(auxiliaryList); // by selecting only those that are not equal
+        }
+        return resultList;
+    }
+
+    public static List sortKursDesc(List entityList) {
+        // prepare list to be returned
+        List<AbstractEntity> resultList = EntitySorter.sortKurs(entityList);
+
+        Collections.reverse(resultList); // doing the same but the other way round
+        return resultList;
+    }
+
+    public static List sortKursant(List<AbstractEntity> entityList) {
+        // prepare list to be returned
+        List<AbstractEntity> resultList = new ArrayList<>();
+
+        // add in a loop entities to the result list
+        while (!entityList.isEmpty()) {
+
+            // find the smallest item in the list
+            Kursant kursant = (Kursant) SchoolFinder.findSmallestParticipant(entityList);
+            // it should not be null because the list is not empty
+
+            // create a new list that will contain all the firms except the first one
+            List<AbstractEntity> auxiliaryList = new ArrayList<>(); // we recreate this  list on every loop
+
+            // add in a loop entities to the result list
+            for (AbstractEntity abstractEntity : entityList) {
+                if (abstractEntity.getKursant().equals(kursant)) {
+                    int index = entityList.indexOf(abstractEntity);
+                    resultList.add(entityList.get(index));
+                } else {
+                    auxiliaryList.add(abstractEntity); // not firma!
+                }
+            }
+
+            entityList.clear(); // to make it smaller
+            entityList.addAll(auxiliaryList); // by selecting only those that are not equal
+        }
+        return resultList;
+    }
+
+    public static List sortKursantDesc(List entityList) {
+        // prepare list to be returned
+        List<AbstractEntity> resultList = EntitySorter.sortKursant(entityList);
+
+        Collections.reverse(resultList); // doing the same but the other way round
+        return resultList;
+    }
+    
     public static List sortLektor(List<AbstractEntity> entityList) {
         // prepare list to be returned
         List<AbstractEntity> resultList = new ArrayList<>();
@@ -138,7 +216,7 @@ public class EntitySorter {
                 for (AbstractEntity abstractEntity : entityList) {
                     if (abstractEntity.getLektor().equals(lektor)) {
                         int index = entityList.indexOf(abstractEntity);
-                        resultList.add(entityList.get(index)); // tu jest problem
+                        resultList.add(entityList.get(index));
                     } else {
                         auxiliaryList.add(abstractEntity); //
                     }
@@ -157,5 +235,9 @@ public class EntitySorter {
         Collections.reverse(resultList); // doing the same but the other way round
         return resultList;
     }
+
+    
+
+    
 
 }

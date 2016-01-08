@@ -33,6 +33,15 @@
             </a>
         </li>
         <li>
+            <a href="testy">
+                <p id="languageTest" class="sectionMenuButton">
+                    <span class="sectionMenuText">
+                        Testy
+                    </span>
+                </p>
+            </a>
+        </li>
+        <li>
             <a href="programy">
                 <p id="programme" class="sectionMenuButton">
                     <span class="sectionMenuText">

@@ -13,6 +13,7 @@ import entity.JezykKursantaPK;
 import entity.JezykLektora;
 import entity.JezykLektoraPK;
 import entity.Kurs;
+import entity.KursKursanta;
 import entity.Kursant;
 import entity.Lektor;
 import entity.Podrecznik;
@@ -29,6 +30,7 @@ import entity.WypozyczeniePK;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -37,6 +39,7 @@ import session.FakturaFacade;
 import session.FirmaFacade;
 import session.JezykFacade;
 import session.KursFacade;
+import session.KursKursantaFacade;
 import session.KursantFacade;
 import session.LektorFacade;
 import session.PodrecznikFacade;
@@ -64,6 +67,9 @@ public class PersistenceManager {
 
     @EJB
     private KursFacade kursFacade;
+    
+    @EJB
+    private KursKursantaFacade kursKursantaFacade;
 
     @EJB
     private LektorFacade lektorFacade;
@@ -90,6 +96,8 @@ public class PersistenceManager {
     private WyplataFacade wyplataFacade;
 
 //    METHODS
+    
+    
     /**
      * Handles removal of the entity from the database
      *
@@ -132,11 +140,18 @@ public class PersistenceManager {
         em.remove(stawkaFirmy);
     }
 
-    public void deleteCustomerCourseFromDatabase(String kursId) {
-        Kurs kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
+    public void deleteCustomerFromCourseFromDatabase(String mainEntityId) {
+        Kurs kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
 
         kurs.setFirmaId(null);
         em.flush();
+        
+        // we should also delete all participants
+        List<KursKursanta> kursKursantaList = kursKursantaFacade.findAll();
+        kursKursantaList.stream().filter((kursKursanta) -> (kursKursanta.getKurs().equals(kurs))).forEach((kursKursanta) -> {
+            em.remove(kursKursanta);
+        });
+        
     }
 
     public void deleteLectorFromCourseFromDatabase(String kursId) {
@@ -163,6 +178,20 @@ public class PersistenceManager {
         em.remove(jezykLektora);
     }
 
+    public void deleteParticipantFromDatabase(String mainEntityId, String kursantId) {
+        List kursList = kursFacade.findAll();
+        List kursantList = kursantFacade.findAll();
+        
+        Kursant kursant = kursantFacade.find(Integer.parseInt(kursantId));
+        Kurs kurs = kursFacade.find(Integer.parseInt(mainEntityId));
+        
+        List<KursKursanta> kursKursantaList = kursKursantaFacade.findAll();
+        for(KursKursanta kursKursanta : kursKursantaList) {
+            if(kursKursanta.getKurs().equals(kurs) && kursKursanta.getKursant().equals(kursant))
+                em.remove(kursKursanta);
+        }
+    }
+    
     public void deleteParticipantsLanguageFromDatabase(Kursant mainEntity, Jezyk jezyk) {
         JezykKursantaPK jezykKursantaPK = new JezykKursantaPK(mainEntity.getId(), jezyk.getId());
         JezykKursanta jezykLektora = em.find(JezykKursanta.class, jezykKursantaPK);
@@ -191,6 +220,17 @@ public class PersistenceManager {
 
         kurs.setLektorId(lektor);
         em.flush();
+    }
+    
+    public void saveAddingParticipantToCourseToDatabase(String mainEntityId, String kursantId) {
+        KursKursanta kursKursanta = new KursKursanta();
+        
+        kursKursanta.setKursant(kursantFacade.find(Integer.parseInt(kursantId)));
+        kursKursanta.setKurs(kursFacade.find(Integer.parseInt(mainEntityId)));
+        
+        em.persist(kursKursanta);
+        em.flush();
+        System.out.print("");
     }
 
     public void saveAddingProgrammeToCourseToDatabase(String programId, String kursId) {
@@ -557,5 +597,9 @@ public class PersistenceManager {
 
         return podrecznik.getId();
     }
+
+    
+
+    
 
 }

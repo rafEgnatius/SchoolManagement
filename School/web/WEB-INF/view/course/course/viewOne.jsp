@@ -83,6 +83,47 @@
 
         <hr />
 
+
+        <!--        course set participants (if customer is set)-->
+
+        <c:if test="${not empty kurs.firma}">
+            <table class="detailedTable">
+                <tr class="tableHeading">
+                    <th colspan="2">kursanci</th>
+                </tr>
+
+                <c:forEach var="kursant" items="${kursantList}">
+                    <tr>
+                        <td>
+                            ${kursant.nazwa}
+                        </td>
+                        <td>
+                            <a class="tinyButton" href="usunKursantaZKursu?kursId=${kurs.id}&kursantId=${kursant.id}">
+                                <span class="tinyButtonText">usuń &#x279f;</span>
+                            </a>
+                        </td>
+                    </tr>
+                </c:forEach>
+                <tr>
+                    <td colspan="2">
+                        <hr class="tableHR"/>
+                        <a class="tinyButton" href="dodajKursantaDoKursu?kursId=${kurs.id}">
+                            <span class="tinyButtonText">dodaj kursanta &#x279f;</span>
+                        </a>
+                    </td>
+                </tr>
+
+
+            </table>
+
+            <hr />
+        </c:if>
+
+
+
+
+
+
         <!--        course set program-->
 
         <table class="detailedTable">

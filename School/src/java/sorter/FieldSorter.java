@@ -135,6 +135,18 @@ public class FieldSorter {
         Collections.sort(entityList, (AbstractEntity p1, AbstractEntity p2) -> p2.getReferencja().compareTo(p1.getReferencja()));
         return entityList;
     }
+    
+    public static List<AbstractEntity> sortRodzaj(List<AbstractEntity> entityList) {
+        // lambda:
+        Collections.sort(entityList, (AbstractEntity p1, AbstractEntity p2) -> p1.getRodzaj().compareTo(p2.getRodzaj()));
+        return entityList;
+    }
+
+    public static List<AbstractEntity> sortRodzajDesc(List<AbstractEntity> entityList) {
+        // lambda:
+        Collections.sort(entityList, (AbstractEntity p1, AbstractEntity p2) -> p2.getRodzaj().compareTo(p1.getRodzaj()));
+        return entityList;
+    }
 
     public static List<AbstractEntity> sortSymbol(List<AbstractEntity> entityList) {
         // lambda:
@@ -159,5 +171,19 @@ public class FieldSorter {
         Collections.sort(entityList, (AbstractEntity p1, AbstractEntity p2) -> p2.getTelefon().compareTo(p1.getTelefon()));
         return entityList;
     }
+
+    public static List<AbstractEntity> sortOcena(List<AbstractEntity> entityList) {
+        // lambda:
+        Collections.sort(entityList, (AbstractEntity p1, AbstractEntity p2) -> p1.getOcena().compareTo(p2.getOcena()));
+        return entityList;
+    }
+
+    public static List<AbstractEntity> sortOcenaDesc(List<AbstractEntity> entityList) {
+        // lambda:
+        Collections.sort(entityList, (AbstractEntity p1, AbstractEntity p2) -> p2.getOcena().compareTo(p1.getOcena()));
+        return entityList;
+    }
+
+    
 
 }
