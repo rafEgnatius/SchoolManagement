@@ -41,6 +41,14 @@
 
         <hr />
 
+        <!--        PARTICIPANT'S LANGUAGE TESTS PART-->
+
+        <a class="smallButton" href="testy?kursantId=${kursant.id}">
+            <span class="smallButtonText">pokaż testy tego kursanta &#x279f;</span>
+        </a>
+
+        <hr />
+
         <!--        PARTICIPANT'S LANGUAGE PART-->
 
         <table class="detailedTable">
@@ -113,6 +121,6 @@
                 </tr>
             </table>
         </form>
-                        
+
     </section>
 </c:if>

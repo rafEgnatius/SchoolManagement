@@ -56,7 +56,7 @@ public class Lekcja extends AbstractEntity implements Serializable {
     private Boolean odwolana;
     @JoinColumn(name = "kurs_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Kurs kursId;
+    private Kurs kurs;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "lekcja")
     private Collection<Obecnosc> obecnoscCollection;
 
@@ -91,12 +91,12 @@ public class Lekcja extends AbstractEntity implements Serializable {
         this.odwolana = odwolana;
     }
 
-    public Kurs getKursId() {
-        return kursId;
+    public Kurs getKurs() {
+        return kurs;
     }
 
-    public void setKursId(Kurs kursId) {
-        this.kursId = kursId;
+    public void setKurs(Kurs kursId) {
+        this.kurs = kursId;
     }
 
     @XmlTransient

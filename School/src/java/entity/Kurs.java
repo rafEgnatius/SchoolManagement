@@ -61,11 +61,11 @@ public class Kurs extends AbstractEntity implements Serializable {
     @Size(max = 45)
     @Column(name = "sala")
     private String sala;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "kurs")
     private Collection<Lekcja> lekcjaCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "kurs")
     private Collection<Test> testCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "kurs")
     private Collection<Termin> terminCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "kurs")
     private Collection<KursKursanta> kursKursantaCollection;

@@ -5,10 +5,13 @@
  */
 package entity;
 
+import converter.CalendarAttributeConverter;
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -48,13 +51,15 @@ public class Termin implements Serializable {
     private String dzien;
     @Column(name = "godzina_start")
     @Temporal(TemporalType.TIME)
-    private Date godzinaStart;
+    @Convert(converter = CalendarAttributeConverter.class)
+    private Calendar godzinaStart;
     @Column(name = "godzina_stop")
     @Temporal(TemporalType.TIME)
-    private Date godzinaStop;
+    @Convert(converter = CalendarAttributeConverter.class)
+    private Calendar godzinaStop;
     @JoinColumn(name = "kurs_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Kurs kursId;
+    private Kurs kurs;
 
     public Termin() {
     }
@@ -79,28 +84,38 @@ public class Termin implements Serializable {
         this.dzien = dzien;
     }
 
-    public Date getGodzinaStart() {
-        return godzinaStart;
+    public String getGodzinaStart() {
+        // rewritten to return String
+        int hour = godzinaStart.get(Calendar.HOUR_OF_DAY);
+        int minute = godzinaStart.get(Calendar.MINUTE);
+        String godzina = String.format("%02d:%02d", hour, minute);
+        
+        return godzina;
     }
 
-    public void setGodzinaStart(Date godzinaStart) {
+    public void setGodzinaStart(Calendar godzinaStart) {
         this.godzinaStart = godzinaStart;
     }
 
-    public Date getGodzinaStop() {
-        return godzinaStop;
+    public String getGodzinaStop() {
+        // rewritten to return String
+        int hour = godzinaStop.get(Calendar.HOUR_OF_DAY);
+        int minute = godzinaStop.get(Calendar.MINUTE);
+        String godzina = String.format("%02d:%02d", hour, minute);
+        
+        return godzina;
     }
 
-    public void setGodzinaStop(Date godzinaStop) {
+    public void setGodzinaStop(Calendar godzinaStop) {
         this.godzinaStop = godzinaStop;
     }
 
-    public Kurs getKursId() {
-        return kursId;
+    public Kurs getKurs() {
+        return kurs;
     }
 
-    public void setKursId(Kurs kursId) {
-        this.kursId = kursId;
+    public void setKurs(Kurs kursId) {
+        this.kurs = kursId;
     }
 
     @Override

@@ -36,15 +36,6 @@
         <nav class="nav-szkola">
             <ul>
                 <li>
-                    <a href="lektorzy">
-                        <p id="methodology" class="mainMenuButton">
-                            <span class="mainMenuText">
-                                Metodyka
-                            </span>
-                        </p>
-                    </a>
-                </li>
-                <li>
                     <a href="kursy">
                         <p id="mainCourse" class="mainMenuButton">
                             <span class="mainMenuText">
@@ -53,6 +44,17 @@
                         </p>
                     </a>
                 </li>
+                
+                <li>
+                    <a href="lektorzy">
+                        <p id="methodology" class="mainMenuButton">
+                            <span class="mainMenuText">
+                                Metodyka
+                            </span>
+                        </p>
+                    </a>
+                </li>
+                
                 <li>
                     <a href="firmy">
                         <p id="organisation" class="mainMenuButton">

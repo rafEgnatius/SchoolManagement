@@ -6,17 +6,15 @@
 package entity;
 
 import java.io.Serializable;
-import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -28,56 +26,70 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "KursKursanta.findAll", query = "SELECT k FROM KursKursanta k"),
-    @NamedQuery(name = "KursKursanta.findById", query = "SELECT k FROM KursKursanta k WHERE k.id = :id")})
+    @NamedQuery(name = "KursKursanta.findByKursId", query = "SELECT k FROM KursKursanta k WHERE k.kursKursantaPK.kursId = :kursId"),
+    @NamedQuery(name = "KursKursanta.findByKursantId", query = "SELECT k FROM KursKursanta k WHERE k.kursKursantaPK.kursantId = :kursantId"),
+    @NamedQuery(name = "KursKursanta.findByOpis", query = "SELECT k FROM KursKursanta k WHERE k.opis = :opis")})
 public class KursKursanta implements Serializable {
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
-    @JoinColumn(name = "kurs_id", referencedColumnName = "id")
+    @EmbeddedId
+    protected KursKursantaPK kursKursantaPK;
+    @Size(max = 45)
+    @Column(name = "opis")
+    private String opis;
+    @JoinColumn(name = "kurs_id", referencedColumnName = "id", insertable = false, updatable = false)
     @ManyToOne(optional = false)
     private Kurs kurs;
-    @JoinColumn(name = "kursant_id", referencedColumnName = "id")
+    @JoinColumn(name = "kursant_id", referencedColumnName = "id", insertable = false, updatable = false)
     @ManyToOne(optional = false)
     private Kursant kursant;
 
     public KursKursanta() {
     }
 
-    public KursKursanta(Integer id) {
-        this.id = id;
+    public KursKursanta(KursKursantaPK kursKursantaPK) {
+        this.kursKursantaPK = kursKursantaPK;
     }
 
-    public Integer getId() {
-        return id;
+    public KursKursanta(int kursId, int kursantId) {
+        this.kursKursantaPK = new KursKursantaPK(kursId, kursantId);
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public KursKursantaPK getKursKursantaPK() {
+        return kursKursantaPK;
+    }
+
+    public void setKursKursantaPK(KursKursantaPK kursKursantaPK) {
+        this.kursKursantaPK = kursKursantaPK;
+    }
+
+    public String getOpis() {
+        return opis;
+    }
+
+    public void setOpis(String opis) {
+        this.opis = opis;
     }
 
     public Kurs getKurs() {
         return kurs;
     }
 
-    public void setKurs(Kurs kursId) {
-        this.kurs = kursId;
+    public void setKurs(Kurs kurs) {
+        this.kurs = kurs;
     }
 
     public Kursant getKursant() {
         return kursant;
     }
 
-    public void setKursant(Kursant kursantId) {
-        this.kursant = kursantId;
+    public void setKursant(Kursant kursant) {
+        this.kursant = kursant;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
+        hash += (kursKursantaPK != null ? kursKursantaPK.hashCode() : 0);
         return hash;
     }
 
@@ -88,7 +100,7 @@ public class KursKursanta implements Serializable {
             return false;
         }
         KursKursanta other = (KursKursanta) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+        if ((this.kursKursantaPK == null && other.kursKursantaPK != null) || (this.kursKursantaPK != null && !this.kursKursantaPK.equals(other.kursKursantaPK))) {
             return false;
         }
         return true;
@@ -96,7 +108,7 @@ public class KursKursanta implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.KursKursanta[ id=" + id + " ]";
+        return "entity.KursKursanta[ kursKursantaPK=" + kursKursantaPK + " ]";
     }
     
 }

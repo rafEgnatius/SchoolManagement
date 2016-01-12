@@ -114,7 +114,8 @@ textarea.inputForm {
 }
 
 
-/* BUTTONS */
+
+/* EMAIL */
 
 tr a {
     color: inherit;
@@ -126,6 +127,15 @@ tr a.email {
 }
 
 tr a.email:hover {
+    text-decoration: underline;
+}
+
+/* LINK */
+tr a.link {
+    color: black;
+}
+
+tr a.link:hover {
     text-decoration: underline;
 }
 
@@ -307,6 +317,12 @@ table {
     background-color: #ccc;
 }
 
+.tableSubHeading {
+    font-weight: bold;
+    background-color: #CCCCFF;
+}
+
+
 /* list */
 
 .listTable {
@@ -337,10 +353,8 @@ table {
     padding: 10px;
 }
 
-table.detailedTable td.inputError {
-    color: red;
-    text-align: left;
-    padding-left: 0px;
+tr.cellsInCentre {
+    text-align: center;
 }
 
 /* forms */
@@ -359,6 +373,11 @@ table.detailedTable td.inputError {
     padding: 5px 20px 5px 20px;
 }
 
+
+/* errors */
+
+
+
 table.formTable td.formError {
     color: red;
     text-align: left;
@@ -368,6 +387,18 @@ table.formTable td.formErrorAsterix {
     color: red;
     text-align: left;
     padding-left: 0px;
+}
+
+table.detailedTable td.inputError {
+    color: red;
+    text-align: left;
+    padding-left: 0px;
+}
+
+table.detailedTable td.inputCenterError {
+    color: red;
+    text-align: center;
+    font-size: smaller;
 }
 
 /* cancel-save table */

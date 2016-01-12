@@ -5,9 +5,6 @@
  */
 package controller.course;
 
-import entity.Firma;
-import entity.Jezyk;
-import entity.Kurs;
 import entity.Kursant;
 import helper.LanguageTestHelper;
 import java.io.IOException;
@@ -20,11 +17,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import session.FirmaFacade;
-import session.JezykFacade;
-import session.JezykKursantaFacade;
 import session.KursFacade;
 import session.KursantFacade;
-import session.TestFacade;
 import session.persistence.PersistenceManager;
 import validator.FormValidator;
 
@@ -43,31 +37,16 @@ import validator.FormValidator;
 public class LanguageTestController extends HttpServlet {
 
     // mainEntity meaning entity of this controller
-    @EJB
-    private TestFacade mainEntityFacade;
     private Kursant mainEntity;
-    private List mainEntityList = new ArrayList();
 
     @EJB
     private FirmaFacade firmaFacade;
-    private Firma firma;
-    private List firmaList = new ArrayList();
     
     @EJB
     private KursFacade kursFacade;
-    private Kurs kurs;
-    private List kursList = new ArrayList();
     
     @EJB
     private KursantFacade kursantFacade;
-    private Kursant kursant;
-    private List kursantList = new ArrayList();
-
-    @EJB
-    private JezykFacade jezykFacade;
-
-    @EJB
-    private JezykKursantaFacade jezykKursantaFacade;
     
     @EJB
     LanguageTestHelper mainEntityListHelper;
@@ -84,7 +63,7 @@ public class LanguageTestController extends HttpServlet {
     private String userPath; // this one to see what to do
 
 //    pagination
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
+    List<List> listOfPages = new ArrayList<>(); // list of lists of single page records
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -99,10 +78,6 @@ public class LanguageTestController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String jezykId;
-        Jezyk jezyk;
-        String poziom;
-
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
         userPath = request.getServletPath(); // this way we know where to go
@@ -111,23 +86,16 @@ public class LanguageTestController extends HttpServlet {
 //  VIEW ALL
             case "/testy":
 
-                // get the necessary lists for the request
-                mainEntityList = mainEntityFacade.findAll();
-                kursList = kursFacade.findAll();
-                kursantList = kursantFacade.findAll();
-                firmaList = firmaFacade.findAll();
-
                 // use helper to get entity list prepared in our request
-                request = mainEntityListHelper.prepareEntityList(request, mainEntityList, kursList, kursantList, firmaList);
+                request = mainEntityListHelper.prepareEntityList(request);
 
                 // and tell the container where to redirect
                 userPath = "/course/languageTest/viewAll";
                 break;
 // ADD             
             case "/dodajTest":
-
-                // just set attribute
-                request.setAttribute("firmaList", firmaFacade.findAll());
+                
+                // all we need is in parameters
 
                 // and ask for a form
                 userPath = "/course/languageTest/form";
@@ -145,13 +113,8 @@ public class LanguageTestController extends HttpServlet {
                 }
 
                 if (intMainEntityId > 0) {
-                    // find the main entity
                     
-                    
-//                    mainEntity = mainEntityFacade.find(intMainEntityId);
-                    
-
-// set as a request attribute all the fields
+                    // set as a request attribute all the fields
                     // and this is so because of the form validation
                     // when we give the form values that are correct
                     request.setAttribute("id", mainEntity.getId());
@@ -170,60 +133,23 @@ public class LanguageTestController extends HttpServlet {
                 // it is confirmed (in POST) so add to database
 
                 String id = request.getParameter("id");
-                String nazwa = request.getParameter("nazwa");
-                String telefon = request.getParameter("telefon");
-                String email = request.getParameter("email");
-                firma = firmaFacade.find(Integer.parseInt(request.getParameter("firmaId")));
+                String rodzaj = request.getParameter("rodzaj");
+                String ocena = request.getParameter("ocena");
+                String kursId = request.getParameter("kursId");
+                String kursantId = request.getParameter("kursantId");
 
-                intMainEntityId = persistenceManager.saveParticipantToDatabase(id, nazwa, telefon, email, firma);
-
-                mainEntityId = intMainEntityId + "";
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
+                persistenceManager.saveLanguageTestToDatabase(id, rodzaj, Integer.parseInt(ocena),
+                        kursFacade.find(Integer.parseInt(kursId)), kursantFacade.find(Integer.parseInt(kursantId)));
 
                 // finally show the newly created entity (so it can be further processed)
-                userPath = "/course/languageTest/viewOne";
-                break;
-// VIEW ONE
-            case "/pokaTest":
-                // first get entity id from request
-                // then prepare another lists that we will need
-
-                request = prepareRequest(request, request.getQueryString()); // set all the attributes that request needs
-
-                userPath = "/course/languageTest/viewOne";
-                break;
-// ADD languageTest'S LANGUAGE
-            case "/dodajJezykKursanta":
-                // first: get three values from the form
-                mainEntityId = request.getParameter("kursantId");
-                jezykId = request.getParameter("jezykId");
-                poziom = request.getParameter("poziom"); // we are looking for "ON" value
-
-                // in case we ran out of languages and do not want user to see big fat 500
-                if (jezykId != null) {
-                    //mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
-                    jezyk = jezykFacade.find(Integer.parseInt(jezykId)); // we should try/catch it later
-                    // now persist:
-                    persistenceManager.saveParticipantsLanguageToDatabase(mainEntity, jezyk, poziom);
-                }
-
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
-
-                userPath = "/course/languageTest/viewOne"; // and show once more - now with another language
-                break;
-// REMOVE languageTest'S LANGUAGE
-            case "/usunJezykKursanta":
-                mainEntityId = request.getParameter("kursantId");
-                jezykId = request.getParameter("jezykId");
-
-//                mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
-                jezyk = jezykFacade.find(Integer.parseInt(jezykId)); // we should try/catch it later
-
-                // now persist:
-                persistenceManager.deleteParticipantsLanguageFromDatabase(mainEntity, jezyk);
-
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
-                userPath = "/course/languageTest/viewOne"; // and show once more - now with another language
+                
+                request.setAttribute("kursId", kursId);
+                request.setAttribute("kursantId", kursantId);
+                
+                // use helper to get entity list prepared in our request
+                request = mainEntityListHelper.prepareEntityList(request);
+                
+                userPath = "/course/languageTest/viewAll";
                 break;
 // FORWARD
         } // close main swith
@@ -254,7 +180,7 @@ public class LanguageTestController extends HttpServlet {
 
         switch (userPath) {
 // CONFIRM
-            case "/dodajKursantaPotwierdz":
+            case "/dodajTestPotwierdz":
 
                 // check with id whether editing or creating
                 String id = request.getParameter("id");
@@ -262,40 +188,33 @@ public class LanguageTestController extends HttpServlet {
                     id = "-1"; // meaning this is the act of creation
                 }
                 // validate
-                String nazwa = request.getParameter("nazwa");
-                String telefon = request.getParameter("telefon");
-                String email = request.getParameter("email");
-                String firmaId = request.getParameter("firmaId");
+                String rodzaj = request.getParameter("rodzaj");
+                String ocena = request.getParameter("ocena");
 
                 boolean formError = false;
 
-                if (!FormValidator.validateString(nazwa)) {
-                    request.setAttribute("nazwaError", "*");
+                if (!FormValidator.validateString(rodzaj)) {
+                    request.setAttribute("rodzajError", "*");
                     formError = true;
                 }
-                if (!FormValidator.validateString(telefon)) {
-                    request.setAttribute("telefonError", "*");
-                    formError = true;
-                }
-                if (!FormValidator.validateString(email)) {
-                    request.setAttribute("emailError", "*");
+                if (FormValidator.validateInteger(ocena) == null) {
+                    request.setAttribute("ocenaError", "*");
                     formError = true;
                 }
 
                 if (formError) {
-                    request.setAttribute("formError", "formError");
-
                     userPath = "/course/languageTest/form";
                 } else {
-                    request.setAttribute("id", id);
                     userPath = "/course/languageTest/confirm";
                 }
 
+                // we should need these
                 request.setAttribute("id", id);
-                request.setAttribute("nazwa", nazwa);
-                request.setAttribute("telefon", telefon);
-                request.setAttribute("email", email);
-                request.setAttribute("firma", firmaFacade.find(Integer.parseInt(firmaId)));
+                request.setAttribute("rodzaj", rodzaj);
+                request.setAttribute("ocena", ocena);
+                
+                // no need for kurs and kursant Ids because they are in parameters
+                
                 // forward it to confirmation
                 break;
 
@@ -314,12 +233,6 @@ public class LanguageTestController extends HttpServlet {
      * when adding and showing new mainEntity entity
      */
     private HttpServletRequest prepareRequest(HttpServletRequest request, String mainEntityId) {
-
-//        mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId));
-
-        request.setAttribute("kursant", mainEntity);
-        request.setAttribute("jezykKursantaList", jezykKursantaFacade.findAll());
-        request.setAttribute("jezykList", jezykFacade.findAll());
 
         return request;
     }

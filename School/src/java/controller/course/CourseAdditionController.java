@@ -6,7 +6,6 @@
 package controller.course;
 
 import entity.Firma;
-import entity.Kurs;
 import entity.Kursant;
 import helper.CourseHelper;
 import helper.CustomerListHelper;
@@ -16,6 +15,7 @@ import helper.ProgrammeListHelper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import javax.ejb.EJB;
@@ -45,11 +45,13 @@ import validator.FormValidator;
             "/dodajLektoraDoKursu",
             "/dodajProgramDoKursu",
             "/dodajStawkeLektora",
+            "/dodajTermin",
             "/usunFirmeZKursu",
             "/usunKursantaZKursu",
             "/usunLektoraZKursu",
             "/usunProgramZKursu",
             "/usunStawkeLektora",
+            "/usunTermin",
             "/zapiszDodanieFirmyDoKursu",
             "/zapiszDodanieKursantaDoKursu",
             "/zapiszDodanieLektoraDoKursu",
@@ -66,7 +68,6 @@ public class CourseAdditionController extends HttpServlet {
 
     @EJB
     private KursFacade kursFacade;
-    private List kursList = new ArrayList();
 
     @EJB
     private KursantFacade kursantFacade;
@@ -287,7 +288,7 @@ public class CourseAdditionController extends HttpServlet {
                 // check if not already have this participant
                 if (!mainEntityHelper.alreadyThere(Integer.parseInt(mainEntityId), Integer.parseInt(kursantId))) {
                     // persist if not:
-                    persistenceManager.saveAddingParticipantToCourseToDatabase(mainEntityId, kursantId);
+                    persistenceManager.saveAddingParticipantToCourseToDatabase(kursFacade.find(Integer.parseInt(mainEntityId)), kursantFacade.find(Integer.parseInt(kursantId)));
                 }
 
                 // use helper to get lektor list prepared in our request
@@ -331,16 +332,14 @@ public class CourseAdditionController extends HttpServlet {
                 userPath = "/course/course/addProgramme";
                 break;
 
-// SAVE PROGRAMME
-            case "/zapiszDodanieProgramuDoKursu":
-                // it is confirmed so add to database
+// REMOVE DAY AND TIME
+            case "/usunTermin":
 
                 // check parameters
-                programId = request.getParameter("programId");
-                mainEntityId = request.getParameter("kursId");
+                String terminId = request.getQueryString();
 
                 // now persist:
-                persistenceManager.saveAddingProgrammeToCourseToDatabase(programId, mainEntityId);
+                persistenceManager.deleteDayAndTimeFromCourseFromDatabase(terminId);
 
                 // use helper to get lektor list prepared in our request
                 request = mainEntityHelper.prepareEntityView(request, mainEntityId);
@@ -409,13 +408,52 @@ public class CourseAdditionController extends HttpServlet {
         BigDecimal bigDecimalAmount;
         String stawka;
 
-        CourseHelper courseHelper = new CourseHelper();
-
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
         userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
+
+// ADD DAY AND TIME
+            case "/dodajTermin":
+                // it is confirmed so add to database
+
+                // check parameters
+                mainEntityId = request.getParameter("id");
+                String stringGodzinaStart = request.getParameter("godzinaStart");
+                String stringGodzinaStop = request.getParameter("godzinaStop");
+
+                // validate
+                boolean formError = false;
+                Calendar godzinaStart;
+                Calendar godzinaStop;
+
+                if ((godzinaStart = FormValidator.validateTime(stringGodzinaStart)) == null) {
+                    request.setAttribute("godzinaStartError", "błędne dane");
+                    formError = true;
+                } else {
+                    request.setAttribute("godzinaStart", stringGodzinaStart);
+                }
+                if ((godzinaStop = FormValidator.validateTime(stringGodzinaStop)) == null) {
+                    request.setAttribute("godzinaStopError", "błędne dane");
+                    formError = true;
+                } else {
+                    request.setAttribute("godzinaStop", stringGodzinaStop);
+                }
+
+                if (!formError) {
+                    // now persist:
+                    persistenceManager.saveAddingDayAndTimeToCourseToDatabase(mainEntityId, request.getParameter("dzien"), godzinaStart, godzinaStop);
+                    request.removeAttribute("godzinaStart");
+                    request.removeAttribute("godzinaStop");
+                }
+
+                // use helper to get lektor list prepared in our request
+                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+
+                // prepare redirect
+                userPath = "/course/course/viewOne";
+                break;
 
 //  ADD RATE (lector)
             case "/dodajStawkeLektora":
@@ -432,7 +470,7 @@ public class CourseAdditionController extends HttpServlet {
                 }
 
                 // use helper to get lektor list prepared in our request
-                request = courseHelper.prepareEntityView(request, mainEntityId);
+                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";

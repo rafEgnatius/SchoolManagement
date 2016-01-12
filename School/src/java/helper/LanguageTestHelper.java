@@ -15,8 +15,10 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
+import session.FirmaFacade;
 import session.KursFacade;
 import session.KursantFacade;
+import session.TestFacade;
 import sorter.EntitySorter;
 import sorter.FieldSorter;
 
@@ -29,9 +31,20 @@ public class LanguageTestHelper {
 
     @EJB
     KursFacade kursFacade;
-    
+
     @EJB
     KursantFacade kursantFacade;
+
+    @EJB
+    TestFacade mainEntityFacade;
+
+    @EJB
+    FirmaFacade firmaFacade;
+
+    List mainEntityList;
+    List kursList;
+    List kursantList;
+    List firmaList;
 
     private static final int pageSize = 10; // number of records on one page
 
@@ -44,9 +57,8 @@ public class LanguageTestHelper {
 
     private String searchPhrase;
     private String searchOption;
-    
-    // METHODS, MAN
 
+    // METHODS, MAN
     private List filterKurs(List mainEntityList, String kursId) {
         List resultList = new ArrayList();
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId));
@@ -60,7 +72,7 @@ public class LanguageTestHelper {
         }
         return resultList;
     }
-    
+
     private List filterKursant(List mainEntityList, String kursantId) {
         List resultList = new ArrayList();
         Kursant kursant = kursantFacade.find(Integer.parseInt(kursantId));
@@ -74,7 +86,7 @@ public class LanguageTestHelper {
         }
         return resultList;
     }
-    
+
     /**
      * Handles preparation of the list
      *
@@ -84,19 +96,24 @@ public class LanguageTestHelper {
      * @param firmaList
      * @return HttpServletRequest
      */
-    public HttpServletRequest prepareEntityList(HttpServletRequest request,
-            List mainEntityList, List kursList, List kursantList, List firmaList) {
+    public HttpServletRequest prepareEntityList(HttpServletRequest request) {
 
+        mainEntityList = mainEntityFacade.findAll();
+        kursList = kursFacade.findAll();
+        kursantList = kursantFacade.findAll();
+        firmaList = firmaFacade.findAll();
         // in this case we need to filter the results in case we need specific kurs and kursant (participant)
         String kursId = request.getParameter("kursId");
         if (kursId != null && !kursId.equals("")) {
             mainEntityList = filterKurs(mainEntityList, kursId);
+            request.setAttribute("kursId", kursId);
         }
 
         // and kursant
         String kursantId = request.getParameter("kursantId");
         if (kursantId != null && !kursantId.equals("")) {
             mainEntityList = filterKursant(mainEntityList, kursantId);
+            request.setAttribute("kursantId", kursantId);
         }
 
         List<Kursant> resultList;
@@ -219,7 +236,5 @@ public class LanguageTestHelper {
 
         return request;
     }
-
-    
 
 }

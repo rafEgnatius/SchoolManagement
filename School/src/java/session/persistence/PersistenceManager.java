@@ -14,6 +14,7 @@ import entity.JezykLektora;
 import entity.JezykLektoraPK;
 import entity.Kurs;
 import entity.KursKursanta;
+import entity.KursKursantaPK;
 import entity.Kursant;
 import entity.Lektor;
 import entity.Podrecznik;
@@ -23,6 +24,8 @@ import entity.StawkaFirmy;
 import entity.StawkaFirmyPK;
 import entity.StawkaLektora;
 import entity.StawkaLektoraPK;
+import entity.Termin;
+import entity.Test;
 import entity.Wplata;
 import entity.Wyplata;
 import entity.Wypozyczenie;
@@ -30,6 +33,7 @@ import entity.WypozyczeniePK;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -45,6 +49,8 @@ import session.LektorFacade;
 import session.PodrecznikFacade;
 import session.ProgramFacade;
 import session.RachunekFacade;
+import session.TerminFacade;
+import session.TestFacade;
 import session.WplataFacade;
 import session.WyplataFacade;
 
@@ -67,7 +73,7 @@ public class PersistenceManager {
 
     @EJB
     private KursFacade kursFacade;
-    
+
     @EJB
     private KursKursantaFacade kursKursantaFacade;
 
@@ -88,6 +94,9 @@ public class PersistenceManager {
 
     @EJB
     private RachunekFacade rachunekFacade;
+    
+    @EJB
+    private TerminFacade terminFacade;
 
     @EJB
     private WplataFacade wplataFacade;
@@ -95,9 +104,10 @@ public class PersistenceManager {
     @EJB
     private WyplataFacade wyplataFacade;
 
+    @EJB
+    private TestFacade testFacade;
+
 //    METHODS
-    
-    
     /**
      * Handles removal of the entity from the database
      *
@@ -145,13 +155,18 @@ public class PersistenceManager {
 
         kurs.setFirmaId(null);
         em.flush();
-        
+
         // we should also delete all participants
         List<KursKursanta> kursKursantaList = kursKursantaFacade.findAll();
         kursKursantaList.stream().filter((kursKursanta) -> (kursKursanta.getKurs().equals(kurs))).forEach((kursKursanta) -> {
             em.remove(kursKursanta);
         });
-        
+
+    }
+    
+    public void deleteDayAndTimeFromCourseFromDatabase(String terminId) {
+        Termin termin = terminFacade.find(Integer.parseInt(terminId));
+        em.remove(termin);
     }
 
     public void deleteLectorFromCourseFromDatabase(String kursId) {
@@ -181,17 +196,18 @@ public class PersistenceManager {
     public void deleteParticipantFromDatabase(String mainEntityId, String kursantId) {
         List kursList = kursFacade.findAll();
         List kursantList = kursantFacade.findAll();
-        
+
         Kursant kursant = kursantFacade.find(Integer.parseInt(kursantId));
         Kurs kurs = kursFacade.find(Integer.parseInt(mainEntityId));
-        
+
         List<KursKursanta> kursKursantaList = kursKursantaFacade.findAll();
-        for(KursKursanta kursKursanta : kursKursantaList) {
-            if(kursKursanta.getKurs().equals(kurs) && kursKursanta.getKursant().equals(kursant))
+        for (KursKursanta kursKursanta : kursKursantaList) {
+            if (kursKursanta.getKurs().equals(kurs) && kursKursanta.getKursant().equals(kursant)) {
                 em.remove(kursKursanta);
+            }
         }
     }
-    
+
     public void deleteParticipantsLanguageFromDatabase(Kursant mainEntity, Jezyk jezyk) {
         JezykKursantaPK jezykKursantaPK = new JezykKursantaPK(mainEntity.getId(), jezyk.getId());
         JezykKursanta jezykLektora = em.find(JezykKursanta.class, jezykKursantaPK);
@@ -207,6 +223,7 @@ public class PersistenceManager {
     }
 
     public void saveAddingCustomerToCourseToDatabase(String firmaId, String kursId) {
+
         Firma firma = firmaFacade.find(Integer.parseInt(firmaId)); // we should try/catch it later
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
 
@@ -214,6 +231,19 @@ public class PersistenceManager {
         em.flush();
     }
 
+    public void saveAddingDayAndTimeToCourseToDatabase(String mainEntityId, String dzien, Calendar godzinaStart, Calendar godzinaStop) {
+        Kurs kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
+        Termin termin = new Termin();
+        
+        termin.setDzien(dzien);
+        termin.setGodzinaStart(godzinaStart);
+        termin.setGodzinaStop(godzinaStop);
+        termin.setKurs(kursFacade.find(Integer.parseInt(mainEntityId)));
+        
+        em.persist(termin);
+        em.flush();
+    }
+    
     public void saveAddingLectorToCourseToDatabase(String lektorId, String kursId) {
         Lektor lektor = lektorFacade.find(Integer.parseInt(lektorId)); // we should try/catch it later
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
@@ -221,16 +251,25 @@ public class PersistenceManager {
         kurs.setLektorId(lektor);
         em.flush();
     }
-    
-    public void saveAddingParticipantToCourseToDatabase(String mainEntityId, String kursantId) {
-        KursKursanta kursKursanta = new KursKursanta();
-        
-        kursKursanta.setKursant(kursantFacade.find(Integer.parseInt(kursantId)));
-        kursKursanta.setKurs(kursFacade.find(Integer.parseInt(mainEntityId)));
-        
+
+    public void saveAddingParticipantToCourseToDatabase(Kurs kurs, Kursant kursant) {
+
+        // set up primary key object
+        KursKursantaPK kursKursantaPK = new KursKursantaPK(kurs.getId(), kursant.getId()); // watch the order -> kurs first, then kursant
+
+        // create item using PK object
+        KursKursanta kursKursanta = new KursKursanta(kursKursantaPK);
+
+        // set
+        kursKursanta.setKurs(kurs);
+
+        // set
+        kursKursanta.setKursant(kursant);
+
+        // set
+        kursKursanta.setOpis("brak");
+
         em.persist(kursKursanta);
-        em.flush();
-        System.out.print("");
     }
 
     public void saveAddingProgrammeToCourseToDatabase(String programId, String kursId) {
@@ -395,6 +434,25 @@ public class PersistenceManager {
         em.flush();
 
         return faktura.getId();
+    }
+
+    public int saveLanguageTestToDatabase(String id, String rodzaj, Integer ocena, Kurs kurs, Kursant kursant) {
+        Test test; // we have to check whether creating or editing
+        if (id.equals("-1")) {
+            test = new Test(); // new one
+        } else {
+            test = testFacade.find(Integer.parseInt(id)); // existing one
+        }
+
+        test.setRodzaj(rodzaj);
+        test.setOcena(ocena);
+        test.setKurs(kurs);
+        test.setKursant(kursant);
+
+        em.persist(test);
+        em.flush();
+
+        return test.getId();
     }
 
     /**

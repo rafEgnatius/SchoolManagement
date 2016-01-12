@@ -9,6 +9,7 @@ import entity.Firma;
 import entity.Kurs;
 import entity.KursKursanta;
 import entity.Kursant;
+import entity.Termin;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +21,7 @@ import session.KursKursantaFacade;
 import session.KursantFacade;
 import session.StawkaFirmyFacade;
 import session.StawkaLektoraFacade;
+import session.TerminFacade;
 
 /**
  *
@@ -42,6 +44,9 @@ public class CourseHelper {
 
     @EJB
     private StawkaLektoraFacade stawkaLektoraFacade;
+    
+    @EJB
+    private TerminFacade terminFacade;
 
     
     public boolean alreadyThere(int kursId, int kursantId) {
@@ -60,10 +65,25 @@ public class CourseHelper {
         return false;
     }
     
+    private List filterKursForTerminList(List mainEntityList, String kursId) {
+        List resultList = new ArrayList();
+        Kurs kurs = kursFacade.find(Integer.parseInt(kursId));
+
+        Iterator it = mainEntityList.iterator();
+        while (it.hasNext()) {
+            Termin termin = (Termin) it.next();
+            if (termin.getKurs().equals(kurs)) {
+                resultList.add(termin);
+            }
+        }
+        return resultList;
+    }
+    
     public HttpServletRequest prepareEntityView(HttpServletRequest request, String mainEntityId) {
 
         // set attributes
-        Kurs kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
+        int i = Integer.parseInt(mainEntityId);
+        Kurs kurs = kursFacade.find(i); // we should try/catch it later
         request.setAttribute("kurs", kurs);
 
         Firma firma = kurs.getFirma();
@@ -91,6 +111,10 @@ public class CourseHelper {
 
         List stawkaLektoraList = stawkaLektoraFacade.findAll();
         request.setAttribute("stawkaLektoraList", stawkaLektoraList);
+        
+        List terminList = terminFacade.findAll(); // and filter this list
+        terminList = filterKursForTerminList(terminList, mainEntityId);
+        request.setAttribute("terminList", terminList);
 
         return request;
     }

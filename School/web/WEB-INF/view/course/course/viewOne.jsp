@@ -55,13 +55,16 @@
 
         <table class="detailedTable">
             <tr class="tableHeading">
-                <th colspan="2">firma</th>
+                <th colspan="3">firma</th>
             </tr>
 
             <c:if test="${not empty kurs.firma}">
                 <tr>
                     <td>
-                        kurs prowadzony w: ${kurs.firma.nazwa}
+                        kurs prowadzony w: <a href="pokazFirme?${kurs.firma.id}" class="link">${kurs.firma.nazwa}</a>
+                    </td>
+                    <td>
+                        <a href="testy?kursId=${kurs.id}" class="link">pokaż testy kursantów</a>
                     </td>
                     <td>
                         <a class="tinyButton" href="usunFirmeZKursu?${kurs.id}">
@@ -89,13 +92,21 @@
         <c:if test="${not empty kurs.firma}">
             <table class="detailedTable">
                 <tr class="tableHeading">
-                    <th colspan="2">kursanci</th>
+                    <th colspan="4">kursanci</th>
                 </tr>
 
                 <c:forEach var="kursant" items="${kursantList}">
                     <tr>
                         <td>
-                            ${kursant.nazwa}
+                            <a href="pokazKursanta?${kursant.id}" class="link">${kursant.nazwa}</a>
+                        </td>
+                        <td>
+                            <a href="testy?kursId=${kurs.id}&kursantId=${kursant.id}" class="link">pokaż testy uczestnika</a>
+                        </td>
+                        <td>
+                            <a class="tinyButton" href="dodajTest?kursId=${kurs.id}&kursantId=${kursant.id}">
+                                <span class="tinyButtonText">dodaj test językowy &#x279f;</span>
+                            </a>
                         </td>
                         <td>
                             <a class="tinyButton" href="usunKursantaZKursu?kursId=${kurs.id}&kursantId=${kursant.id}">
@@ -120,9 +131,76 @@
         </c:if>
 
 
+        <!--        course DATE AND TIME -->
 
 
+        <table class="detailedTable">
+            <tr class="tableHeading">
+                <th colspan="4">terminy zajęć</th>
+            </tr>
+            <tr class="tableSubHeading">
+                <th>dzień</th>
+                <th>początek (gg:mm)</th>
+                <th>koniec (gg:mm)</th>
+                <th></th>
+            </tr>
+            <c:if test="${not empty terminList}">
+                <c:forEach var="termin" items="${terminList}">
+                    <tr class="cellsInCentre">
+                        <td>
+                            ${termin.dzien}
+                        </td>
+                        <td>
+                            ${termin.godzinaStart}
+                        </td>
+                        <td>
+                            ${termin.godzinaStop}
+                        </td>
+                        <td>
+                            <a class="tinyButton" href="usunTermin?${termin.id}">
+                                <span class="tinyButtonText">usuń &#x279f;</span>
+                            </a>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </c:if>
+            <form action="dodajTermin" method="POST">
+                <tr class="cellsInCentre">
+                    <td>
+                        <select name="dzien">
+                            <option value="poniedziałek">poniedziałek</option>
+                            <option value="wtorek">wtorek</option>
+                            <option value="środa">środa</option>
+                            <option value="czwartek">czwartek</option>
+                            <option value="piątek">piątek</option>
+                            <option value="sobota">sobota</option>
+                            <option value="niedziela">niedziela</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="time" name="godzinaStart" value="${godzinaStart}" />
+                    </td>
+                    <td>
+                        <input type="time" name="godzinaStop" value="${godzinaStop}" />
+                    </td>
+                    <td>
+                        <input type="submit" value="Dodaj" />
+                        <input type="hidden" name="id" value="${kurs.id}" />
+                    </td>
+                </tr>
+                <c:if test="${not empty godzinaStartError || not empty godzinaStopError}">
+                    <tr class="cellsInCentre">
+                        <td></td>
+                        <td class="inputCenterError">${godzinaStartError}</td>
+                        <td class="inputCenterError">${godzinaStopError}</td>
+                        <td></td>
+                    </tr>
+                </c:if>
+            </form>
 
+        </table>
+
+        <hr />
 
         <!--        course set program-->
 
