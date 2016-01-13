@@ -332,14 +332,16 @@ public class CourseAdditionController extends HttpServlet {
                 userPath = "/course/course/addProgramme";
                 break;
 
-// REMOVE DAY AND TIME
-            case "/usunTermin":
+// SAVE PROGRAMME
+            case "/zapiszDodanieProgramuDoKursu":
+                // it is confirmed so add to database
 
                 // check parameters
-                String terminId = request.getQueryString();
+                programId = request.getParameter("programId");
+                mainEntityId = request.getParameter("kursId");
 
                 // now persist:
-                persistenceManager.deleteDayAndTimeFromCourseFromDatabase(terminId);
+                persistenceManager.saveAddingProgrammeToCourseToDatabase(programId, mainEntityId);
 
                 // use helper to get lektor list prepared in our request
                 request = mainEntityHelper.prepareEntityView(request, mainEntityId);
@@ -373,6 +375,22 @@ public class CourseAdditionController extends HttpServlet {
 
                 // now persist:
                 persistenceManager.deleteLectorRateFromDatabase(Integer.parseInt(mainEntityId), Integer.parseInt(lektorId));
+
+                // use helper to get lektor list prepared in our request
+                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+
+                // prepare redirect
+                userPath = "/course/course/viewOne";
+                break;
+
+// REMOVE DAY AND TIME
+            case "/usunTermin":
+
+                // check parameters
+                String terminId = request.getQueryString();
+
+                // now persist:
+                persistenceManager.deleteDayAndTimeFromCourseFromDatabase(terminId);
 
                 // use helper to get lektor list prepared in our request
                 request = mainEntityHelper.prepareEntityView(request, mainEntityId);

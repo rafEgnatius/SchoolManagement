@@ -21,6 +21,15 @@ header {
     border-radius: 15px;
 }
 
+div.inlineTableDisplay {
+    display: inline-table;
+}
+
+div.listItemDisplay {
+    display: list-item;
+    list-style-type: none;
+}
+
 #logo {
     height: 100px;
     width: 400px;

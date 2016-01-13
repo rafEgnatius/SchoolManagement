@@ -101,9 +101,4 @@
 
     <!--                pagination goes here (if necessary)-->
 
-    
-    kursId ${kursId}
-    kursantId ${kursantId}
-    
-    
 </section>
