@@ -43,7 +43,7 @@ public class BillHelper {
     public HttpServletRequest prepareEntityList(HttpServletRequest request,
             List mainEntityList, List lektorList) {
 
-        List<Rachunek> resultList;
+        List resultList;
 
         try {
             pageNumber = Integer.parseInt(request.getParameter("pageNumber"));

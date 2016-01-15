@@ -6,7 +6,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <section id="section-szkola-one-column">
-    <table class="cancelSaveTable">
+    <table class="viewAllTable">
         <tr>
             <td class="cellWithPagination">
                 <ul class="pagination">

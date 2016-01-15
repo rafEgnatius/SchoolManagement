@@ -6,8 +6,10 @@
 package helper;
 
 import entity.Kurs;
+import entity.KursKursanta;
 import entity.Kursant;
-import entity.Test;
+import entity.Lekcja;
+import entity.Obecnosc;
 import finder.SchoolFinder;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,10 +17,10 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
-import session.FirmaFacade;
 import session.KursFacade;
-import session.KursantFacade;
-import session.TestFacade;
+import session.LekcjaFacade;
+import session.ObecnoscFacade;
+import session.persistence.PersistenceManager;
 import sorter.EntitySorter;
 import sorter.FieldSorter;
 
@@ -27,19 +29,19 @@ import sorter.FieldSorter;
  * @author Rafa
  */
 @Stateless
-public class LanguageTestHelper {
+public class LessonHelper {
+
+    @EJB
+    LekcjaFacade mainEntityFacade;
 
     @EJB
     KursFacade kursFacade;
 
     @EJB
-    KursantFacade kursantFacade;
+    ObecnoscFacade obecnoscFacade;
 
     @EJB
-    TestFacade mainEntityFacade;
-
-    @EJB
-    FirmaFacade firmaFacade;
+    PersistenceManager persistanceManager;
 
     List mainEntityList;
     List kursList;
@@ -58,32 +60,64 @@ public class LanguageTestHelper {
     private String searchPhrase;
     private String searchOption;
 
-    // METHODS, MAN
     private List filterKurs(List mainEntityList, String kursId) {
         List resultList = new ArrayList();
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId));
 
         Iterator it = mainEntityList.iterator();
         while (it.hasNext()) {
-            Test test = (Test) it.next();
-            if (test.getKurs().equals(kurs)) {
-                resultList.add(test);
+            Lekcja lekcja = (Lekcja) it.next();
+            if (lekcja.getKurs().equals(kurs)) {
+                resultList.add(lekcja);
             }
         }
         return resultList;
     }
 
-    private List filterKursant(List mainEntityList, String kursantId) {
+    // return only these that have proper lesson
+    private List filterLesson(List obecnoscList, Lekcja lekcja, Kurs kurs) {
         List resultList = new ArrayList();
-        Kursant kursant = kursantFacade.find(Integer.parseInt(kursantId));
 
-        Iterator it = mainEntityList.iterator();
+        Iterator it = obecnoscList.iterator();
         while (it.hasNext()) {
-            Test test = (Test) it.next();
-            if (test.getKursant().equals(kursant)) {
-                resultList.add(test);
+            Obecnosc obecnosc = (Obecnosc) it.next();
+            if (obecnosc.getLekcja().equals(lekcja)) {
+                resultList.add(obecnosc);
             }
         }
+
+        // there is a problem when there is a kursant that is member of the kur Collection
+        // but not on our resultList
+        // now check if anyone is missing
+        // we do it by checking elements of the Collection
+        it = kurs.getKursKursantaCollection().iterator();
+
+        List testowaLista = (List) kurs.getKursKursantaCollection();
+
+        while (it.hasNext()) {
+            KursKursanta kursKursanta = (KursKursanta) it.next();
+            Kursant kursant = kursKursanta.getKursant();
+
+            // and now if there is no kursant in our list we just have to acknowledge it
+            boolean found = false; // if there are no one on the second list...
+            Iterator it2 = resultList.iterator();
+
+            // and check if on the list
+            innerloop:
+            while (it2.hasNext()) {
+                Obecnosc obecnosc = (Obecnosc) it2.next();
+                if (obecnosc.getKursant().equals(kursant)) {
+                    found = true;
+                    break innerloop;
+                }
+            }
+            // and if not found we have to add him
+            if (!found) {
+                Obecnosc obecnosc = persistanceManager.savePresence(true, lekcja, kursant, false);
+                resultList.add(obecnosc);
+            }
+        }
+
         return resultList;
     }
 
@@ -92,28 +126,19 @@ public class LanguageTestHelper {
      *
      *
      * @param request
-     * @param mainEntityList
-     * @param firmaList
      * @return HttpServletRequest
      */
     public HttpServletRequest prepareEntityList(HttpServletRequest request) {
 
         mainEntityList = mainEntityFacade.findAll();
         kursList = kursFacade.findAll();
-        kursantList = kursantFacade.findAll();
-        firmaList = firmaFacade.findAll();
-        // in this case we need to filter the results in case we need specific kurs and kursant (participant)
+
+        // we need only those those lessons that have appropiriate course (kurs)
+        // in this case we need to filter the results in case we need specific kurs
         String kursId = request.getParameter("kursId");
         if (kursId != null && !kursId.equals("")) {
             mainEntityList = filterKurs(mainEntityList, kursId);
             request.setAttribute("kursId", kursId);
-        }
-
-        // and kursant
-        String kursantId = request.getParameter("kursantId");
-        if (kursantId != null && !kursantId.equals("")) {
-            mainEntityList = filterKursant(mainEntityList, kursantId);
-            request.setAttribute("kursantId", kursantId);
         }
 
         List resultList;
@@ -171,21 +196,12 @@ public class LanguageTestHelper {
                     sortAsc = true;
                 }
                 break;
-            case ("rodzaj"):
+            case ("data"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortRodzajDesc(mainEntityList);
+                    mainEntityList = FieldSorter.sortDataDesc(mainEntityList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortRodzaj(mainEntityList);
-                    sortAsc = true;
-                }
-                break;
-            case ("ocena"):
-                if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortOcenaDesc(mainEntityList);
-                    sortAsc = false;
-                } else {
-                    mainEntityList = FieldSorter.sortOcena(mainEntityList);
+                    mainEntityList = FieldSorter.sortData(mainEntityList);
                     sortAsc = true;
                 }
                 break;
@@ -195,15 +211,6 @@ public class LanguageTestHelper {
                     sortAsc = false;
                 } else {
                     mainEntityList = EntitySorter.sortKurs(mainEntityList);
-                    sortAsc = true;
-                }
-                break;
-            case ("kursant"):
-                if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = EntitySorter.sortKursantDesc(mainEntityList);
-                    sortAsc = false;
-                } else {
-                    mainEntityList = EntitySorter.sortKursant(mainEntityList);
                     sortAsc = true;
                 }
                 break;
@@ -229,10 +236,26 @@ public class LanguageTestHelper {
         request.setAttribute("searchPhrase", searchPhrase);
         request.setAttribute("searchOption", searchOption);
 
-        request.setAttribute("testList", resultList);
-        request.setAttribute("kursantList", kursantList);
+        request.setAttribute("lekcjaList", resultList);
         request.setAttribute("kursList", kursList);
-        request.setAttribute("firmaList", firmaList);
+
+        return request;
+    }
+
+    public HttpServletRequest prepareEntityView(HttpServletRequest request, String mainEntityId) {
+        // set attributes for main part
+        int i = Integer.parseInt(mainEntityId);
+        Lekcja lekcja = mainEntityFacade.find(i); // we should try/catch it later
+        request.setAttribute("lekcja", lekcja);
+        request.setAttribute("kurs", lekcja.getKurs());
+
+        // and now for obecnosc list
+        List obecnoscList = obecnoscFacade.findAll();
+
+        // now filter only relevant ones
+        obecnoscList = filterLesson(obecnoscList, lekcja, lekcja.getKurs());
+
+        request.setAttribute("obecnoscList", obecnoscList);
 
         return request;
     }

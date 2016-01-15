@@ -240,4 +240,12 @@ public class Kurs extends AbstractEntity implements Serializable {
     public String toString() {
         return "entity.Kurs[ id=" + id + " ]";
     }
+
+    
+    
+    // additional
+    
+    void addKursKursanta(KursKursanta kursKursanta) {
+        this.kursKursantaCollection.add(kursKursanta);
+    }
 }

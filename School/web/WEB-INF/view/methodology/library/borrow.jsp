@@ -14,7 +14,7 @@
         <c:if test="${!empty podrecznikId}">
             <!--    if lector id not set show this part,
                 we search for database record here-->
-            <table class="cancelSaveTable">
+            <table class="viewAllTable">
                 <tr>
                     <td>
                         <form action="wyszukajLektoraDoWypozyczenia" method="POST">
@@ -74,7 +74,7 @@
         <c:if test="${!empty lektorId}">
             <!--    if lector id not set show this part,
                 we search for database record here-->
-            <table class="cancelSaveTable">
+            <table class="viewAllTable">
                 <tr>
                     <td>
                         <form action="dodajPodrecznikDoWypozyczenia">

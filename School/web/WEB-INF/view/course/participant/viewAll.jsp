@@ -7,7 +7,7 @@
 
 <section id="section-szkola-one-column">
 
-    <table class="cancelSaveTable">
+    <table class="viewAllTable">
         <tr>
             <td>
                 <form action="kursanci">

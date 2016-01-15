@@ -16,7 +16,10 @@ import entity.Kurs;
 import entity.KursKursanta;
 import entity.KursKursantaPK;
 import entity.Kursant;
+import entity.Lekcja;
 import entity.Lektor;
+import entity.Obecnosc;
+import entity.ObecnoscPK;
 import entity.Podrecznik;
 import entity.Program;
 import entity.Rachunek;
@@ -45,6 +48,7 @@ import session.JezykFacade;
 import session.KursFacade;
 import session.KursKursantaFacade;
 import session.KursantFacade;
+import session.LekcjaFacade;
 import session.LektorFacade;
 import session.PodrecznikFacade;
 import session.ProgramFacade;
@@ -87,6 +91,9 @@ public class PersistenceManager {
     private KursantFacade kursantFacade;
 
     @EJB
+    private LekcjaFacade lekcjaFacade;
+
+    @EJB
     private PodrecznikFacade podrecznikFacade;
 
     @EJB
@@ -94,7 +101,7 @@ public class PersistenceManager {
 
     @EJB
     private RachunekFacade rachunekFacade;
-    
+
     @EJB
     private TerminFacade terminFacade;
 
@@ -162,8 +169,14 @@ public class PersistenceManager {
             em.remove(kursKursanta);
         });
 
+        // and Day and Hour (Termin) for this course
+        List<Termin> terminList = terminFacade.findAll();
+        terminList.stream().filter((termin) -> (termin.getKurs().equals(kurs))).forEach((termin) -> {
+            em.remove(termin);
+        });
+
     }
-    
+
     public void deleteDayAndTimeFromCourseFromDatabase(String terminId) {
         Termin termin = terminFacade.find(Integer.parseInt(terminId));
         em.remove(termin);
@@ -180,6 +193,8 @@ public class PersistenceManager {
      *
      *
      *
+     * @param lektor
+     * @param jezyk
      */
     public void deleteLectorsLanguageFromDatabase(Lektor lektor, Jezyk jezyk) {
 
@@ -194,18 +209,14 @@ public class PersistenceManager {
     }
 
     public void deleteParticipantFromDatabase(String mainEntityId, String kursantId) {
-        List kursList = kursFacade.findAll();
-        List kursantList = kursantFacade.findAll();
 
         Kursant kursant = kursantFacade.find(Integer.parseInt(kursantId));
         Kurs kurs = kursFacade.find(Integer.parseInt(mainEntityId));
 
         List<KursKursanta> kursKursantaList = kursKursantaFacade.findAll();
-        for (KursKursanta kursKursanta : kursKursantaList) {
-            if (kursKursanta.getKurs().equals(kurs) && kursKursanta.getKursant().equals(kursant)) {
-                em.remove(kursKursanta);
-            }
-        }
+        kursKursantaList.stream().filter((kursKursanta) -> (kursKursanta.getKurs().equals(kurs) && kursKursanta.getKursant().equals(kursant))).forEach((kursKursanta) -> {
+            em.remove(kursKursanta);
+        });
     }
 
     public void deleteParticipantsLanguageFromDatabase(Kursant mainEntity, Jezyk jezyk) {
@@ -234,16 +245,16 @@ public class PersistenceManager {
     public void saveAddingDayAndTimeToCourseToDatabase(String mainEntityId, String dzien, Calendar godzinaStart, Calendar godzinaStop) {
         Kurs kurs = kursFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
         Termin termin = new Termin();
-        
+
         termin.setDzien(dzien);
         termin.setGodzinaStart(godzinaStart);
         termin.setGodzinaStop(godzinaStop);
         termin.setKurs(kursFacade.find(Integer.parseInt(mainEntityId)));
-        
+
         em.persist(termin);
         em.flush();
     }
-    
+
     public void saveAddingLectorToCourseToDatabase(String lektorId, String kursId) {
         Lektor lektor = lektorFacade.find(Integer.parseInt(lektorId)); // we should try/catch it later
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId)); // we should try/catch it later
@@ -270,6 +281,8 @@ public class PersistenceManager {
         kursKursanta.setOpis("brak");
 
         em.persist(kursKursanta);
+        kurs = em.merge(kurs);
+        em.flush();
     }
 
     public void saveAddingProgrammeToCourseToDatabase(String programId, String kursId) {
@@ -490,9 +503,14 @@ public class PersistenceManager {
     }
 
     /**
-     *
-     *
-     *
+     * @param id
+     * @param nazwa
+     * @param miasto
+     * @param telefon
+     * @param email
+     * @param umowa
+     * @param nip
+     * @return
      */
     public int saveLectorToDatabase(String id, String nazwa, String miasto, String telefon, String email, String umowa, String nip) {
         Lektor lektor; // we have to check whether creating or editing
@@ -519,6 +537,9 @@ public class PersistenceManager {
      *
      *
      *
+     * @param lektor
+     * @param jezyk
+     * @param nativeSpeaker
      */
     public void saveLectorsLanguageToDatabase(Lektor lektor, Jezyk jezyk, boolean nativeSpeaker) {
 
@@ -538,6 +559,25 @@ public class PersistenceManager {
         jezykLektora.setNatywny(nativeSpeaker);
 
         em.persist(jezykLektora);
+    }
+
+    public int saveLessonToDatabase(String id, String data, boolean parseBoolean, Kurs find) {
+
+        Lekcja lekcja; // we have to check whether creating or editing
+        if (id.equals("-1")) {
+            lekcja = new Lekcja(); // new one
+        } else {
+            lekcja = lekcjaFacade.find(Integer.parseInt(id)); // existing one
+        }
+
+        lekcja.setData(LocalDate.parse(data)); // it should be ok at this point
+        lekcja.setOdwolana(parseBoolean);
+        lekcja.setKurs(find);
+
+        em.persist(lekcja);
+        em.flush();
+        
+        return lekcja.getId();
     }
 
     public int saveMoneyInToDatabase(String id, String data, String kwota, String opis, Firma firma) {
@@ -620,6 +660,30 @@ public class PersistenceManager {
 
     }
 
+    public Obecnosc savePresence(boolean isNew, Lekcja lekcja, Kursant kursant, boolean obecny) {
+
+        ObecnoscPK obecnoscPK = new ObecnoscPK(lekcja.getId(), kursant.getId());
+        Obecnosc obecnosc;
+
+        // if new we create, else we find
+        if (isNew) {
+            obecnosc = new Obecnosc(obecnoscPK);
+            obecnosc.setLekcja(lekcja);
+            obecnosc.setKursant(kursant);
+        } else {
+            obecnosc = em.find(Obecnosc.class, obecnoscPK);
+        }
+        
+        // set if is present
+        obecnosc.setObecny(obecny);
+        
+        em.persist(obecnosc);
+        em.flush();
+        
+        // and return it
+        return obecnosc;
+    }
+
     public int saveProgrammeToDatabase(String id, String referencja, String metoda) {
         Program program; // we have to check whether creating or editing
         if (id.equals("-1")) {
@@ -655,9 +719,5 @@ public class PersistenceManager {
 
         return podrecznik.getId();
     }
-
-    
-
-    
 
 }

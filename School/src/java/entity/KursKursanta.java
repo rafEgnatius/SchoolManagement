@@ -76,6 +76,8 @@ public class KursKursanta implements Serializable {
 
     public void setKurs(Kurs kurs) {
         this.kurs = kurs;
+        // and add to Kurs Collection
+        this.kurs.addKursKursanta(this);
     }
 
     public Kursant getKursant() {

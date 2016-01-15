@@ -333,7 +333,7 @@ DROP TABLE IF EXISTS `szkola004`.`lekcja` ;
 
 CREATE TABLE IF NOT EXISTS `szkola004`.`lekcja` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `data` DATETIME NULL,
+  `data` DATE NULL,
   `odwolana` TINYINT(1) NULL,
   `kurs_id` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
@@ -405,9 +405,8 @@ CREATE TABLE IF NOT EXISTS `szkola004`.`kurs_kursanta` (
   `kurs_id` INT UNSIGNED NOT NULL,
   `kursant_id` INT UNSIGNED NOT NULL,
   `opis` VARCHAR(45) NULL,
-  INDEX `fk_kurs_kursanta_kurs1_idx` (`kurs_id` ASC),
-  INDEX `fk_kurs_kursanta_kursant1_idx` (`kursant_id` ASC),
   PRIMARY KEY (`kurs_id`, `kursant_id`),
+  INDEX `fk_kurs_kursanta_kursant1_idx` (`kursant_id` ASC),
   CONSTRAINT `fk_kurs_kursanta_kurs1`
     FOREIGN KEY (`kurs_id`)
     REFERENCES `szkola004`.`kurs` (`id`)

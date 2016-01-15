@@ -56,6 +56,7 @@
         <div class="inlineTableDisplay">
 
             <!--        lessons-->
+            
             <div class="listItemDisplay">
                 <table class="detailedTable">
                     <tr class="tableHeading">
@@ -63,14 +64,14 @@
                     </tr>
                     <tr>
                         <td>
-                            <a  class="smallButton" href="lekcje?${kurs.id}">
+                            <a  class="smallButton" href="lekcje?kursId=${kurs.id}">
                                 <span class="smallButtonText">zobacz dotychczasowe lekcje &#x279f;</span>
                             </a>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <a  class="smallButton" href="nowaLekcja?${kurs.id}">
+                            <a  class="smallButton" href="dodajLekcje?${kurs.id}">
                                 <span class="smallButtonText">dodaj lekcję &#x279f;</span>
                             </a>
                         </td>
@@ -112,18 +113,11 @@
                         </tr>
                     </c:if>
                 </table>
-
             </div>
-
         </div>
 
-
-
         <hr />
-
-
-
-
+        
         <!--        course set client-->
 
         <table class="detailedTable">

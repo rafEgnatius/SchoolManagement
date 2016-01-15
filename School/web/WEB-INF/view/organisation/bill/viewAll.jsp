@@ -6,7 +6,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <section id="section-szkola-one-column">
-    <table class="cancelSaveTable">
+    <table class="viewAllTable">
         <tr>
             <td>
                 <a href="dodajRachunek" class="smallButton"><span class="smallButtonText">Dodaj nowy rachunek</span></a>

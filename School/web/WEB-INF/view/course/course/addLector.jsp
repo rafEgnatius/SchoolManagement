@@ -11,7 +11,7 @@
 
     <!--    if lector id not set show this part,
         we search for database record here-->
-    <table class="cancelSaveTable">
+    <table class="viewAllTable">
         <tr>
             <td>
                 <form action="dodajLektoraDoKursu">

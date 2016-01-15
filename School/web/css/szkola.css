@@ -366,6 +366,18 @@ tr.cellsInCentre {
     text-align: center;
 }
 
+td.cellsInCentre {
+    text-align: center;
+}
+
+tr.cellsOnRight {
+    text-align: right;
+}
+
+td.cellsOnRight {
+    text-align: right;
+}
+
 /* forms */
 
 .formTable {
@@ -408,6 +420,19 @@ table.detailedTable td.inputCenterError {
     color: red;
     text-align: center;
     font-size: smaller;
+}
+
+/* view-all table */
+
+table.viewAllTable {
+}
+
+table.viewAllTable td.leftCell {
+    padding-right: 15px;
+}
+
+table.viewAllTable td.rightCell {
+    padding-left: 15px;
 }
 
 /* cancel-save table */
