@@ -15,7 +15,7 @@
     </head>
     <body>
         <h1>Hello World!</h1>
-        <sql:query var="result" dataSource="jdbc/szkola004">
+        <sql:query var="result" dataSource="jdbc/schoolManagement">
             select * from firma
         </sql:query>
 

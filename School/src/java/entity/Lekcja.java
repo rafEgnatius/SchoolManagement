@@ -9,7 +9,6 @@ import converter.LocalDateAttributeConverter;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -131,6 +130,13 @@ public class Lekcja extends AbstractEntity implements Serializable {
     @Override
     public String toString() {
         return "entity.Lekcja[ id=" + id + " ]";
+    }
+
+    
+    // additional
+    
+    void addObecnosc(Obecnosc obecnosc) {
+        obecnoscCollection.add(obecnosc);
     }
     
 }

@@ -175,6 +175,13 @@
                                 <span class="tinyButtonText">dodaj test językowy &#x279f;</span>
                             </a>
                         </td>
+                        <c:if test="${not empty kurs.lektor}">
+                            <td>
+                            <a class="tinyButton" href="dodajAnkiete?lektorId=${kurs.lektor.id}&kursantId=${kursant.id}">
+                                <span class="tinyButtonText">generuj ankietę &#x279f;</span>
+                            </a>
+                        </td>
+                        </c:if>
                         <td>
                             <a class="tinyButton" href="usunKursantaZKursu?kursId=${kurs.id}&kursantId=${kursant.id}">
                                 <span class="tinyButtonText">usuń &#x279f;</span>

@@ -64,7 +64,7 @@ public class Lektor extends AbstractEntity implements Serializable {
     @Size(max = 15)
     @Column(name = "nip")
     private String nip;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "lektorId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "lektor")
     private Collection<Ankieta> ankietaCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "lektor")
     private Collection<JezykLektora> jezykLektoraCollection;

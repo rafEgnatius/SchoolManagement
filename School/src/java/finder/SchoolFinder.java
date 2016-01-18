@@ -6,6 +6,7 @@
 package finder;
 
 import entity.AbstractEntity;
+import entity.Ankieta;
 import entity.Faktura;
 import entity.Firma;
 import entity.Jezyk;
@@ -78,7 +79,7 @@ public class SchoolFinder {
         }
         return resultList;
     }
-    
+
     public static List findCustomerForLanguageTest(List mainEntityList, List kursList, String searchOption) {
         List resultList = new ArrayList<>(); // to send back
 //        for every entity
@@ -244,6 +245,24 @@ public class SchoolFinder {
     /**
      *
      * @param mainEntityList
+     * @param searchPhrase
+     * @return
+     */
+    public static List findQuestionnaire(List mainEntityList, String searchPhrase) {
+        List resultList = new ArrayList<>(); // to send back
+        for (Iterator it = mainEntityList.iterator(); it.hasNext();) {
+            Ankieta ankieta = (Ankieta) it.next();
+            if (ankieta.getLektor().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())
+                    || ankieta.getKursant().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())) {
+                resultList.add(ankieta);
+            }
+        }
+        return resultList;
+    }
+
+    /**
+     *
+     * @param mainEntityList
      * @param lektorList
      * @param searchPhrase
      * @return
@@ -282,7 +301,7 @@ public class SchoolFinder {
         // and get the first one
         return mainList.get(0);
     }
-    
+
     public static Object findSmallestCustomer(List<AbstractEntity> entityList) {
         if (entityList.isEmpty()) {
             return null; // just in case - it will be easier to find any problems
@@ -322,8 +341,6 @@ public class SchoolFinder {
         // and get the first one
         return mainList.get(0);
     }
-    
-    
 
     public static Object findSmallestLector(List<AbstractEntity> entityList) {
         if (entityList.isEmpty()) {
@@ -364,7 +381,7 @@ public class SchoolFinder {
         // and get the first one
         return mainList.get(0);
     }
-    
+
     public static List findWplata(List mainEntityList, List firmaList, String searchPhrase) {
         List resultList = new ArrayList<>(); // to send back
 
@@ -381,7 +398,5 @@ public class SchoolFinder {
 
         return resultList;
     }
-
-    
 
 }

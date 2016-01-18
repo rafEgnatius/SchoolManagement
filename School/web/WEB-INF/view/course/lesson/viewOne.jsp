@@ -67,7 +67,8 @@
                                 ${obecnosc.kursant.nazwa}
                             </td>
                             <td class="cellsInCentre">
-                                <input type="checkbox" name="${obecnosc.kursant.id}" value="true" ${obecnosc.obecny ? 'checked="checked"' : ""} />
+                                <input type="radio" name="${obecnosc.kursant.id}" value="true" ${obecnosc.obecny ? "checked" : ""} />tak
+                                <input type="radio" name="${obecnosc.kursant.id}" value="false" ${obecnosc.obecny ? "" : "checked"}/>nie
                             </td>
                         </tr>
                     </c:forEach>
@@ -79,7 +80,6 @@
                     </tr>
                 </table>
                 <input type="hidden" name="lekcjaId" value="${lekcja.id}" />
-                <input type="hidden" name="kursantId" value="" />
             </form>
         </div>
 

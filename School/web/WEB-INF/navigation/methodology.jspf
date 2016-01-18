@@ -41,6 +41,15 @@
                 </p>
             </a>
         </li>
+        <li>
+            <a href="ankiety">
+                <p id="questionnaire" class="sectionMenuButton">
+                    <span class="sectionMenuText">
+                        Ankiety
+                    </span>
+                </p>
+            </a>
+        </li>
     </ul>
 </nav>
 

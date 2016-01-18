@@ -54,7 +54,7 @@ public class Kursant extends AbstractEntity implements Serializable {
     @Size(max = 45)
     @Column(name = "email")
     private String email;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursantId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "kursant")
     private Collection<Ankieta> ankietaCollection;
     @JoinColumn(name = "firma_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
@@ -183,6 +183,12 @@ public class Kursant extends AbstractEntity implements Serializable {
     @Override
     public String toString() {
         return "entity.Kursant[ id=" + id + " ]";
+    }
+
+    // additional
+    
+    void addObecnosc(Obecnosc obecnosc) {
+       obecnoscCollection.add(obecnosc);
     }
     
 }

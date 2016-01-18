@@ -74,6 +74,7 @@ public class Obecnosc implements Serializable {
 
     public void setKursant(Kursant kursant) {
         this.kursant = kursant;
+        this.kursant.addObecnosc(this);
     }
 
     public Lekcja getLekcja() {
@@ -82,6 +83,7 @@ public class Obecnosc implements Serializable {
 
     public void setLekcja(Lekcja lekcja) {
         this.lekcja = lekcja;
+        this.lekcja.addObecnosc(this);
     }
 
     @Override

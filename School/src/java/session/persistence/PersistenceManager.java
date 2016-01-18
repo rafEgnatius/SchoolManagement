@@ -5,6 +5,8 @@
  */
 package session.persistence;
 
+import converter.LocalDateAttributeConverter;
+import entity.Ankieta;
 import entity.Faktura;
 import entity.Firma;
 import entity.Jezyk;
@@ -37,11 +39,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import session.AnkietaFacade;
 import session.FakturaFacade;
 import session.FirmaFacade;
 import session.JezykFacade;
@@ -69,6 +73,9 @@ public class PersistenceManager {
     @PersistenceContext(unitName = "SchoolPU")
     private EntityManager em;
 
+    @EJB
+    private AnkietaFacade ankietaFacade;
+    
     @EJB
     private FakturaFacade fakturaFacade;
 
@@ -684,6 +691,34 @@ public class PersistenceManager {
         return obecnosc;
     }
 
+    public boolean saveQuestionnaire(String kursantId, String lektorId, List answerList, String answer23) {
+        boolean isAlreadyThere = false; // this one we will return
+        
+        // create new Ankieta entity
+        Ankieta ankieta = new Ankieta();
+        
+        // set all the fields necessary to check if questionnaire was already filled
+        ankieta.setKursant(kursantFacade.find(Integer.parseInt(kursantId)));
+        ankieta.setLektor(lektorFacade.find(Integer.parseInt(lektorId)));
+        ankieta.setData(LocalDate.now());
+        
+        for (Ankieta next : ankietaFacade.findAll()) {
+            if (next.equals(ankieta))
+                isAlreadyThere = true;
+        }
+        if (!isAlreadyThere) {
+            // if no, we can set the other fields and persist
+            if (!ankieta.setAllBooleans(answerList)) {
+                return true;
+            }
+            ankieta.setPytanieOpisowe23(answer23);
+            
+            em.persist(ankieta);
+        }
+            
+        return isAlreadyThere;
+    }
+    
     public int saveProgrammeToDatabase(String id, String referencja, String metoda) {
         Program program; // we have to check whether creating or editing
         if (id.equals("-1")) {
@@ -719,5 +754,7 @@ public class PersistenceManager {
 
         return podrecznik.getId();
     }
+
+    
 
 }

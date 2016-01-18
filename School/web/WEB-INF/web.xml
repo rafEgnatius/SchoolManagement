@@ -6,7 +6,7 @@
     </context-param>
     <listener>
         <description>ServletContextListener</description>
-        <listener-class>listener.LanguageLevelListener</listener-class>
+        <listener-class>listener.SetUpListener</listener-class>
     </listener>
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
@@ -83,6 +83,11 @@
             <include-prelude>/WEB-INF/script/methodology/textbook.jspf</include-prelude>
         </jsp-property-group>
         <jsp-property-group>
+            <description>header and footer (METHODOLOGY) - menu script for QUESTIONNAIRE</description>
+            <url-pattern>/WEB-INF/view/methodology/questionnaire/*</url-pattern>
+            <include-prelude>/WEB-INF/script/methodology/questionnaire.jspf</include-prelude>
+        </jsp-property-group>
+        <jsp-property-group>
             <description>header and footer (METHODOLOGY) - menu script for TEXTBOOK</description>
             <url-pattern>/WEB-INF/view/methodology/textbook/*</url-pattern>
             <include-prelude>/WEB-INF/script/methodology/textbook.jspf</include-prelude>
@@ -140,7 +145,7 @@
     </context-param>
     <listener>
         <listener-class>
-            listener.LanguageLevelListener
+            listener.SetUpListener
         </listener-class>
     </listener>
 </web-app>

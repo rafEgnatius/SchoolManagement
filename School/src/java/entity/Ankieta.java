@@ -8,7 +8,7 @@ package entity;
 import converter.LocalDateAttributeConverter;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -61,6 +61,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Ankieta.findByPytanie22", query = "SELECT a FROM Ankieta a WHERE a.pytanie22 = :pytanie22"),
     @NamedQuery(name = "Ankieta.findByPytanieOpisowe23", query = "SELECT a FROM Ankieta a WHERE a.pytanieOpisowe23 = :pytanieOpisowe23")})
 public class Ankieta extends AbstractEntity implements Serializable {
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -120,10 +121,10 @@ public class Ankieta extends AbstractEntity implements Serializable {
     private String pytanieOpisowe23;
     @JoinColumn(name = "kursant_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Kursant kursantId;
+    private Kursant kursant;
     @JoinColumn(name = "lektor_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Lektor lektorId;
+    private Lektor lektor;
 
     public Ankieta() {
     }
@@ -146,6 +147,38 @@ public class Ankieta extends AbstractEntity implements Serializable {
 
     public void setData(LocalDate data) {
         this.data = data;
+    }
+    
+    public boolean setAllBooleans(List<String> answerList) {
+        // we should be sure that answer List is size 22
+        try {
+            this.pytanie1 = Boolean.parseBoolean(answerList.get(0));
+            this.pytanie2 = Boolean.parseBoolean(answerList.get(1));
+            this.pytanie3 = Boolean.parseBoolean(answerList.get(2));
+            this.pytanie4 = Boolean.parseBoolean(answerList.get(3));
+            this.pytanie5 = Boolean.parseBoolean(answerList.get(4));
+            this.pytanie6 = Boolean.parseBoolean(answerList.get(5));
+            this.pytanie7 = Boolean.parseBoolean(answerList.get(6));
+            this.pytanie8 = Boolean.parseBoolean(answerList.get(7));
+            this.pytanie9 = Boolean.parseBoolean(answerList.get(8));
+            this.pytanie10 = Boolean.parseBoolean(answerList.get(9));
+            this.pytanie11 = Boolean.parseBoolean(answerList.get(10));
+            this.pytanie12 = Boolean.parseBoolean(answerList.get(11));
+            this.pytanie13 = Boolean.parseBoolean(answerList.get(12));
+            this.pytanie14 = Boolean.parseBoolean(answerList.get(13));
+            this.pytanie15 = Boolean.parseBoolean(answerList.get(14));
+            this.pytanie16 = Boolean.parseBoolean(answerList.get(15));
+            this.pytanie17 = Boolean.parseBoolean(answerList.get(16));
+            this.pytanie18 = Boolean.parseBoolean(answerList.get(17));
+            this.pytanie19 = Boolean.parseBoolean(answerList.get(18));
+            this.pytanie20 = Boolean.parseBoolean(answerList.get(19));
+            this.pytanie21 = Boolean.parseBoolean(answerList.get(20));
+            this.pytanie22 = Boolean.parseBoolean(answerList.get(21));
+            
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 
     public Boolean getPytanie1() {
@@ -332,20 +365,20 @@ public class Ankieta extends AbstractEntity implements Serializable {
         this.pytanieOpisowe23 = pytanieOpisowe23;
     }
 
-    public Kursant getKursantId() {
-        return kursantId;
+    public Kursant getKursant() {
+        return kursant;
     }
 
-    public void setKursantId(Kursant kursantId) {
-        this.kursantId = kursantId;
+    public void setKursant(Kursant kursantId) {
+        this.kursant = kursantId;
     }
 
-    public Lektor getLektorId() {
-        return lektorId;
+    public Lektor getLektor() {
+        return lektor;
     }
 
-    public void setLektorId(Lektor lektorId) {
-        this.lektorId = lektorId;
+    public void setLektor(Lektor lektorId) {
+        this.lektor = lektorId;
     }
 
     @Override
@@ -357,20 +390,32 @@ public class Ankieta extends AbstractEntity implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
+        
         if (!(object instanceof Ankieta)) {
             return false;
         }
+
+        // change it to check date, lector and participant (data, lektor and kursant)
         Ankieta other = (Ankieta) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
+        if (this.data.equals(other.data) && this.lektor.equals(other.lektor) && this.kursant.equals(other.kursant)) {
+            return true;
         }
-        return true;
+        return false;
+
+//        // TODO: Warning - this method won't work in the case the id fields are not set
+//        if (!(object instanceof Ankieta)) {
+//            return false;
+//        }
+//        Ankieta other = (Ankieta) object;
+//        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+//            return false;
+//        }
+//        return true;
     }
 
     @Override
     public String toString() {
         return "entity.Ankieta[ id=" + id + " ]";
     }
-    
+
 }
