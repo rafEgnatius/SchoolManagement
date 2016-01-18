@@ -5,11 +5,14 @@
  */
 package helper;
 
-import entity.Rachunek;
 import finder.SchoolFinder;
-import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Resource;
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
+import session.LektorFacade;
+import session.RachunekFacade;
 import sorter.EntitySorter;
 import sorter.FieldSorter;
 
@@ -17,44 +20,52 @@ import sorter.FieldSorter;
  *
  * @author Rafa
  */
+@Stateless
 public class BillHelper {
 
-    private static final int pageSize = 10; // number of records on one page
+    @EJB
+    RachunekFacade rachunekFacade;
 
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<>(); // list of lists of single page records
-    private int pageNumber; // current page number
+    @EJB
+    LektorFacade lektorFacade;
 
-    private String searchPhrase;
-    // private String searchOption;
+    @Resource(name = "pageSize")
+    Integer pageSize;
 
     /**
      * Handles preparation of the rachunek list
      *
-     * 
+     *
      * @param request
-     * @param mainEntityList
-     * @param lektorList
      * @return HttpServletRequest
      */
-    public HttpServletRequest prepareEntityList(HttpServletRequest request,
-            List mainEntityList, List lektorList) {
+    public HttpServletRequest prepareEntityList(HttpServletRequest request) {
 
-        List resultList;
+        /* main lists that we will use */
+        List rachunekList = rachunekFacade.findAll();
+        List lektorList = lektorFacade.findAll();
 
+        /* technical */
+        boolean sortAsc; // and this one to check how to sort
+        String sortBy; // so we know how to sort
+        boolean changeSort; // this one to know whether to change sorting order
+        int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
+        int pageNumber; // current page number
+        String searchPhrase; // what we are looking for
+
+        /* and now process */
+        // SORT & SEARCH
+        // get pageNumber from request
         try {
             pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
         } catch (NumberFormatException e) {
             pageNumber = 1; // (it seems that we do not have page number yet)
         }
 
-        // SORT & SEARCH
         // check whether to change sorting direction
         changeSort = Boolean.parseBoolean(request.getParameter("changeSort"));
         String stringSortAsc = request.getParameter("sortAsc");
+
         try {
             sortAsc = Boolean.parseBoolean(stringSortAsc);
         } catch (Exception e) {
@@ -72,84 +83,86 @@ public class BillHelper {
 
         // and check if searching
         searchPhrase = request.getParameter("searchPhrase");
-        if (searchPhrase != null && !searchPhrase.equals("")) {
-            mainEntityList = SchoolFinder.findRachunek(mainEntityList, lektorList, searchPhrase);
+        if (searchPhrase
+                != null && !searchPhrase.equals(
+                        "")) {
+            rachunekList = SchoolFinder.findRachunek(rachunekList, lektorList, searchPhrase);
         } else {
             searchPhrase = "";
         }
-
 
         // now we check if we have to sort things (out)
         // (by the way - we sort using auxiliary abstract class)
         switch (sortBy) {
             case ("id"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortIdDesc(mainEntityList);
+                    rachunekList = FieldSorter.sortIdDesc(rachunekList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortId(mainEntityList);
+                    rachunekList = FieldSorter.sortId(rachunekList);
                     sortAsc = true;
                 }
                 break;
             case ("numer"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortNumerDesc(mainEntityList);
+                    rachunekList = FieldSorter.sortNumerDesc(rachunekList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortNumer(mainEntityList);
+                    rachunekList = FieldSorter.sortNumer(rachunekList);
                     sortAsc = true;
                 }
                 break;
             case ("data"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortDataDesc(mainEntityList);
+                    rachunekList = FieldSorter.sortDataDesc(rachunekList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortData(mainEntityList);
+                    rachunekList = FieldSorter.sortData(rachunekList);
                     sortAsc = true;
                 }
                 break;
             case ("kwota"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortKwotaDesc(mainEntityList);
+                    rachunekList = FieldSorter.sortKwotaDesc(rachunekList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortKwota(mainEntityList);
+                    rachunekList = FieldSorter.sortKwota(rachunekList);
                     sortAsc = true;
                 }
                 break;
             case ("lektor"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = EntitySorter.sortLektorDesc(mainEntityList);
+                    rachunekList = EntitySorter.sortLektorDesc(rachunekList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = EntitySorter.sortLektor(mainEntityList);
+                    rachunekList = EntitySorter.sortLektor(rachunekList);
                     sortAsc = true;
                 }
                 break;
         }
 
-                // PAGINATE
+        // PAGINATE
         // and here goes pagination part
-        numberOfPages = ((mainEntityList.size()) / pageSize) + 1; // check how many pages
+        numberOfPages = ((rachunekList.size()) / pageSize) + 1; // check how many pages
 
         // pageToDisplay is subList - we check if not get past last index
         int fromIndex = ((pageNumber - 1) * pageSize);
         int toIndex = fromIndex + pageSize;
-        resultList = mainEntityList.subList(fromIndex,
-                toIndex > mainEntityList.size() ? mainEntityList.size() : toIndex);
+        List resultList = rachunekList.subList(fromIndex,
+                toIndex > rachunekList.size() ? rachunekList.size() : toIndex);
 
-                // SEND
+
+        /* final things */
         // now prepare things for our JSP
         request.setAttribute("numberOfPages", numberOfPages);
         request.setAttribute("pageNumber", pageNumber);
         request.setAttribute("sortBy", sortBy);
         request.setAttribute("sortAsc", sortAsc);
-        
+
         request.setAttribute("searchPhrase", searchPhrase);
         //request.setAttribute("searchOption", searchOption);
 
-        request.setAttribute("mainEntityList", resultList);
+        request.setAttribute("rachunekList", resultList);
         request.setAttribute("lektorList", lektorList);
 
         return request;

@@ -27,7 +27,7 @@
         </tr>
     </table>
 
-    <c:if test="${!empty mainEntityList}">
+    <c:if test="${!empty rachunekList}">
 
         <table class="listTable">
 
@@ -43,7 +43,7 @@
                 <td><a href="rachunki?sortBy=lektor&changeSort=true&sortAsc=${sortAsc}">&#x25B2; lektor &#x25BC;</a></td>
             </tr>
 
-            <c:forEach var="mainEntity" items="${mainEntityList}" varStatus="iter">
+            <c:forEach var="mainEntity" items="${rachunekList}" varStatus="iter">
 
                 <tr class="${((iter.index % 2) == 1) ? 'lightBlue' : 'white'} tableRow"
                     onclick="document.location.href = 'pokazRachunek?${mainEntity.id}'">

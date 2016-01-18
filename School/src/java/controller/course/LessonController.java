@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import session.KursFacade;
-import session.KursantFacade;
 import session.LekcjaFacade;
 import session.persistence.PersistenceManager;
 import validator.FormValidator;

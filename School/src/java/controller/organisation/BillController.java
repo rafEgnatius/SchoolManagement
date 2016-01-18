@@ -10,7 +10,6 @@ import helper.BillHelper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -37,25 +36,17 @@ import validator.FormValidator;
             "/edytujRachunek"})
 public class BillController extends HttpServlet {
 
-    // mainEntity meaning entity of this controller
     @EJB
-    private RachunekFacade mainEntityFacade;
-    private Rachunek mainEntity;
-    private List mainEntityList = new ArrayList();
+    BillHelper billHelper;
+
+    @EJB
+    RachunekFacade mainEntityFacade;
 
     @EJB
     LektorFacade lektorFacade;
-    private List lektorList = new ArrayList();
 
     @EJB
-    private PersistenceManager persistenceManager;
-
-//    main
-//    GENERAL 
-    private String userPath; // this one to see what to do
-
-//    pagination
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
+    PersistenceManager persistenceManager;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -70,9 +61,11 @@ public class BillController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        int intMainEntityId;
-        String mainEntityId;
-        BillHelper mainEntityListHelper;
+        String userPath; // this one to see what to do
+
+        Rachunek rachunek; // our main entity here
+        String rachunekId; // id taken from request
+        int intRachunekId; // the same as a proper integer
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
@@ -82,13 +75,8 @@ public class BillController extends HttpServlet {
 //  VIEW ALL
             case "/rachunki":
 
-                // get the necessary lists for the request
-                mainEntityList = mainEntityFacade.findAll();
-                lektorList = lektorFacade.findAll();
-
-                // use helper to get lektor list prepared in our request
-                mainEntityListHelper = new BillHelper(); //  we need a helper
-                request = mainEntityListHelper.prepareEntityList(request, mainEntityList, lektorList);
+                // use helper to get list prepared in our request
+                request = billHelper.prepareEntityList(request);
 
                 // and tell the container where to redirect
                 userPath = "/organisation/bill/viewAll";
@@ -98,7 +86,7 @@ public class BillController extends HttpServlet {
                 // just ask for a form
 
                 // we need this list for this form
-                lektorList = lektorFacade.findAll();
+                List lektorList = lektorFacade.findAll();
                 request.setAttribute("lektorList", lektorList);
 
                 userPath = "/organisation/bill/form";
@@ -106,27 +94,27 @@ public class BillController extends HttpServlet {
 // EDIT             
             case "/edytujRachunek":
                 // get id from request
-                mainEntityId = request.getQueryString();
+                rachunekId = request.getQueryString();
 
                 // cast it to the integer
                 try {
-                    intMainEntityId = Integer.parseInt(mainEntityId);
+                    intRachunekId = Integer.parseInt(rachunekId);
                 } catch (NumberFormatException e) {
-                    intMainEntityId = 0; // (it seems that we have some kind of a problem)
+                    intRachunekId = 0; // (it seems that we have some kind of a problem)
                 }
 
-                if (intMainEntityId > 0) {
+                if (intRachunekId > 0) {
                     // find the lektor entity
-                    mainEntity = mainEntityFacade.find(intMainEntityId);
+                    rachunek = mainEntityFacade.find(intRachunekId);
                     // set as a request attribute all the fields
                     // and this is so because of the form validation
                     // when we give the form values that are correct
-                    request.setAttribute("id", mainEntity.getId());
-                    request.setAttribute("numer", mainEntity.getNumer());
-                    request.setAttribute("data", mainEntity.getData());
-                    request.setAttribute("kwota", mainEntity.getKwota());
-                    request.setAttribute("opis", mainEntity.getOpis());
-                    request.setAttribute("lektor", mainEntity.getLektor());
+                    request.setAttribute("id", rachunek.getId());
+                    request.setAttribute("numer", rachunek.getNumer());
+                    request.setAttribute("data", rachunek.getData());
+                    request.setAttribute("kwota", rachunek.getKwota());
+                    request.setAttribute("opis", rachunek.getOpis());
+                    request.setAttribute("lektor", rachunek.getLektor());
                     request.setAttribute("lektorList", lektorFacade.findAll());
                 }
                 // then ask for a form 
@@ -144,10 +132,10 @@ public class BillController extends HttpServlet {
                 String opis = request.getParameter("opis");
                 String lektorId = request.getParameter("lektorId");
 
-                intMainEntityId = persistenceManager.saveBillToDatabase(id, numer, data, kwota, opis, lektorFacade.find(Integer.parseInt(lektorId)));
+                intRachunekId = persistenceManager.saveBillToDatabase(id, numer, data, kwota, opis, lektorFacade.find(Integer.parseInt(lektorId)));
 
-                mainEntityId = intMainEntityId + "";
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request to view one needs
+                rachunekId = intRachunekId + "";
+                request = prepareRequest(request, rachunekId); // set all the attributes that request to view one needs
 
                 // finally show the newly created lector (so it can be further processed)
                 userPath = "/organisation/bill/viewOne";
@@ -184,7 +172,8 @@ public class BillController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //processRequest(request, response);
+        
+        String userPath; // this one to see what to do
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
@@ -261,10 +250,10 @@ public class BillController extends HttpServlet {
      */
     private HttpServletRequest prepareRequest(HttpServletRequest request, String mainEntityId) {
 
-        mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId));
+        Rachunek rachunek = mainEntityFacade.find(Integer.parseInt(mainEntityId));
 
-        request.setAttribute("mainEntity", mainEntity);
-        request.setAttribute("lektor", mainEntity.getLektor());
+        request.setAttribute("mainEntity", rachunek);
+        request.setAttribute("lektor", rachunek.getLektor());
 
         return request;
     }

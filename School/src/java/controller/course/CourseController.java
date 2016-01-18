@@ -23,8 +23,6 @@ import session.JezykFacade;
 import session.KursFacade;
 import session.LektorFacade;
 import session.persistence.PersistenceManager;
-import sorter.FieldSorter;
-import sorter.EntitySorter;
 import validator.FormValidator;
 
 /**
@@ -44,26 +42,17 @@ public class CourseController extends HttpServlet {
     @EJB
     private KursFacade kursFacade;
     private Kurs kurs;
-    private List kursList = new ArrayList();
-
-    @EJB
-    private FirmaFacade firmaFacade;
-    private List firmaList = new ArrayList();
-
+    
     @EJB
     private JezykFacade jezykFacade;
     private Jezyk jezyk;
     private List jezykList = new ArrayList();
 
     @EJB
-    private LektorFacade lektorFacade;
-    private List lektorList = new ArrayList();
-
-    @EJB
     private PersistenceManager persistenceManager;
     
     @EJB
-    private CourseHelper mainEntityHelper;
+    private CourseHelper kursHelper;
 
 //    main
     int intMainEntityId = 0;
@@ -108,133 +97,10 @@ public class CourseController extends HttpServlet {
 // VIEW ALL
             case "/kursy":
 
-                // sorting and pagination works this way:
-                // if there is no sortBy it means we are here for the first time
-                // so we check if we have pageNumber
-                // if not it means that we are really for the first time here
-                // let's get initial data...
-                // ... like page number
-                try {
-                    pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
-                } catch (NumberFormatException e) {
-                    pageNumber = 1; // (it seems that we do not have page number yet)
-                }
+                // use helper to get entity list prepared in our request
+                request = kursHelper.prepareEntityList(request);
 
-                // entityList
-                kursList = kursFacade.findAll();
-
-                // additional lists
-                firmaList = firmaFacade.findAll();
-                jezykList = jezykFacade.findAll();
-                lektorList = lektorFacade.findAll();
-
-                // SORT & SEARCH
-                // check whether to change sorting direction
-                changeSort = Boolean.parseBoolean(request.getParameter("changeSort"));
-
-                // check if sorting...
-                sortBy = request.getParameter("sortBy");
-                // if not sorting let's sort by id
-                if (sortBy == null) {
-                    sortBy = "id";
-                    sortAsc = true; // to start from the beginning
-                    changeSort = false;
-                }
-
-                // and check if searching
-                searchPhrase = request.getParameter("searchPhrase");
-                if (searchPhrase != null && !searchPhrase.equals("")) {
-                    kursList = SchoolFinder.findCourse(kursList, searchPhrase);
-                } else {
-                    searchPhrase = "";
-                }
-
-                // and what option was chosen
-                searchOption = request.getParameter("searchOption");
-                if (searchOption != null && !searchOption.equals("")) {
-                    kursList = SchoolFinder.findLanguageForCourse(kursList, searchOption);
-                } else {
-                    searchOption = "";
-                }
-
-                // now we check if we have to sort things (out)
-                // (by the way - we sort using auxiliary class)
-                switch (sortBy) {
-                    case ("id"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            kursList = FieldSorter.sortIdDesc(kursList);
-                            sortAsc = false;
-                        } else {
-                            kursList = FieldSorter.sortId(kursList);
-                            sortAsc = true;
-                        }
-                        break;
-                    case ("symbol"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            kursList = FieldSorter.sortSymbolDesc(kursList);
-                            sortAsc = false;
-                        } else {
-                            kursList = FieldSorter.sortSymbol(kursList);
-                            sortAsc = true;
-                        }
-                        break;
-                    case ("firma"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            kursList = EntitySorter.sortFirmaDesc(kursList);
-                            sortAsc = false;
-                        } else {
-                            kursList = EntitySorter.sortFirma(kursList);
-                            sortAsc = true;
-                        }
-                        break;
-                    case ("lektor"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            kursList = EntitySorter.sortLektorDesc(kursList);
-                            sortAsc = false;
-                        } else {
-                            kursList = EntitySorter.sortLektor(kursList);
-                            sortAsc = true;
-                        }
-                        break;
-                    case ("jezyk"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            kursList = EntitySorter.sortJezykDesc(kursList);
-                            sortAsc = false;
-                        } else {
-                            kursList = EntitySorter.sortJezyk(kursList);
-                            sortAsc = true;
-                        }
-                        break;
-                }
-
-                // PAGINATE
-                // and here goes pagination part
-                numberOfPages = ((kursList.size()) / pageSize) + 1; // check how many pages
-
-                // pageToDisplay is subList - we check if not get past last index
-                int fromIndex = ((pageNumber - 1) * pageSize);
-                int toIndex = fromIndex + pageSize;
-                pageToDisplay = kursList.subList(fromIndex,
-                        toIndex > kursList.size() ? kursList.size() : toIndex);
-
-                // SEND
-                // now prepare things for our JSP
-                request.setAttribute("numberOfPages", numberOfPages);
-                request.setAttribute("pageNumber", pageNumber);
-                request.setAttribute("sortBy", sortBy);
-                request.setAttribute("sortAsc", sortAsc);
-
-                request.setAttribute("searchPhrase", searchPhrase);
-                request.setAttribute("searchOption", searchOption);
-
-                // set main list
-                request.setAttribute("kursList", pageToDisplay);
-
-                // set additional lists
-                request.setAttribute("firmaList", firmaList);
-                request.setAttribute("jezykList", jezykList);
-                request.setAttribute("lektorList", lektorList);
-
+                // and tell the container where to redirect
                 userPath = "/course/course/viewAll";
                 break;
 // ADD             
@@ -303,7 +169,7 @@ public class CourseController extends HttpServlet {
                 mainEntityId = intMainEntityId + ""; // de facto cast it to String
                 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = kursHelper.prepareEntityView(request, mainEntityId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -320,7 +186,7 @@ public class CourseController extends HttpServlet {
                 System.out.println(kursFacade);
                 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = kursHelper.prepareEntityView(request, mainEntityId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";

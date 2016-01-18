@@ -17,7 +17,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import session.AnkietaFacade;
 import session.persistence.PersistenceManager;
 
 /**
@@ -33,9 +32,6 @@ import session.persistence.PersistenceManager;
             "/dodajAnkieteZapisz",
             "/edytujAnkiete"})
 public class QuestionnaireController extends HttpServlet {
-
-    @EJB
-    private AnkietaFacade ankietaFacade;
 
     @EJB
     QuestionnaireHelper questionnaireHelper;
