@@ -31,8 +31,6 @@
                             </td>
                             <td class="formErrorAsterix">
                                 ${errorList[iter.index]}
-                                <br>
-                                ${iter.index} -> ${answerList[iter.index]}
                             </td>
                         </c:when>
                         <c:otherwise>
@@ -43,7 +41,6 @@
                                         <input type="radio" name="pytanie${iter.index}" value="false" ${answerList[iter.index] == 'false' ? 'checked' : ''} />nie
                                     </td>
                                     <td>
-                                        ${iter.index} -> ${answerList[iter.index]}
                                         <!--empty -> there was an error somewhere but this answer was OK, so we give answer above -->
                                     </td>
                                 </c:when>
@@ -54,7 +51,6 @@
                                     </td>
                                     <td>
                                         <!--empty -> this is a new form -->
-                                        ${iter.index} -> ${answerList[iter.index]}
                                     </td>
                                 </c:otherwise>
                             </c:choose> 

@@ -5,57 +5,64 @@
  */
 package helper;
 
-import entity.Lektor;
-import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Resource;
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
+import session.FirmaFacade;
 import sorter.FieldSorter;
 
 /**
  *
  * @author Rafa
  */
-public class CustomerListHelper {
+@Stateless
+public class CustomerHelper {
 
-    private static final int pageSize = 10; // number of records on one page
+    @EJB
+    FirmaFacade firmaFacade;
 
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
-    private int pageNumber; // current page number
-
-    private String searchPhrase;
-    private String searchOption;
+    @Resource(name = "pageSize")
+    Integer pageSize;
 
     /**
      * Handles preparation of the lector list
      *
      * @param request
-     * @param firmaList
      * @return HttpServletRequest
      */
-    public HttpServletRequest prepareEntityList(HttpServletRequest request, List firmaList) {
+    public HttpServletRequest prepareEntityList(HttpServletRequest request) {
 
-        List<Lektor> resultList;
+        /* main lists that we will use */
+        List firmaList = firmaFacade.findAll();
 
+        /* technical */
+        boolean sortAsc; // and this one to check how to sort
+        String sortBy; // so we know how to sort
+        boolean changeSort; // this one to know whether to change sorting order
+        int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
+        int pageNumber; // current page number
+
+        /* and now process */
+        // SORT & SEARCH
+        // get pageNumber from request
         try {
             pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
         } catch (NumberFormatException e) {
             pageNumber = 1; // (it seems that we do not have page number yet)
         }
 
-        // SORT only (no search)
         // check whether to change sorting direction
         changeSort = Boolean.parseBoolean(request.getParameter("changeSort"));
         String stringSortAsc = request.getParameter("sortAsc");
+
         try {
             sortAsc = Boolean.parseBoolean(stringSortAsc);
         } catch (Exception e) {
             sortAsc = true;
         }
-        
+
         // check if sorting...
         sortBy = request.getParameter("sortBy");
         // if not sorting let's sort by id
@@ -65,7 +72,7 @@ public class CustomerListHelper {
             changeSort = false;
         }
 
-                // now we check if we have to sort things (out)
+        // now we check if we have to sort things (out)
         // (by the way - we sort using auxiliary class)
         switch (sortBy) {
             case ("id"):
@@ -106,17 +113,17 @@ public class CustomerListHelper {
                 break;
         }
 
-                // PAGINATE
+        // PAGINATE
         // and here goes pagination part
         numberOfPages = ((firmaList.size()) / pageSize) + 1; // check how many pages
 
         // pageToDisplay is subList - we check if not get past last index
         int fromIndex = ((pageNumber - 1) * pageSize);
         int toIndex = fromIndex + pageSize;
-        resultList = firmaList.subList(fromIndex,
+        List resultList = firmaList.subList(fromIndex,
                 toIndex > firmaList.size() ? firmaList.size() : toIndex);
 
-                // SEND
+        // SEND
         // now prepare things for our JSP
         request.setAttribute("numberOfPages", numberOfPages);
         request.setAttribute("pageNumber", pageNumber);

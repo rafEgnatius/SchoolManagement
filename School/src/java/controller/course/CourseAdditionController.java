@@ -8,7 +8,7 @@ package controller.course;
 import entity.Firma;
 import entity.Kursant;
 import helper.CourseHelper;
-import helper.CustomerListHelper;
+import helper.CustomerHelper;
 import helper.LectorListHelper;
 import helper.ParticipantHelper;
 import helper.ProgrammeListHelper;
@@ -59,64 +59,40 @@ import validator.FormValidator;
 public class CourseAdditionController extends HttpServlet {
 
     @EJB
-    private FirmaFacade firmaFacade;
-    private List firmaList = new ArrayList();
+    CustomerHelper customerHelper;
+    
+    @EJB
+    LectorListHelper lectorHelper;
+    
+    @EJB
+    FirmaFacade firmaFacade;
 
     @EJB
-    private JezykFacade jezykFacade;
-    private List jezykList = new ArrayList();
+    JezykFacade jezykFacade;
 
     @EJB
-    private KursFacade kursFacade;
+    KursFacade kursFacade;
 
     @EJB
-    private KursantFacade kursantFacade;
-    private List kursantList = new ArrayList();
+    KursantFacade kursantFacade;
 
     @EJB
-    private JezykLektoraFacade jezykLektoraFacade;
-    private List jezykLektoraList = new ArrayList();
+    JezykLektoraFacade jezykLektoraFacade;
 
     @EJB
-    private LektorFacade lektorFacade;
-    private List lektorList = new ArrayList();
+    LektorFacade lektorFacade;
 
     @EJB
-    private ProgramFacade programFacade;
-    private List programList = new ArrayList();
+    ProgramFacade programFacade;
 
     @EJB
-    private CourseHelper mainEntityHelper;
+    CourseHelper courseHelper;
 
     @EJB
-    private PersistenceManager persistenceManager;
-
-//    main
-    int intMainEntityId = 0;
-    String mainEntityId = "";
-
-// additional
-    int intFirmaId = 0;
-    String firmaId = "";
-    CustomerListHelper customerListHelper;
-
-// additional
-    int intLektorId = 0;
-    String lektorId = "";
-    LectorListHelper lectorListHelper;
-
-// additional
-    int intProgramId = 0;
-    String programId = "";
-    ProgrammeListHelper programmeListHelper;
-
-    String kursantId; // to be moved
-
-//    GENERAL 
-    private String userPath; // this one to see what to do
-
-//    pagination
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
+    PersistenceManager persistenceManager;
+    
+    @EJB
+    ProgrammeListHelper programmeHelper;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -130,27 +106,34 @@ public class CourseAdditionController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        List kursantList;
+        List jezykList;
+        List jezykLektoraList;
+        List lektorList;
+        List programList;
+                
+        String firmaId;
+        String kursId;
+        String kursantId;
+        String lektorId;
+        String programId;
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  ADD CUSTOMER
             case "/dodajFirmeDoKursu":
 
-                mainEntityId = request.getParameter("kursId"); // it should be set if we are here
-
-                customerListHelper = new CustomerListHelper(); //  we need a helper
-
-                // get the necessary lists for the request
-                firmaList = firmaFacade.findAll();
+                kursId = request.getParameter("kursId"); // it should be set if we are here
 
                 // use helper to get entity list prepared in our request
-                request = customerListHelper.prepareEntityList(request, firmaList);
+                request = customerHelper.prepareEntityList(request);
 
                 // tell the kurs id
-                request.setAttribute("kursId", mainEntityId);
+                request.setAttribute("kursId", kursId);
 
                 // and tell the container where to redirect
                 userPath = "/course/course/addCustomer";
@@ -162,13 +145,13 @@ public class CourseAdditionController extends HttpServlet {
 
                 // check parameters
                 firmaId = request.getParameter("firmaId");
-                mainEntityId = request.getParameter("kursId");
+                kursId = request.getParameter("kursId");
 
                 // now persist:
-                persistenceManager.saveAddingCustomerToCourseToDatabase(firmaId, mainEntityId);
+                persistenceManager.saveAddingCustomerToCourseToDatabase(firmaId, kursId);
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -178,13 +161,13 @@ public class CourseAdditionController extends HttpServlet {
             case "/usunFirmeZKursu":
 
                 // check parameters
-                mainEntityId = request.getQueryString();
+                kursId = request.getQueryString();
 
                 // now persist:
-                persistenceManager.deleteCustomerFromCourseFromDatabase(mainEntityId);
+                persistenceManager.deleteCustomerFromCourseFromDatabase(kursId);
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -193,20 +176,16 @@ public class CourseAdditionController extends HttpServlet {
 //  ADD LECTOR
             case "/dodajLektoraDoKursu":
 
-                mainEntityId = request.getParameter("kursId"); // it should be set if we are here
-
-                lectorListHelper = new LectorListHelper(); //  we need a helper
-
                 // get the necessary lists for the request
                 lektorList = lektorFacade.findAll();
                 jezykList = jezykFacade.findAll();
                 jezykLektoraList = jezykLektoraFacade.findAll();
 
                 // use helper to get lektor list prepared in our request
-                request = lectorListHelper.prepareEntityList(request, lektorList, jezykList, jezykLektoraList);
+                request = lectorHelper.prepareEntityList(request, lektorList, jezykList, jezykLektoraList);
 
                 // tell the kurs id
-                request.setAttribute("kursId", mainEntityId);
+                request.setAttribute("kursId", request.getParameter("kursId")); // it should be set if we are here
 
                 // and tell the container where to redirect
                 userPath = "/course/course/addLector";
@@ -218,13 +197,13 @@ public class CourseAdditionController extends HttpServlet {
 
                 // check parameters
                 lektorId = request.getParameter("lektorId");
-                mainEntityId = request.getParameter("kursId");
+                kursId = request.getParameter("kursId");
 
                 // now persist:
-                persistenceManager.saveAddingLectorToCourseToDatabase(lektorId, mainEntityId);
+                persistenceManager.saveAddingLectorToCourseToDatabase(lektorId, kursId);
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -234,13 +213,13 @@ public class CourseAdditionController extends HttpServlet {
             case "/usunLektoraZKursu":
 
                 // check parameters
-                mainEntityId = request.getQueryString();
+                kursId = request.getQueryString();
 
                 // now persist:
-                persistenceManager.deleteLectorFromCourseFromDatabase(mainEntityId);
+                persistenceManager.deleteLectorFromCourseFromDatabase(kursId);
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -250,10 +229,10 @@ public class CourseAdditionController extends HttpServlet {
             case "/dodajKursantaDoKursu":
 
                 // check the id
-                mainEntityId = request.getParameter("kursId"); // it should be set if we are here
+                kursId = request.getParameter("kursId"); // it should be set if we are here
 
                 // we will need this one at least twice
-                Firma firma = kursFacade.find(Integer.parseInt(mainEntityId)).getFirma();
+                Firma firma = kursFacade.find(Integer.parseInt(kursId)).getFirma();
 
                 // entity list
                 kursantList = new ArrayList();
@@ -273,7 +252,7 @@ public class CourseAdditionController extends HttpServlet {
                 onlyOneFirma.add(firma); // get the firma we need
                 request = participantListHelper.prepareEntityList(request, kursantList, onlyOneFirma); // only one customer (firma)
 
-                request.setAttribute("kursId", mainEntityId);
+                request.setAttribute("kursId", kursId);
 
                 userPath = "/course/course/addParticipant";
                 break;
@@ -283,16 +262,16 @@ public class CourseAdditionController extends HttpServlet {
                 // it is confirmed so add to database
                 // check parameters
                 kursantId = request.getParameter("kursantId");
-                mainEntityId = request.getParameter("kursId");
+                kursId = request.getParameter("kursId");
 
                 // check if not already have this participant
-                if (!mainEntityHelper.alreadyThere(Integer.parseInt(mainEntityId), Integer.parseInt(kursantId))) {
+                if (!courseHelper.alreadyThere(Integer.parseInt(kursId), Integer.parseInt(kursantId))) {
                     // persist if not:
-                    persistenceManager.saveAddingParticipantToCourseToDatabase(kursFacade.find(Integer.parseInt(mainEntityId)), kursantFacade.find(Integer.parseInt(kursantId)));
+                    persistenceManager.saveAddingParticipantToCourseToDatabase(kursFacade.find(Integer.parseInt(kursId)), kursantFacade.find(Integer.parseInt(kursantId)));
                 }
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -302,14 +281,14 @@ public class CourseAdditionController extends HttpServlet {
             case "/usunKursantaZKursu":
 
                 // check parameters
-                mainEntityId = request.getParameter("kursId");
+                kursId = request.getParameter("kursId");
                 kursantId = request.getParameter("kursantId");
 
                 // now persist:
-                persistenceManager.deleteParticipantFromDatabase(mainEntityId, kursantId);
+                persistenceManager.deleteParticipantFromDatabase(kursId, kursantId);
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -322,12 +301,10 @@ public class CourseAdditionController extends HttpServlet {
                 programList = programFacade.findAll();
 
                 // use helper to get lektor list prepared in our request
-                programmeListHelper = new ProgrammeListHelper(); //  we need a helper
-                request = programmeListHelper.prepareEntityList(request, programList);
+                request = programmeHelper.prepareEntityList(request, programList);
 
                 // tell the kurs id
-                mainEntityId = request.getParameter("kursId"); // it should be set if we are here
-                request.setAttribute("kursId", mainEntityId);
+                request.setAttribute("kursId", request.getParameter("kursId")); // it should be set if we are here
 
                 userPath = "/course/course/addProgramme";
                 break;
@@ -338,13 +315,13 @@ public class CourseAdditionController extends HttpServlet {
 
                 // check parameters
                 programId = request.getParameter("programId");
-                mainEntityId = request.getParameter("kursId");
+                kursId = request.getParameter("kursId");
 
                 // now persist:
-                persistenceManager.saveAddingProgrammeToCourseToDatabase(programId, mainEntityId);
+                persistenceManager.saveAddingProgrammeToCourseToDatabase(programId, kursId);
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -354,13 +331,13 @@ public class CourseAdditionController extends HttpServlet {
             case "/usunProgramZKursu":
 
                 // check parameters
-                mainEntityId = request.getQueryString();
+                kursId = request.getQueryString();
 
                 // now persist:
-                persistenceManager.deleteProgrammeCourseFromDatabase(mainEntityId);
+                persistenceManager.deleteProgrammeCourseFromDatabase(kursId);
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -370,14 +347,14 @@ public class CourseAdditionController extends HttpServlet {
             case "/usunStawkeLektora":
 
                 // check parameters
-                mainEntityId = request.getParameter("id");
+                kursId = request.getParameter("id");
                 lektorId = request.getParameter("lektorId");
 
                 // now persist:
-                persistenceManager.deleteLectorRateFromDatabase(Integer.parseInt(mainEntityId), Integer.parseInt(lektorId));
+                persistenceManager.deleteLectorRateFromDatabase(Integer.parseInt(kursId), Integer.parseInt(lektorId));
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -386,14 +363,11 @@ public class CourseAdditionController extends HttpServlet {
 // REMOVE DAY AND TIME
             case "/usunTermin":
 
-                // check parameters
-                String terminId = request.getQueryString();
-
                 // now persist:
-                persistenceManager.deleteDayAndTimeFromCourseFromDatabase(terminId);
+                persistenceManager.deleteDayAndTimeFromCourseFromDatabase(request.getParameter("terminId"));
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, request.getParameter("kursId"));
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -405,8 +379,7 @@ public class CourseAdditionController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
     }
 
@@ -425,10 +398,13 @@ public class CourseAdditionController extends HttpServlet {
 
         BigDecimal bigDecimalAmount;
         String stawka;
+        
+        String kursId;
+        String lektorId;
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 
@@ -437,7 +413,7 @@ public class CourseAdditionController extends HttpServlet {
                 // it is confirmed so add to database
 
                 // check parameters
-                mainEntityId = request.getParameter("id");
+                kursId = request.getParameter("id");
                 String stringGodzinaStart = request.getParameter("godzinaStart");
                 String stringGodzinaStop = request.getParameter("godzinaStop");
 
@@ -461,13 +437,13 @@ public class CourseAdditionController extends HttpServlet {
 
                 if (!formError) {
                     // now persist:
-                    persistenceManager.saveAddingDayAndTimeToCourseToDatabase(mainEntityId, request.getParameter("dzien"), godzinaStart, godzinaStop);
+                    persistenceManager.saveAddingDayAndTimeToCourseToDatabase(kursId, request.getParameter("dzien"), godzinaStart, godzinaStop);
                     request.removeAttribute("godzinaStart");
                     request.removeAttribute("godzinaStop");
                 }
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -477,18 +453,18 @@ public class CourseAdditionController extends HttpServlet {
             case "/dodajStawkeLektora":
 
                 // get Parameters
-                mainEntityId = request.getParameter("id"); // it should be set if we are here
+                kursId = request.getParameter("id"); // it should be set if we are here
                 lektorId = request.getParameter("lektorId");
                 stawka = request.getParameter("stawka");
 
                 if ((bigDecimalAmount = FormValidator.validateMoney(stawka)) == null) {
                     request.setAttribute("stawkaError", "błędne dane");
                 } else {
-                    persistenceManager.saveLectorRateToDatabase(Integer.parseInt(mainEntityId), Integer.parseInt(lektorId), bigDecimalAmount);
+                    persistenceManager.saveLectorRateToDatabase(Integer.parseInt(kursId), Integer.parseInt(lektorId), bigDecimalAmount);
                 }
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = courseHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -500,8 +476,7 @@ public class CourseAdditionController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
 
     }

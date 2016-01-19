@@ -8,6 +8,7 @@ package helper;
 import entity.Lektor;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
 import sorter.FieldSorter;
 
@@ -15,6 +16,7 @@ import sorter.FieldSorter;
  *
  * @author Rafa
  */
+@Stateless
 public class ProgrammeListHelper {
 
     private static final int pageSize = 10; // number of records on one page

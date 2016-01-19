@@ -17,7 +17,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import session.FirmaFacade;
 import session.JezykFacade;
@@ -272,14 +271,10 @@ public class CourseHelper {
         if (firma != null) {
             // first find kursKursantaList with only those records that match specific course
             List kursantList = new ArrayList();
-            Iterator myIterator = kursKursantaFacade.findAll().iterator();
-            while (myIterator.hasNext()) {
-                KursKursanta kursKursanta = (KursKursanta) myIterator.next();
-                if (kursKursanta.getKurs().equals(kurs)) {
-                    // than add participants that are on this short list
-                    kursantList.add(kursKursanta.getKursant());
-                }
-            }
+            kursKursantaFacade.findAll().stream().filter((kursKursanta) -> (kursKursanta.getKurs().equals(kurs))).forEach((kursKursanta) -> {
+                // than add participants that are on this short list
+                kursantList.add(kursKursanta.getKursant());
+            });
             // and set the final list as an attribute
             request.setAttribute("kursantList", kursantList);
         }

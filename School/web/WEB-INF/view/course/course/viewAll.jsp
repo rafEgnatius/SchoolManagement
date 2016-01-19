@@ -46,11 +46,11 @@
             </tr>
 
             <tr class="tableHeading">
-                <td><a href="kursy?sortBy=id&changeSort=true">&#x25B2; id &#x25BC;</a></td>
-                <td><a href="kursy?sortBy=symbol&changeSort=true">&#x25B2; symbol &#x25BC;</a></td>
-                <td><a href="kursy?sortBy=firma&changeSort=true">&#x25B2; firma &#x25BC;</a></td>
-                <td><a href="kursy?sortBy=lektor&changeSort=true">&#x25B2; lektor &#x25BC;</a></td>
-                <td><a href="kursy?sortBy=jezyk&changeSort=true">&#x25B2; język &#x25BC;</a></td>
+                <td><a href="kursy?sortBy=id&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; id &#x25BC;</a></td>
+                <td><a href="kursy?sortBy=symbol&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; symbol &#x25BC;</a></td>
+                <td><a href="kursy?sortBy=firma&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; firma &#x25BC;</a></td>
+                <td><a href="kursy?sortBy=lektor&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; lektor &#x25BC;</a></td>
+                <td><a href="kursy?sortBy=jezyk&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; język &#x25BC;</a></td>
             </tr>
 
             <c:forEach var="kurs" items="${kursList}" varStatus="iter">

@@ -61,15 +61,13 @@ public class BillController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String userPath; // this one to see what to do
-
         Rachunek rachunek; // our main entity here
         String rachunekId; // id taken from request
         int intRachunekId; // the same as a proper integer
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  VIEW ALL

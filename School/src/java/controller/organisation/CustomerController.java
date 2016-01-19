@@ -6,10 +6,8 @@
 package controller.organisation;
 
 import entity.Firma;
-import helper.CustomerListHelper;
+import helper.CustomerHelper;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -36,38 +34,16 @@ import validator.FormValidator;
 public class CustomerController extends HttpServlet {
 
     @EJB
-    private FirmaFacade firmaFacade;
-    private Firma firma;
-    private List firmaList = new ArrayList();
+    FirmaFacade firmaFacade;
     
     @EJB
-    private StawkaFirmyFacade stawkaFirmyFacade;
-    private List stawkaFirmyList = new ArrayList();
+    StawkaFirmyFacade stawkaFirmyFacade;
     
     @EJB
-    private PersistenceManager persistenceManager;
+    PersistenceManager persistenceManager;
 
-//    test
-    int intFirmaId = 0;
-    String firmaId = "";
-    CustomerListHelper customerListHelper;
-
-//    GENERAL 
-    private String userPath; // this one to see what to do
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-
-//    pagination
-    private static final int pageSize = 10; // number of records on one page
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
-    private int pageNumber; // current page number
-    private List pageToDisplay; // which one should be displayed to user
-
-//    search and filter
-    private String searchPhrase; // entity search (TEXT)
-    private String searchOption; // language selector (OPTION)
+    @EJB
+    CustomerHelper customerHelper;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -82,9 +58,16 @@ public class CustomerController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+    Firma firma;
+    
+    int intFirmaId;
+    String firmaId;
+    
+        
+        
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 // VIEW ALL
@@ -97,12 +80,8 @@ public class CustomerController extends HttpServlet {
                 // let's get initial data...
                 // ... like page number
 
-                // entityList
-                firmaList = firmaFacade.findAll();
-
                 // use helper to get lektor list prepared in our request
-                customerListHelper = new CustomerListHelper(); //  we need a helper
-                request = customerListHelper.prepareEntityList(request, firmaList);
+                request = customerHelper.prepareEntityList(request);
 
                 userPath = "/organisation/customer/viewAll";
                 break;
@@ -187,8 +166,7 @@ public class CustomerController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
     }
 
@@ -207,7 +185,7 @@ public class CustomerController extends HttpServlet {
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 
@@ -269,7 +247,6 @@ public class CustomerController extends HttpServlet {
                     formError = true;
                 }
                 
-
                 if (formError) {
                     request.setAttribute("formError", "formError");
 
@@ -299,8 +276,7 @@ public class CustomerController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
 
     }
@@ -311,11 +287,8 @@ public class CustomerController extends HttpServlet {
      */
     private HttpServletRequest prepareRequest(HttpServletRequest request, String firmaId) {
 
-        firma = firmaFacade.find(Integer.parseInt(firmaId));
-        request.setAttribute("firma", firma);
-        
-        stawkaFirmyList = stawkaFirmyFacade.findAll();
-        request.setAttribute("stawkaFirmyList", stawkaFirmyList);
+        request.setAttribute("firma", firmaFacade.find(Integer.parseInt(firmaId)));
+        request.setAttribute("stawkaFirmyList", stawkaFirmyFacade.findAll());
                 
         return request;
     }

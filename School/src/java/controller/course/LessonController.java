@@ -253,10 +253,10 @@ public class LessonController extends HttpServlet {
                 }
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request.setAttribute("lekcjaId", mainEntityId);
 
                 // prepare redirect
-                userPath = "/course/lesson/viewOne";
+                userPath = "/course/lesson/confirmation";
                 break;
 
 // FORWARD

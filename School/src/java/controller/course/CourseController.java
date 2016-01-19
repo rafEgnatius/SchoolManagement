@@ -7,10 +7,8 @@ package controller.course;
 
 import entity.Jezyk;
 import entity.Kurs;
-import finder.SchoolFinder;
 import helper.CourseHelper;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -18,10 +16,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import session.FirmaFacade;
 import session.JezykFacade;
 import session.KursFacade;
-import session.LektorFacade;
 import session.persistence.PersistenceManager;
 import validator.FormValidator;
 
@@ -41,41 +37,16 @@ public class CourseController extends HttpServlet {
 
     @EJB
     private KursFacade kursFacade;
-    private Kurs kurs;
-    
+
     @EJB
     private JezykFacade jezykFacade;
-    private Jezyk jezyk;
-    private List jezykList = new ArrayList();
 
     @EJB
     private PersistenceManager persistenceManager;
-    
+
     @EJB
     private CourseHelper kursHelper;
-
-//    main
-    int intMainEntityId = 0;
-    String mainEntityId = "";
-
-//    other
-//    GENERAL 
-    private String userPath; // this one to see what to do
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-
-//    pagination
-    private static final int pageSize = 10; // number of records on one page
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
-    private int pageNumber; // current page number
-    private List pageToDisplay; // which one should be displayed to user
-
-//    search and filter
-    private String searchPhrase; // entity search (TEXT)
-    private String searchOption; // language selector (OPTION)
-
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -89,9 +60,16 @@ public class CourseController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Kurs kurs;
+        Jezyk jezyk;
+        List jezykList;
+        
+        int intKursId;
+        String kursId;
+
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 // VIEW ALL
@@ -117,21 +95,21 @@ public class CourseController extends HttpServlet {
 // EDIT             
             case "/edytujKurs":
                 // get id from request
-                mainEntityId = request.getQueryString();
+                kursId = request.getQueryString();
 
                 // cast it to the integer
                 try {
-                    intMainEntityId = Integer.parseInt(mainEntityId);
+                    intKursId = Integer.parseInt(kursId);
                 } catch (NumberFormatException e) {
-                    intMainEntityId = 0; // (it seems that we have some kind of a problem)
+                    intKursId = 0; // (it seems that we have some kind of a problem)
                 }
 
-                if (intMainEntityId > 0) {
+                if (intKursId > 0) {
                     // find the lektor entity
-                    kurs = kursFacade.find(intMainEntityId);
+                    kurs = kursFacade.find(intKursId);
                     //request.setAttribute("kurs", kurs);
 
-                    request.setAttribute("id", mainEntityId);
+                    request.setAttribute("id", kursId);
                     request.setAttribute("rok", kurs.getRok());
                     request.setAttribute("semestr", kurs.getSemestr());
                     request.setAttribute("symbol", kurs.getSymbol());
@@ -165,11 +143,11 @@ public class CourseController extends HttpServlet {
                 int intJezykId = Integer.parseInt(jezykId);
                 jezyk = jezykFacade.find(intJezykId);
 
-                intMainEntityId = persistenceManager.saveCourseToDatabase(id, rok, semestr, jezyk, symbol, opis, sala);
-                mainEntityId = intMainEntityId + ""; // de facto cast it to String
-                
+                intKursId = persistenceManager.saveCourseToDatabase(id, rok, semestr, jezyk, symbol, opis, sala);
+                kursId = intKursId + ""; // de facto cast it to String
+
                 // use helper to get lektor list prepared in our request
-                request = kursHelper.prepareEntityView(request, mainEntityId);
+                request = kursHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -181,12 +159,12 @@ public class CourseController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: entity etc.
 
-                mainEntityId = request.getQueryString();
+                kursId = request.getQueryString();
 
                 System.out.println(kursFacade);
-                
+
                 // use helper to get lektor list prepared in our request
-                request = kursHelper.prepareEntityView(request, mainEntityId);
+                request = kursHelper.prepareEntityView(request, kursId);
 
                 // prepare redirect
                 userPath = "/course/course/viewOne";
@@ -198,8 +176,7 @@ public class CourseController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
     }
 
@@ -216,9 +193,12 @@ public class CourseController extends HttpServlet {
             throws ServletException, IOException {
         //processRequest(request, response);
 
+        Jezyk jezyk;
+        List jezykList;
+
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 
@@ -292,20 +272,7 @@ public class CourseController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
-
     }
-
-    /**
-     * This one prepares request to show one entity it is not to multiply code
-     * when adding and showing new Entity entity
-     */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String podrecznikId) {
-
-        // ANYTHING THAT WE WOULD NEED HERE
-        return request;
-    }
-
 }

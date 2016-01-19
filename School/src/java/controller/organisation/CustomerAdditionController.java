@@ -6,7 +6,7 @@
 package controller.organisation;
 
 import entity.Firma;
-import helper.CustomerListHelper;
+import helper.CustomerHelper;
 import helper.LectorListHelper;
 import helper.ProgrammeListHelper;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class CustomerAdditionController extends HttpServlet {
 // additional
     int intFirmaId = 0;
     String firmaId = "";
-    CustomerListHelper customerListHelper;
+    CustomerHelper customerListHelper;
 
 // additional
     int intLektorId = 0;

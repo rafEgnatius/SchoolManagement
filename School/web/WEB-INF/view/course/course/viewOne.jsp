@@ -159,7 +159,7 @@
         <c:if test="${not empty kurs.firma}">
             <table class="detailedTable">
                 <tr class="tableHeading">
-                    <th colspan="4">kursanci</th>
+                    <th colspan="5">kursanci</th>
                 </tr>
 
                 <c:forEach var="kursant" items="${kursantList}">
@@ -231,7 +231,7 @@
                             ${termin.godzinaStop}
                         </td>
                         <td>
-                            <a class="tinyButton" href="usunTermin?${termin.id}">
+                            <a class="tinyButton" href="usunTermin?terminId=${termin.id}&kursId=${kurs.id}">
                                 <span class="tinyButtonText">usuń &#x279f;</span>
                             </a>
                         </td>

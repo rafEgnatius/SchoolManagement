@@ -9,6 +9,7 @@ import entity.Lektor;
 import finder.SchoolFinder;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
 import sorter.FieldSorter;
 
@@ -16,6 +17,7 @@ import sorter.FieldSorter;
  *
  * @author Rafa
  */
+@Stateless
 public class LectorListHelper {
 
     private static final int pageSize = 10; // number of records on one page
@@ -24,7 +26,7 @@ public class LectorListHelper {
     private String sortBy; // so we know how to sort
     private Boolean changeSort = false; // this one to know whether to change sorting order
     private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
+    List<List> listOfPages; // list of lists of single page records
     private int pageNumber; // current page number
 
     private String searchPhrase;

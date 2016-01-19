@@ -32,14 +32,14 @@ public class SchoolFinder {
     // find by String:
     public static List findCourse(List kursList, String searchPhrase) {
         //        for every field in Lektor entity check whether it contains searchPhrase
-        //        use toLower to find everything no matter wheter capital      
+        //        use toLower to find everything no matter wheter capital letters were used   
         List resultList = new ArrayList<>(); // to send back
         Iterator it = kursList.iterator();
         while (it.hasNext()) {
             Kurs kurs = (Kurs) it.next();
             if (kurs.getSymbol().toLowerCase().contains(searchPhrase.toLowerCase())
-                    || kurs.getFirma().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())
-                    || kurs.getLektor().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())
+                    || (kurs.getFirma() != null && kurs.getFirma().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase()))
+                    || (kurs.getLektor() != null && kurs.getLektor().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase()))
                     || kurs.getJezyk().getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())) {
                 resultList.add(kurs);
             }
