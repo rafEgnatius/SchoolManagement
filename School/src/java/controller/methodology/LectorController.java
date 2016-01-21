@@ -7,10 +7,8 @@ package controller.methodology;
 
 import entity.Jezyk;
 import entity.Lektor;
-import helper.LectorListHelper;
+import helper.LectorHelper;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -43,44 +41,25 @@ public class LectorController extends HttpServlet {
 
     // mainEntity meaning entity of this controller
     @EJB
-    private LektorFacade mainEntityFacade;
-    private Lektor mainEntity;
-    private List mainEntityList = new ArrayList();
-    
-    @EJB
-    private JezykFacade jezykFacade;
-    private Jezyk jezyk;
-    private List jezykList = new ArrayList();
+    LektorFacade mainEntityFacade;
 
     @EJB
-    private JezykLektoraFacade jezykLektoraFacade;
-    private List jezykLektoraList = new ArrayList();
-    
-    @EJB
-    private PodrecznikFacade podrecznikFacade;
-    private List podrecznikList = new ArrayList();
+    JezykFacade jezykFacade;
 
     @EJB
-    private WypozyczenieFacade wypozyczenieFacade;
-    private List wypozyczenieList = new ArrayList();
+    JezykLektoraFacade jezykLektoraFacade;
 
     @EJB
-    private PersistenceManager persistenceManager;
+    PodrecznikFacade podrecznikFacade;
 
-//    mainEntity
-    int intMainEntityId = 0;
-    String mainEntityId = "";
-    LectorListHelper mainEntityListHelper;
+    @EJB
+    WypozyczenieFacade wypozyczenieFacade;
 
-//    Jezyk
-    int intJezykId = 0;
-    String jezykId = "";
+    @EJB
+    LectorHelper lectorHelper;
 
-//    general 
-    private String userPath; // this one to see what to do
-
-//    pagination
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
+    @EJB
+    PersistenceManager persistenceManager;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -95,22 +74,22 @@ public class LectorController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Lektor lektor;
+        int intLektorId;
+        String lektorId;
+        
+        Jezyk jezyk;
+        String jezykId;
+        
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  VIEW ALL
             case "/lektorzy":
 
-                // get the necessary lists for the request
-                mainEntityList = mainEntityFacade.findAll();
-                jezykList = jezykFacade.findAll();
-                jezykLektoraList = jezykLektoraFacade.findAll();
-
-                // use helper to get lektor list prepared in our request
-                mainEntityListHelper = new LectorListHelper(); //  we need a helper
-                request = mainEntityListHelper.prepareEntityList(request, mainEntityList, jezykList, jezykLektoraList);
+                request = lectorHelper.prepareEntityList(request);
 
                 // and tell the container where to redirect
                 userPath = "/methodology/lector/viewAll";
@@ -124,28 +103,28 @@ public class LectorController extends HttpServlet {
 // EDIT             
             case "/edytujLektora":
                 // get lektorId from request
-                mainEntityId = request.getQueryString();
+                lektorId = request.getQueryString();
 
                 // cast it to the integer
                 try {
-                    intMainEntityId = Integer.parseInt(mainEntityId);
+                    intLektorId = Integer.parseInt(lektorId);
                 } catch (NumberFormatException e) {
-                    intMainEntityId = 0; // (it seems that we have some kind of a problem)
+                    intLektorId = 0; // (it seems that we have some kind of a problem)
                 }
 
-                if (intMainEntityId > 0) {
-                    // find the lektor entity
-                    mainEntity = mainEntityFacade.find(intMainEntityId);
+                if (intLektorId > 0) {
+                    // find the lektor intLektorId
+                    lektor = mainEntityFacade.find(intLektorId);
                     // set as a request attribute all the fields
                     // and this is so because of the form validation
                     // when we give the form values that are correct
-                    request.setAttribute("id", mainEntity.getId());
-                    request.setAttribute("nazwa", mainEntity.getNazwa());
-                    request.setAttribute("miasto", mainEntity.getMiasto());
-                    request.setAttribute("telefon", mainEntity.getTelefon());
-                    request.setAttribute("email", mainEntity.getEmail());
-                    request.setAttribute("umowa", mainEntity.getUmowa());
-                    request.setAttribute("nip", mainEntity.getNip());
+                    request.setAttribute("id", lektor.getId());
+                    request.setAttribute("nazwa", lektor.getNazwa());
+                    request.setAttribute("miasto", lektor.getMiasto());
+                    request.setAttribute("telefon", lektor.getTelefon());
+                    request.setAttribute("email", lektor.getEmail());
+                    request.setAttribute("umowa", lektor.getUmowa());
+                    request.setAttribute("nip", lektor.getNip());
                 }
                 // then ask for a form 
                 userPath = "/methodology/lector/form";
@@ -163,10 +142,10 @@ public class LectorController extends HttpServlet {
                 String umowa = request.getParameter("umowa");
                 String nip = request.getParameter("nip");
 
-                intMainEntityId = persistenceManager.saveLectorToDatabase(id, nazwa, miasto, telefon, email, umowa, nip);
+                intLektorId = persistenceManager.saveLectorToDatabase(id, nazwa, miasto, telefon, email, umowa, nip);
 
-                mainEntityId = intMainEntityId + "";
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
+                lektorId = intLektorId + "";
+                request = lectorHelper.prepareEntityView(request, lektorId); // set all the attributes that request needs
 
                 // finally show the newly created lector (so it can be further processed)
                 userPath = "/methodology/lector/viewOne";
@@ -177,7 +156,7 @@ public class LectorController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: jezyk, jezykLektora, wypozyczenia etc.
 
-                request = prepareRequest(request, request.getQueryString()); // set all the attributes that request needs
+                request = lectorHelper.prepareEntityView(request, request.getQueryString()); // set all the attributes that request needs
 
                 userPath = "/methodology/lector/viewOne";
                 break;
@@ -185,7 +164,7 @@ public class LectorController extends HttpServlet {
 // ADD LECTOR'S LANGUAGE
             case "/dodajJezykLektora":
                 // first: get three values from the form
-                mainEntityId = request.getParameter("lektorId");
+                lektorId = request.getParameter("lektorId");
                 jezykId = request.getParameter("jezykId");
                 String stringNativeSpeaker = request.getParameter("nativeSpeaker"); // we are looking for "ON" value
                 boolean nativeSpeaker; //  lets sort out a boolean
@@ -195,28 +174,28 @@ public class LectorController extends HttpServlet {
                     nativeSpeaker = false;
                 }
 
-                mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
+                lektor = mainEntityFacade.find(Integer.parseInt(lektorId)); // we should try/catch it later
                 jezyk = jezykFacade.find(Integer.parseInt(jezykId)); // we should try/catch it later
 
                 // now persist:
-                persistenceManager.saveLectorsLanguageToDatabase(mainEntity, jezyk, nativeSpeaker);
+                persistenceManager.saveLectorsLanguageToDatabase(lektor, jezyk, nativeSpeaker);
 
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
+                request = lectorHelper.prepareEntityView(request, lektorId); // set all the attributes that request needs
 
                 userPath = "/methodology/lector/viewOne"; // and show once more - now with another language
                 break;
 // REMOVE LECTOR'S LANGUAGE
             case "/usunJezykLektora":
-                mainEntityId = request.getParameter("lektorId");
+                lektorId = request.getParameter("lektorId");
                 jezykId = request.getParameter("jezykId");
 
-                mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
+                lektor = mainEntityFacade.find(Integer.parseInt(lektorId)); // we should try/catch it later
                 jezyk = jezykFacade.find(Integer.parseInt(jezykId)); // we should try/catch it later
 
                 // now persist:
-                persistenceManager.deleteLectorsLanguageFromDatabase(mainEntity, jezyk);
+                persistenceManager.deleteLectorsLanguageFromDatabase(lektor, jezyk);
 
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
+                request = lectorHelper.prepareEntityView(request, lektorId); // set all the attributes that request needs
                 userPath = "/methodology/lector/viewOne"; // and show once more - now with another language
                 break;
 
@@ -245,7 +224,7 @@ public class LectorController extends HttpServlet {
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 // CONFIRM
@@ -320,26 +299,4 @@ public class LectorController extends HttpServlet {
         } catch (ServletException | IOException ex) {
         }
     }
-
-    /**
-     * This one prepares request to show one lector it is not to multiply code
-     * when adding and showing new mainEntity entity
-     */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String mainEntityId) {
-
-        mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId));
-        jezykList = jezykFacade.findAll();
-        jezykLektoraList = jezykLektoraFacade.findAll();
-        wypozyczenieList = wypozyczenieFacade.findAll();
-        podrecznikList = podrecznikFacade.findAll();
-
-        request.setAttribute("lektor", mainEntity);
-        request.setAttribute("jezykList", jezykList);
-        request.setAttribute("jezykLektoraList", jezykLektoraList);
-        request.setAttribute("wypozyczenieList", wypozyczenieList);
-        request.setAttribute("podrecznikList", podrecznikList);
-
-        return request;
-    }
-
 }

@@ -9,7 +9,7 @@ import entity.Firma;
 import entity.Kursant;
 import helper.CourseHelper;
 import helper.CustomerHelper;
-import helper.LectorListHelper;
+import helper.LectorHelper;
 import helper.ParticipantHelper;
 import helper.ProgrammeListHelper;
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class CourseAdditionController extends HttpServlet {
     CustomerHelper customerHelper;
     
     @EJB
-    LectorListHelper lectorHelper;
+    LectorHelper lectorHelper;
     
     @EJB
     FirmaFacade firmaFacade;
@@ -182,7 +182,7 @@ public class CourseAdditionController extends HttpServlet {
                 jezykLektoraList = jezykLektoraFacade.findAll();
 
                 // use helper to get lektor list prepared in our request
-                request = lectorHelper.prepareEntityList(request, lektorList, jezykList, jezykLektoraList);
+                request = lectorHelper.prepareEntityList(request);
 
                 // tell the kurs id
                 request.setAttribute("kursId", request.getParameter("kursId")); // it should be set if we are here

@@ -5,11 +5,14 @@
  */
 package helper;
 
-import entity.Faktura;
 import finder.SchoolFinder;
-import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Resource;
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
+import session.FakturaFacade;
+import session.FirmaFacade;
 import sorter.EntitySorter;
 import sorter.FieldSorter;
 
@@ -17,44 +20,52 @@ import sorter.FieldSorter;
  *
  * @author Rafa
  */
-public class InvoiceListHelper {
+@Stateless
+public class InvoiceHelper {
 
-    private static final int pageSize = 10; // number of records on one page
-
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<>(); // list of lists of single page records
-    private int pageNumber; // current page number
-
-    private String searchPhrase;
-    // private String searchOption;
+    @EJB
+    FakturaFacade fakturaFacade;
+    
+    @EJB
+    FirmaFacade firmaFacade;
+    
+    @Resource(name = "pageSize")
+    Integer pageSize;
 
     /**
      * Handles preparation of the faktura list
      *
-     * 
+     *
      * @param request
-     * @param mainEntityList
-     * @param firmaList
      * @return HttpServletRequest
      */
-    public HttpServletRequest prepareEntityList(HttpServletRequest request,
-            List mainEntityList, List firmaList) {
+    public HttpServletRequest prepareEntityList(HttpServletRequest request) {
+        
+        /* main lists that we will use */
+        List fakturaList = fakturaFacade.findAll();
+        List firmaList = firmaFacade.findAll();
 
-        List<Faktura> resultList;
+        /* technical */
+        boolean sortAsc; // and this one to check how to sort
+        String sortBy; // so we know how to sort
+        boolean changeSort; // this one to know whether to change sorting order
+        int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
+        int pageNumber; // current page number
+        String searchPhrase; // what we are looking for
 
+        /* and now process */
+        // SORT & SEARCH
+        // get pageNumber from request
         try {
             pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
         } catch (NumberFormatException e) {
             pageNumber = 1; // (it seems that we do not have page number yet)
         }
 
-        // SORT & SEARCH
         // check whether to change sorting direction
         changeSort = Boolean.parseBoolean(request.getParameter("changeSort"));
         String stringSortAsc = request.getParameter("sortAsc");
+
         try {
             sortAsc = Boolean.parseBoolean(stringSortAsc);
         } catch (Exception e) {
@@ -72,80 +83,81 @@ public class InvoiceListHelper {
 
         // and check if searching
         searchPhrase = request.getParameter("searchPhrase");
-        if (searchPhrase != null && !searchPhrase.equals("")) {
-            mainEntityList = SchoolFinder.findFaktura(mainEntityList, firmaList, searchPhrase);
+        if (searchPhrase
+                != null && !searchPhrase.equals(
+                        "")) {
+            fakturaList = SchoolFinder.findRachunek(fakturaList, firmaList, searchPhrase);
         } else {
             searchPhrase = "";
         }
-
 
         // now we check if we have to sort things (out)
         // (by the way - we sort using auxiliary abstract class)
         switch (sortBy) {
             case ("id"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortIdDesc(mainEntityList);
+                    fakturaList = FieldSorter.sortIdDesc(fakturaList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortId(mainEntityList);
+                    fakturaList = FieldSorter.sortId(fakturaList);
                     sortAsc = true;
                 }
                 break;
             case ("numer"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortNumerDesc(mainEntityList);
+                    fakturaList = FieldSorter.sortNumerDesc(fakturaList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortNumer(mainEntityList);
+                    fakturaList = FieldSorter.sortNumer(fakturaList);
                     sortAsc = true;
                 }
                 break;
             case ("data"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortDataDesc(mainEntityList);
+                    fakturaList = FieldSorter.sortDataDesc(fakturaList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortData(mainEntityList);
+                    fakturaList = FieldSorter.sortData(fakturaList);
                     sortAsc = true;
                 }
                 break;
             case ("kwota"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortKwotaDesc(mainEntityList);
+                    fakturaList = FieldSorter.sortKwotaDesc(fakturaList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortKwota(mainEntityList);
+                    fakturaList = FieldSorter.sortKwota(fakturaList);
                     sortAsc = true;
                 }
                 break;
             case ("firma"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = EntitySorter.sortFirmaDesc(mainEntityList);
+                    fakturaList = EntitySorter.sortFirmaDesc(fakturaList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = EntitySorter.sortFirma(mainEntityList);
+                    fakturaList = EntitySorter.sortFirma(fakturaList);
                     sortAsc = true;
                 }
                 break;
         }
 
-                // PAGINATE
+        // PAGINATE
         // and here goes pagination part
-        numberOfPages = ((mainEntityList.size()) / pageSize) + 1; // check how many pages
+        numberOfPages = ((fakturaList.size()) / pageSize) + 1; // check how many pages
 
         // pageToDisplay is subList - we check if not get past last index
         int fromIndex = ((pageNumber - 1) * pageSize);
         int toIndex = fromIndex + pageSize;
-        resultList = mainEntityList.subList(fromIndex,
-                toIndex > mainEntityList.size() ? mainEntityList.size() : toIndex);
+        List resultList = fakturaList.subList(fromIndex,
+                toIndex > fakturaList.size() ? fakturaList.size() : toIndex);
 
-                // SEND
+        // SEND
         // now prepare things for our JSP
         request.setAttribute("numberOfPages", numberOfPages);
         request.setAttribute("pageNumber", pageNumber);
         request.setAttribute("sortBy", sortBy);
         request.setAttribute("sortAsc", sortAsc);
-        
+
         request.setAttribute("searchPhrase", searchPhrase);
         //request.setAttribute("searchOption", searchOption);
 

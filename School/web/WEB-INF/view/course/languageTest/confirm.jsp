@@ -23,7 +23,7 @@
     <table class="cancelSaveTable">
         <tr>
             <td class="leftCell">
-                <a class="smallButton" href="pokazKurs?${param.kursId}">
+                <a class="smallButton" href="${id eq "-1" ? "pokazKurs?" : "edytujTest?"}${id eq "-1" ? param.kursId : param.id}">
                     <span class="smallButtonText">&#x21A9; anuluj</span>
                 </a>
             </td>

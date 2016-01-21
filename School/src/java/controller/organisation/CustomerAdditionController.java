@@ -7,7 +7,7 @@ package controller.organisation;
 
 import entity.Firma;
 import helper.CustomerHelper;
-import helper.LectorListHelper;
+import helper.LectorHelper;
 import helper.ProgrammeListHelper;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -59,7 +59,7 @@ public class CustomerAdditionController extends HttpServlet {
 // additional
     int intLektorId = 0;
     String lektorId = "";
-    LectorListHelper lectorListHelper;
+    LectorHelper lectorListHelper;
 
 // additional
     int intMainEntityId = 0;

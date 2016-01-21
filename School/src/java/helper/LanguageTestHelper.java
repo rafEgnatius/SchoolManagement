@@ -12,6 +12,7 @@ import finder.SchoolFinder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
@@ -36,29 +37,20 @@ public class LanguageTestHelper {
     KursantFacade kursantFacade;
 
     @EJB
-    TestFacade mainEntityFacade;
+    TestFacade testFacade;
 
     @EJB
     FirmaFacade firmaFacade;
 
-    List mainEntityList;
-    List kursList;
-    List kursantList;
-    List firmaList;
+    @Resource(name = "pageSize")
+    int pageSize; // number of records on one page
 
-    private static final int pageSize = 10; // number of records on one page
-
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
-    private int pageNumber; // current page number
-
-    private String searchPhrase;
-    private String searchOption;
-
-    // METHODS, MAN
+    /**
+     *
+     * @param mainEntityList
+     * @param kursId
+     * @return
+     */
     private List filterKurs(List mainEntityList, String kursId) {
         List resultList = new ArrayList();
         Kurs kurs = kursFacade.find(Integer.parseInt(kursId));
@@ -73,6 +65,12 @@ public class LanguageTestHelper {
         return resultList;
     }
 
+    /**
+     *
+     * @param mainEntityList
+     * @param kursantId
+     * @return
+     */
     private List filterKursant(List mainEntityList, String kursantId) {
         List resultList = new ArrayList();
         Kursant kursant = kursantFacade.find(Integer.parseInt(kursantId));
@@ -92,27 +90,35 @@ public class LanguageTestHelper {
      *
      *
      * @param request
-     * @param mainEntityList
-     * @param firmaList
      * @return HttpServletRequest
      */
     public HttpServletRequest prepareEntityList(HttpServletRequest request) {
 
-        mainEntityList = mainEntityFacade.findAll();
-        kursList = kursFacade.findAll();
-        kursantList = kursantFacade.findAll();
-        firmaList = firmaFacade.findAll();
+        /* main lists that we will use */
+        List testList = testFacade.findAll();
+        List kursList = kursFacade.findAll();
+
+        /* technical */
+        boolean sortAsc; // and this one to check how to sort
+        String sortBy; // so we know how to sort
+        boolean changeSort; // this one to know whether to change sorting order
+        int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
+        int pageNumber; // current page number
+        String searchPhrase; // what we are looking for
+        String searchOption; // option chosen by user
+
+        /* and now process */
         // in this case we need to filter the results in case we need specific kurs and kursant (participant)
         String kursId = request.getParameter("kursId");
         if (kursId != null && !kursId.equals("")) {
-            mainEntityList = filterKurs(mainEntityList, kursId);
+            testList = filterKurs(testList, kursId);
             request.setAttribute("kursId", kursId);
         }
 
         // and kursant
         String kursantId = request.getParameter("kursantId");
         if (kursantId != null && !kursantId.equals("")) {
-            mainEntityList = filterKursant(mainEntityList, kursantId);
+            testList = filterKursant(testList, kursantId);
             request.setAttribute("kursantId", kursantId);
         }
 
@@ -146,7 +152,7 @@ public class LanguageTestHelper {
         // and check if searching
         searchPhrase = request.getParameter("searchPhrase");
         if (searchPhrase != null && !searchPhrase.equals("")) {
-            mainEntityList = SchoolFinder.findLanguageTest(mainEntityList, searchPhrase);
+            testList = SchoolFinder.findLanguageTest(testList, searchPhrase);
         } else {
             searchPhrase = "";
         }
@@ -154,7 +160,7 @@ public class LanguageTestHelper {
         // and what option was chosen
         searchOption = request.getParameter("searchOption");
         if (searchOption != null && !searchOption.equals("")) {
-            mainEntityList = SchoolFinder.findCustomerForLanguageTest(mainEntityList, kursList, searchOption);
+            testList = SchoolFinder.findCustomerForLanguageTest(testList, kursList, searchOption);
         } else {
             searchOption = "";
         }
@@ -164,46 +170,46 @@ public class LanguageTestHelper {
         switch (sortBy) {
             case ("id"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortIdDesc(mainEntityList);
+                    testList = FieldSorter.sortIdDesc(testList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortId(mainEntityList);
+                    testList = FieldSorter.sortId(testList);
                     sortAsc = true;
                 }
                 break;
             case ("rodzaj"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortRodzajDesc(mainEntityList);
+                    testList = FieldSorter.sortRodzajDesc(testList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortRodzaj(mainEntityList);
+                    testList = FieldSorter.sortRodzaj(testList);
                     sortAsc = true;
                 }
                 break;
             case ("ocena"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortOcenaDesc(mainEntityList);
+                    testList = FieldSorter.sortOcenaDesc(testList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortOcena(mainEntityList);
+                    testList = FieldSorter.sortOcena(testList);
                     sortAsc = true;
                 }
                 break;
             case ("kurs"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = EntitySorter.sortKursDesc(mainEntityList);
+                    testList = EntitySorter.sortKursDesc(testList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = EntitySorter.sortKurs(mainEntityList);
+                    testList = EntitySorter.sortKurs(testList);
                     sortAsc = true;
                 }
                 break;
             case ("kursant"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = EntitySorter.sortKursantDesc(mainEntityList);
+                    testList = EntitySorter.sortKursantDesc(testList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = EntitySorter.sortKursant(mainEntityList);
+                    testList = EntitySorter.sortKursant(testList);
                     sortAsc = true;
                 }
                 break;
@@ -211,13 +217,13 @@ public class LanguageTestHelper {
 
         // PAGINATE
         // and here goes pagination part
-        numberOfPages = ((mainEntityList.size()) / pageSize) + 1; // check how many pages
+        numberOfPages = ((testList.size()) / pageSize) + 1; // check how many pages
 
         // pageToDisplay is subList - we check if not get past last index
         int fromIndex = ((pageNumber - 1) * pageSize);
         int toIndex = fromIndex + pageSize;
-        resultList = mainEntityList.subList(fromIndex,
-                toIndex > mainEntityList.size() ? mainEntityList.size() : toIndex);
+        resultList = testList.subList(fromIndex,
+                toIndex > testList.size() ? testList.size() : toIndex);
 
         // SEND
         // now prepare things for our JSP
@@ -230,11 +236,22 @@ public class LanguageTestHelper {
         request.setAttribute("searchOption", searchOption);
 
         request.setAttribute("testList", resultList);
-        request.setAttribute("kursantList", kursantList);
+        request.setAttribute("kursantList", kursantFacade.findAll());
         request.setAttribute("kursList", kursList);
-        request.setAttribute("firmaList", firmaList);
+        request.setAttribute("firmaList", firmaFacade.findAll());
 
         return request;
     }
 
+    /**
+     * This one prepares request to show one entity it is not to multiply code
+     * when adding and showing new mainEntity entity
+     * @param request
+     * @param testId
+     * @return 
+     */
+    public HttpServletRequest prepareEntityView(HttpServletRequest request, int testId) {
+        request.setAttribute("test", testFacade.find(testId));
+        return request;
+    }
 }

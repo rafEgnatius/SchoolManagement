@@ -7,10 +7,16 @@ package helper;
 
 import entity.Lektor;
 import finder.SchoolFinder;
-import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
+import session.JezykFacade;
+import session.JezykLektoraFacade;
+import session.LektorFacade;
+import session.PodrecznikFacade;
+import session.WypozyczenieFacade;
 import sorter.FieldSorter;
 
 /**
@@ -18,44 +24,61 @@ import sorter.FieldSorter;
  * @author Rafa
  */
 @Stateless
-public class LectorListHelper {
+public class LectorHelper {
 
-    private static final int pageSize = 10; // number of records on one page
+    @EJB
+    private LektorFacade lektorFacade;
+    
+    @EJB
+    private JezykFacade jezykFacade;
+    
+    @EJB
+    PodrecznikFacade podrecznikFacade;
 
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages; // list of lists of single page records
-    private int pageNumber; // current page number
+    @EJB
+    WypozyczenieFacade wypozyczenieFacade;
 
-    private String searchPhrase;
-    private String searchOption;
+    @EJB
+    private JezykLektoraFacade jezykLektoraFacade;
+    
+    @Resource(name = "pageSize")
+    Integer pageSize;
 
     /**
      * Handles preparation of the lector list
      *
-     * @param lektorList
-     * @param jezykLektoraList
-     * @param jezykList
      * @param request
      * @return HttpServletRequest
      */
-    public HttpServletRequest prepareEntityList(HttpServletRequest request,
-            List lektorList, List jezykList, List jezykLektoraList) {
+    public HttpServletRequest prepareEntityList(HttpServletRequest request) {
 
-        List<Lektor> resultList;
+        /* main lists that we will use */
+        List lektorList = lektorFacade.findAll();
+        List jezykList = jezykFacade.findAll();
+        List jezykLektoraList = jezykLektoraFacade.findAll();
 
+        /* technical */
+        boolean sortAsc; // and this one to check how to sort
+        String sortBy; // so we know how to sort
+        boolean changeSort; // this one to know whether to change sorting order
+        int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
+        int pageNumber; // current page number
+        String searchPhrase; // what we are looking for
+        String searchOption;
+
+        /* and now process */
+        // SORT & SEARCH
+        // get pageNumber from request
         try {
             pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
         } catch (NumberFormatException e) {
             pageNumber = 1; // (it seems that we do not have page number yet)
         }
 
-        // SORT & SEARCH
         // check whether to change sorting direction
         changeSort = Boolean.parseBoolean(request.getParameter("changeSort"));
         String stringSortAsc = request.getParameter("sortAsc");
+
         try {
             sortAsc = Boolean.parseBoolean(stringSortAsc);
         } catch (Exception e) {
@@ -144,7 +167,7 @@ public class LectorListHelper {
         // pageToDisplay is subList - we check if not get past last index
         int fromIndex = ((pageNumber - 1) * pageSize);
         int toIndex = fromIndex + pageSize;
-        resultList = lektorList.subList(fromIndex,
+        List resultList = lektorList.subList(fromIndex,
                 toIndex > lektorList.size() ? lektorList.size() : toIndex);
 
                 // SEND
@@ -160,6 +183,36 @@ public class LectorListHelper {
         request.setAttribute("lektorList", resultList);
         request.setAttribute("jezykLektoraList", jezykLektoraList); // we got it a couple of line earlier
         request.setAttribute("jezykList", jezykList);
+
+        return request;
+    }
+    
+    /**
+     * This one prepares request to show one lector it is not to multiply code
+     * when adding and showing new mainEntity entity
+     * @param request
+     * @param lektorId
+     * @return 
+     */
+    public HttpServletRequest prepareEntityView(HttpServletRequest request, String lektorId) {
+
+        Lektor lektor;
+        List jezykList;
+        List jezykLektoraList;
+        List podrecznikList;
+        List wypozyczenieList;
+
+        lektor = lektorFacade.find(Integer.parseInt(lektorId));
+        jezykList = jezykFacade.findAll();
+        jezykLektoraList = jezykLektoraFacade.findAll();
+        wypozyczenieList = wypozyczenieFacade.findAll();
+        podrecznikList = podrecznikFacade.findAll();
+
+        request.setAttribute("lektor", lektor);
+        request.setAttribute("jezykList", jezykList);
+        request.setAttribute("jezykLektoraList", jezykLektoraList);
+        request.setAttribute("wypozyczenieList", wypozyczenieList);
+        request.setAttribute("podrecznikList", podrecznikList);
 
         return request;
     }

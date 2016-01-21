@@ -62,22 +62,23 @@
 
             <c:forEach var="test" items="${testList}" varStatus="iter">
 
-                <tr class="${((iter.index % 2) == 1) ? 'lightBlue' : 'white'} tableRow">
+                <tr class="${((iter.index % 2) == 1) ? 'lightBlue' : 'white'} tableRow"
+                    onclick="document.location.href = 'pokazTest?testId=${test.id}&kursId=${kursId}&kursantId=${kursantId}'">
 
                     <td>
-                        ${test.id}
+                        <a href="pokazTest?testId=${test.id}&kursId=${kursId}&kursantId=${kursantId}">${test.id}</a>
                     </td>
                     <td>
-                        <a href="#">${test.rodzaj}</a>
+                        <a href="pokazTest?testId=${test.id}&kursId=${kursId}&kursantId=${kursantId}">${test.rodzaj}</a>
                     </td>
                     <td>
-                        <a href="#">${test.ocena}</a>
+                        <a href="pokazTest?testId=${test.id}&kursId=${kursId}&kursantId=${kursantId}">${test.ocena}</a>
                     </td>
                         <c:forEach var="kurs" items="${kursList}">
                             <c:choose>
                                 <c:when test="${test.kurs eq kurs}">
-                                <td onclick="document.location.href = 'pokazKurs?${kurs.id}'">
-                                    <a href="pokazKurs?${kurs.id}">${kurs.symbol}</a>
+                                <td>
+                                    <a href="pokazTest?testId=${test.id}&kursId=${kursId}&kursantId=${kursantId}">${kurs.symbol}</a>
                                 </td>
                                 </c:when>
                             </c:choose>
@@ -85,8 +86,8 @@
                         <c:forEach var="kursant" items="${kursantList}">
                             <c:choose>
                                 <c:when test="${test.kursant eq kursant}">
-                                <td onclick="document.location.href = 'pokazKursanta?${kursant.id}'">
-                                    <a href="pokazKursanta?${kursant.id}">${kursant.nazwa}</a>
+                                <td>
+                                    <a href="pokazTest?testId=${test.id}&kursId=${kursId}&kursantId=${kursantId}">${kursant.nazwa}</a>
                                 </td>
                                 </c:when>
                             </c:choose>

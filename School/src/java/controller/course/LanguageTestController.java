@@ -5,11 +5,11 @@
  */
 package controller.course;
 
+import entity.Kurs;
 import entity.Kursant;
+import entity.Test;
 import helper.LanguageTestHelper;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import session.FirmaFacade;
 import session.KursFacade;
 import session.KursantFacade;
+import session.TestFacade;
 import session.persistence.PersistenceManager;
 import validator.FormValidator;
 
@@ -33,38 +34,28 @@ import validator.FormValidator;
             "/dodajTest",
             "/dodajTestPotwierdz", // POST
             "/dodajTestZapisz",
+            "/pokazTest",
             "/edytujTest"})
 public class LanguageTestController extends HttpServlet {
 
-    // mainEntity meaning entity of this controller
-    private Kursant mainEntity;
+    @EJB
+    FirmaFacade firmaFacade;
 
     @EJB
-    private FirmaFacade firmaFacade;
+    KursFacade kursFacade;
+
+    @EJB
+    KursantFacade kursantFacade;
+
+    @EJB
+    LanguageTestHelper testHelper;
+
+    @EJB
+    TestFacade testFacade;
+
+    @EJB
+    PersistenceManager persistenceManager;
     
-    @EJB
-    private KursFacade kursFacade;
-    
-    @EJB
-    private KursantFacade kursantFacade;
-    
-    @EJB
-    LanguageTestHelper mainEntityListHelper;
-
-    @EJB
-    private PersistenceManager persistenceManager;
-
-//    mainEntity
-    int intMainEntityId = 0;
-    String mainEntityId = "";
-    
-
-//    general 
-    private String userPath; // this one to see what to do
-
-//    pagination
-    List<List> listOfPages = new ArrayList<>(); // list of lists of single page records
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -78,50 +69,71 @@ public class LanguageTestController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Test test;
+        int intTestId;
+        String kursId;
+        
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  VIEW ALL
             case "/testy":
 
                 // use helper to get entity list prepared in our request
-                request = mainEntityListHelper.prepareEntityList(request);
+                request = testHelper.prepareEntityList(request);
 
                 // and tell the container where to redirect
                 userPath = "/course/languageTest/viewAll";
                 break;
+
+// VIEW ONE
+            case "/pokazTest":
+                // first get lektor id from request
+                // then prepare another lists that we will need
+                // meaning: jezyk, jezykLektora, wypozyczenia etc.
+
+                request = testHelper.prepareEntityView(request, Integer.parseInt(request.getParameter("testId"))); // set all the attributes that request needs
+
+                userPath = "/course/languageTest/viewOne";
+                break;
+
 // ADD             
             case "/dodajTest":
-                
-                // all we need is in parameters
 
+                request.setAttribute("kursId", request.getParameter("kursId"));
+                request.setAttribute("kursantId", request.getParameter("kursantId"));
+                
                 // and ask for a form
                 userPath = "/course/languageTest/form";
                 break;
 // EDIT             
             case "/edytujTest":
                 // get mainEntityId from request
-                mainEntityId = request.getQueryString();
+                kursId = request.getQueryString();
 
                 // cast it to the integer
                 try {
-                    intMainEntityId = Integer.parseInt(mainEntityId);
+                    intTestId = Integer.parseInt(kursId);
                 } catch (NumberFormatException e) {
-                    intMainEntityId = 0; // (it seems that we have some kind of a problem)
+                    intTestId = 0; // (it seems that we have some kind of a problem)
                 }
 
-                if (intMainEntityId > 0) {
-                    
+                if (intTestId > 0) {
+
                     // set as a request attribute all the fields
                     // and this is so because of the form validation
                     // when we give the form values that are correct
-                    request.setAttribute("id", mainEntity.getId());
-                    request.setAttribute("nazwa", mainEntity.getNazwa());
-                    request.setAttribute("telefon", mainEntity.getTelefon());
-                    request.setAttribute("email", mainEntity.getEmail());
-                    request.setAttribute("firma", mainEntity.getFirma());
+                    test = testFacade.find(Integer.parseInt(kursId));
+                    
+                    request.setAttribute("id", test.getId());
+                    request.setAttribute("rodzaj", test.getRodzaj());
+                    request.setAttribute("ocena", test.getOcena());
+                    Kurs kurs = (Kurs) test.getKurs();
+                    request.setAttribute("kursId", kurs.getId());
+                    Kursant kursant = (Kursant) test.getKursant();
+                    request.setAttribute("kursantId", kursant.getId());
                 }
                 // then ask for a form
                 request.setAttribute("firmaList", firmaFacade.findAll());
@@ -135,22 +147,22 @@ public class LanguageTestController extends HttpServlet {
                 String id = request.getParameter("id");
                 String rodzaj = request.getParameter("rodzaj");
                 String ocena = request.getParameter("ocena");
-                String kursId = request.getParameter("kursId");
+                kursId = request.getParameter("kursId");
                 String kursantId = request.getParameter("kursantId");
 
-                persistenceManager.saveLanguageTestToDatabase(id, rodzaj, Integer.parseInt(ocena),
+                intTestId = persistenceManager.saveLanguageTestToDatabase(id, rodzaj, Integer.parseInt(ocena),
                         kursFacade.find(Integer.parseInt(kursId)), kursantFacade.find(Integer.parseInt(kursantId)));
 
                 // finally show the newly created entity (so it can be further processed)
-                
                 request.setAttribute("kursId", kursId);
                 request.setAttribute("kursantId", kursantId);
-                
+
                 // use helper to get entity list prepared in our request
-                request = mainEntityListHelper.prepareEntityList(request);
-                
-                userPath = "/course/languageTest/viewAll";
+                request = testHelper.prepareEntityView(request, intTestId);
+
+                userPath = "/course/languageTest/viewOne";
                 break;
+
 // FORWARD
         } // close main swith
         String url = "/WEB-INF/view" + userPath + ".jsp";
@@ -176,7 +188,7 @@ public class LanguageTestController extends HttpServlet {
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 // CONFIRM
@@ -212,9 +224,8 @@ public class LanguageTestController extends HttpServlet {
                 request.setAttribute("id", id);
                 request.setAttribute("rodzaj", rodzaj);
                 request.setAttribute("ocena", ocena);
-                
+
                 // no need for kurs and kursant Ids because they are in parameters
-                
                 // forward it to confirmation
                 break;
 
@@ -226,15 +237,6 @@ public class LanguageTestController extends HttpServlet {
             request.getRequestDispatcher(url).forward(request, response);
         } catch (ServletException | IOException ex) {
         }
-    }
-
-    /**
-     * This one prepares request to show one entity it is not to multiply code
-     * when adding and showing new mainEntity entity
-     */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String mainEntityId) {
-
-        return request;
     }
 
 }

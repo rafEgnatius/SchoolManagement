@@ -28,8 +28,8 @@
             </tr>
         </table>
             <input type="hidden" name="id" value="${id}" />
-            <input type="hidden" name="kursId" value="${param.kursId}" />
-            <input type="hidden" name="kursantId" value="${param.kursantId}" />
+            <input type="hidden" name="kursId" value="${kursId}" />
+            <input type="hidden" name="kursantId" value="${kursantId}" />
             <!-- we use this one in case we are editing -->
     </form>
 
