@@ -6,9 +6,9 @@
 package controller.methodology;
 
 import entity.Jezyk;
+import helper.LanguageHelper;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import session.JezykFacade;
 import session.persistence.PersistenceManager;
-import sorter.FieldSorter;
 import validator.FormValidator;
 
 /**
@@ -35,29 +34,16 @@ import validator.FormValidator;
 public class LanguageController extends HttpServlet {
 
     @EJB
-    private JezykFacade jezykFacade;
-    private Jezyk jezyk;
-    private List jezykList = new ArrayList();
+    JezykFacade jezykFacade;
 
     @EJB
-    private PersistenceManager persistenceManager;
+    PersistenceManager persistenceManager;
+    
+    @EJB
+    LanguageHelper languageHelper;
 
-//    Jezyk
-    int intJezykId = 0;
-    String jezykId = "";
-
-//    general 
-    private String userPath; // this one to see what to do
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-
-//    pagination
-    private static final int pageSize = 10; // number of records on one page
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
-    private int pageNumber; // current page number
-    private List pageToDisplay; // which one should be displayed to user
+    @Resource(name = "pageSize")
+    Integer pageSize;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -72,9 +58,13 @@ public class LanguageController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Jezyk jezyk;
+        int intJezykId;
+        String jezykId;
+        
+        //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-
-        userPath = request.getServletPath();
+        String userPath = request.getServletPath();
 
         switch (userPath) {
 // VIEW ALL
@@ -83,90 +73,8 @@ public class LanguageController extends HttpServlet {
                 // and we need to combine them somehow
                 // and additionally <jezyk> list
 
-                // sorting and pagination works this way:
-                // if there is no sortBy it means we are here for the first time
-                // so we check if we have pageNumber
-                // if not it means that we are really for the first time here
-                // let's get initial data...
-                // ... like page number
-                try {
-                    pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
-                } catch (NumberFormatException e) {
-                    pageNumber = 1; // (it seems that we do not have page number yet)
-                }
+                request = languageHelper.prepareEntityList(request);
 
-                // jezykList
-                jezykList = jezykFacade.findAll();
-
-                
-                // SORT only (no search)
-                
-                // check whether to change sorting direction
-                changeSort = Boolean.parseBoolean(request.getParameter("changeSort"));
-
-                // check if sorting...
-                sortBy = request.getParameter("sortBy");
-                // if not sorting let's sort by id
-                if (sortBy == null) {
-                    sortBy = "id";
-                    sortAsc = true; // to start from the beginning
-                    changeSort = false;
-                }
-
-                // now we check if we have to sort things (out)
-                // (by the way - we sort using auxiliary class)
-                switch (sortBy) {
-                    case ("id"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            jezykList = FieldSorter.sortIdDesc(jezykList);
-                            sortAsc = false;
-                        } else {
-                            jezykList = FieldSorter.sortId(jezykList);
-                            sortAsc = true;
-                        }
-                        break;
-                    case ("nazwa"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            jezykList = FieldSorter.sortNazwaDesc(jezykList);
-                            sortAsc = false;
-                        } else {
-                            jezykList = FieldSorter.sortNazwa(jezykList);
-                            sortAsc = true;
-                        }
-                        break;
-                    case ("symbol"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            jezykList = FieldSorter.sortSymbolDesc(jezykList);
-                            sortAsc = false;
-                        } else {
-                            jezykList = FieldSorter.sortSymbol(jezykList);
-                            sortAsc = true;
-                        }
-                        break;
-                }
-
-                
-                // PAGINATE
-                
-                // and here goes pagination part
-                numberOfPages = ((jezykList.size()) / pageSize) + 1; // check how many pages
-
-                // pageToDisplay is subList - we check if not get past last index
-                int fromIndex = ((pageNumber - 1) * pageSize);
-                int toIndex = fromIndex + pageSize;
-                pageToDisplay = jezykList.subList(fromIndex,
-                        toIndex > jezykList.size() ? jezykList.size() : toIndex);
-
-                
-                // SEND
-                
-                // now prepare things for our JSP
-                request.setAttribute("numberOfPages", numberOfPages);
-                request.setAttribute("pageNumber", pageNumber);
-                request.setAttribute("sortBy", sortBy);
-
-                request.setAttribute("jezykList", pageToDisplay);
-                                
                 userPath = "/methodology/language/viewAll";
                 break;
 // ADD             
@@ -216,14 +124,14 @@ public class LanguageController extends HttpServlet {
                 request.setAttribute("jezyk", jezykFacade.find(intJezykId));
                 userPath = "/methodology/language/viewOne";
                 break;
-                
+
 // VIEW ONE
             case "/pokazJezyk":
                 // first get lektor id from request
                 // then prepare another lists that we will need
                 // meaning: jezyk, jezykLektora, wypozyczenia etc.
 
-                String jezykId = request.getQueryString();
+                jezykId = request.getQueryString();
                 jezyk = jezykFacade.find(Integer.parseInt(jezykId));
                 request.setAttribute("jezyk", jezyk);
                 userPath = "/methodology/language/viewOne";
@@ -235,8 +143,7 @@ public class LanguageController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
     }
 
@@ -255,7 +162,7 @@ public class LanguageController extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8"); // for Polish characters
 
-        userPath = request.getServletPath();
+        String userPath = request.getServletPath();
 
         switch (userPath) {
 // CONFIRM
@@ -296,15 +203,14 @@ public class LanguageController extends HttpServlet {
 
                 // forward it to confirmation
                 break;
-                
+
 // FORWARD
         } // close main swith
         String url = "/WEB-INF/view" + userPath + ".jsp";
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
     }
 }
