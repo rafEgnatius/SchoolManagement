@@ -6,14 +6,7 @@
 package helper;
 
 import entity.Ankieta;
-import entity.Kurs;
-import entity.KursKursanta;
-import entity.Kursant;
-import entity.Lekcja;
-import entity.Obecnosc;
 import finder.SchoolFinder;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -48,82 +41,6 @@ public class QuestionnaireHelper {
     @Resource(name = "pageSize")
     Integer pageSize;
 
-    List mainEntityList;
-    List kursList;
-    List kursantList;
-    List lektorList;
-    List firmaList;
-
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
-    private int pageNumber; // current page number
-
-    private String searchPhrase;
-
-    private List filterKurs(List mainEntityList, String kursId) {
-        List resultList = new ArrayList();
-        //Kurs kurs = kursFacade.find(Integer.parseInt(kursId));
-
-//        Iterator it = mainEntityList.iterator();
-//        while (it.hasNext()) {
-//            Lekcja lekcja = (Lekcja) it.next();
-//            if (lekcja.getKurs().equals(kurs)) {
-//                resultList.add(lekcja);
-//            }
-//        }
-        return resultList;
-    }
-
-    // return only these that have proper lesson
-    private List filterLesson(List obecnoscList, Lekcja lekcja, Kurs kurs) {
-        List resultList = new ArrayList();
-
-        Iterator it = obecnoscList.iterator();
-        while (it.hasNext()) {
-            Obecnosc obecnosc = (Obecnosc) it.next();
-            if (obecnosc.getLekcja().equals(lekcja)) {
-                resultList.add(obecnosc);
-            }
-        }
-
-        // there is a problem when there is a kursant that is member of the kur Collection
-        // but not on our resultList
-        // now check if anyone is missing
-        // we do it by checking elements of the Collection
-        it = kurs.getKursKursantaCollection().iterator();
-
-        List testowaLista = (List) kurs.getKursKursantaCollection();
-
-        while (it.hasNext()) {
-            KursKursanta kursKursanta = (KursKursanta) it.next();
-            Kursant kursant = kursKursanta.getKursant();
-
-            // and now if there is no kursant in our list we just have to acknowledge it
-            boolean found = false; // if there are no one on the second list...
-            Iterator it2 = resultList.iterator();
-
-            // and check if on the list
-            innerloop:
-            while (it2.hasNext()) {
-                Obecnosc obecnosc = (Obecnosc) it2.next();
-                if (obecnosc.getKursant().equals(kursant)) {
-                    found = true;
-                    break innerloop;
-                }
-            }
-            // and if not found we have to add him
-            if (!found) {
-                Obecnosc obecnosc = persistanceManager.savePresence(true, lekcja, kursant, false);
-                resultList.add(obecnosc);
-            }
-        }
-
-        return resultList;
-    }
-
     /**
      * Handles preparation of the list
      *
@@ -133,30 +50,39 @@ public class QuestionnaireHelper {
      */
     public HttpServletRequest prepareEntityList(HttpServletRequest request) {
 
-        mainEntityList = mainEntityFacade.findAll();
-        kursantList = kursantFacade.findAll();
-        lektorList = lektorFacade.findAll();
+        /* main lists that we will use */
+        List testList = mainEntityFacade.findAll();
+        List kursantList = kursantFacade.findAll();
+        List lektorList = lektorFacade.findAll();
 
-        // we need only those those lessons that have appropiriate course (kurs)
-        // in this case we need to filter the results in case we need specific kurs
-        String kursId = request.getParameter("kursId");
-        if (kursId != null && !kursId.equals("")) {
-            mainEntityList = filterKurs(mainEntityList, kursId);
-            request.setAttribute("kursId", kursId);
-        }
+        /* technical */
+        boolean sortAsc; // and this one to check how to sort
+        String sortBy; // so we know how to sort
+        boolean changeSort; // this one to know whether to change sorting order
+        int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
+        int pageNumber; // current page number
+        String searchPhrase; // what we are looking for
 
-        List resultList;
-
+        // sorting and pagination works this way:
+        // if there is no sortBy it means we are here for the first time
+        // so we check if we have pageNumber
+        // if not it means that we are really for the first time here
+        // let's get initial data...
+        // ... like page number
+        
+        /* and now process */
+        // SORT & SEARCH
+        // get pageNumber from request
         try {
             pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
         } catch (NumberFormatException e) {
             pageNumber = 1; // (it seems that we do not have page number yet)
         }
 
-        // SORT & SEARCH
         // check whether to change sorting direction
         changeSort = Boolean.parseBoolean(request.getParameter("changeSort"));
         String stringSortAsc = request.getParameter("sortAsc");
+
         try {
             sortAsc = Boolean.parseBoolean(stringSortAsc);
         } catch (Exception e) {
@@ -175,7 +101,7 @@ public class QuestionnaireHelper {
         // and check if searching
         searchPhrase = request.getParameter("searchPhrase");
         if (searchPhrase != null && !searchPhrase.equals("")) {
-            mainEntityList = SchoolFinder.findQuestionnaire(mainEntityList, searchPhrase);
+            testList = SchoolFinder.findQuestionnaire(testList, searchPhrase);
         } else {
             searchPhrase = "";
         }
@@ -186,37 +112,37 @@ public class QuestionnaireHelper {
         switch (sortBy) {
             case ("id"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortIdDesc(mainEntityList);
+                    testList = FieldSorter.sortIdDesc(testList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortId(mainEntityList);
+                    testList = FieldSorter.sortId(testList);
                     sortAsc = true;
                 }
                 break;
             case ("data"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = FieldSorter.sortDataDesc(mainEntityList);
+                    testList = FieldSorter.sortDataDesc(testList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = FieldSorter.sortData(mainEntityList);
+                    testList = FieldSorter.sortData(testList);
                     sortAsc = true;
                 }
                 break;
             case ("lektor"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = EntitySorter.sortLektorDesc(mainEntityList);
+                    testList = EntitySorter.sortLektorDesc(testList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = EntitySorter.sortLektor(mainEntityList);
+                    testList = EntitySorter.sortLektor(testList);
                     sortAsc = true;
                 }
                 break;
             case ("kursant"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    mainEntityList = EntitySorter.sortKursantDesc(mainEntityList);
+                    testList = EntitySorter.sortKursantDesc(testList);
                     sortAsc = false;
                 } else {
-                    mainEntityList = EntitySorter.sortKursant(mainEntityList);
+                    testList = EntitySorter.sortKursant(testList);
                     sortAsc = true;
                 }
                 break;
@@ -224,13 +150,13 @@ public class QuestionnaireHelper {
 
         // PAGINATE
         // and here goes pagination part
-        numberOfPages = ((mainEntityList.size()) / pageSize) + 1; // check how many pages
+        numberOfPages = ((testList.size()) / pageSize) + 1; // check how many pages
 
         // pageToDisplay is subList - we check if not get past last index
         int fromIndex = ((pageNumber - 1) * pageSize);
         int toIndex = fromIndex + pageSize;
-        resultList = mainEntityList.subList(fromIndex,
-                toIndex > mainEntityList.size() ? mainEntityList.size() : toIndex);
+        List resultList = testList.subList(fromIndex,
+                toIndex > testList.size() ? testList.size() : toIndex);
 
         // SEND
         // now prepare things for our JSP

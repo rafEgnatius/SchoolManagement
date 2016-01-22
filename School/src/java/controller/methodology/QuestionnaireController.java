@@ -3,9 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package controller.course;
+package controller.methodology;
 
-import entity.Ankieta;
 import helper.QuestionnaireHelper;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,16 +38,6 @@ public class QuestionnaireController extends HttpServlet {
     @EJB
     private PersistenceManager persistenceManager;
 
-//    mainEntity
-    int intMainEntityId = 0;
-    String mainEntityId = "";
-
-//    general 
-    private String userPath; // this one to see what to do
-
-//    pagination
-    List<List> listOfPages = new ArrayList<>(); // list of lists of single page records
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -62,12 +51,12 @@ public class QuestionnaireController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        Ankieta ankieta;
-        ServletContext myContext;
+        String ankietaId;
+        ServletContext ankietaContext;
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  VIEW ALL
@@ -83,10 +72,10 @@ public class QuestionnaireController extends HttpServlet {
 // VIEW ONE
             case "/pokazAnkiete":
 
-                mainEntityId = request.getQueryString();
+                ankietaId = request.getQueryString();
 
                 // use helper to get lektor list prepared in our request
-                request = questionnaireHelper.prepareEntityView(request, mainEntityId);
+                request = questionnaireHelper.prepareEntityView(request, ankietaId);
 
                 // prepare redirect
                 userPath = "/methodology/questionnaire/viewOne";
@@ -96,14 +85,14 @@ public class QuestionnaireController extends HttpServlet {
             case "/dodajAnkiete":
 
                 // get ServletContext because we will need it
-                myContext = (ServletContext) request.getSession().getServletContext();
+                ankietaContext = (ServletContext) request.getSession().getServletContext();
                 // set attributes
                 String kursantId = request.getParameter("kursantId");
                 String lektorId = request.getParameter("lektorId");
                 request.setAttribute("kursantId", kursantId);
                 request.setAttribute("lektorId", lektorId);
-                request.setAttribute("listaPytan", myContext.getAttribute("listOfQuestions"));
-                request.setAttribute("pytanieOpisowe", myContext.getAttribute("finalQuestion"));
+                request.setAttribute("listaPytan", ankietaContext.getAttribute("listOfQuestions"));
+                request.setAttribute("pytanieOpisowe", ankietaContext.getAttribute("finalQuestion"));
 
                 // and ask for a form
                 userPath = "/methodology/questionnaireForm";
@@ -134,7 +123,7 @@ public class QuestionnaireController extends HttpServlet {
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 
@@ -169,11 +158,11 @@ public class QuestionnaireController extends HttpServlet {
                 // decide what to do forward
                 if (formError.equals("formError")) {
                     // get ServletContext because we will need it
-                    ServletContext myContext = (ServletContext) request.getSession().getServletContext();
+                    ServletContext ankietaContext = (ServletContext) request.getSession().getServletContext();
 
                     // set attributes specific to this path
-                    request.setAttribute("listaPytan", myContext.getAttribute("listOfQuestions"));
-                    request.setAttribute("pytanieOpisowe", myContext.getAttribute("finalQuestion"));
+                    request.setAttribute("listaPytan", ankietaContext.getAttribute("listOfQuestions"));
+                    request.setAttribute("pytanieOpisowe", ankietaContext.getAttribute("finalQuestion"));
                     request.setAttribute("kursantId", kursantId);
                     request.setAttribute("lektorId", lektorId);
 
@@ -209,7 +198,7 @@ public class QuestionnaireController extends HttpServlet {
      * This one prepares request to show one entity it is not to multiply code
      * when adding and showing new mainEntity entity
      */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String mainEntityId) {
+    private HttpServletRequest prepareRequest(HttpServletRequest request, String ankietaId) {
 
         return request;
     }

@@ -33,7 +33,7 @@
                 <td>${ankieta.kursant.nazwa}</td>
             </tr>
             <tr class="tableHeading">
-                <th colspan="2">odpowiedzi:</th>
+                <th colspan="2">ankieta: odpowiedzi</th>
             </tr>
             <tr>
                 <th>Pytanie 1:</th>
@@ -128,9 +128,5 @@
                 <td>${ankieta.pytanieOpisowe23}</td>
             </tr>
         </table>
-
-        <a  class="smallButton" href="edytujAnkiete?${ankieta.id}">
-            <span class="smallButtonText">edytuj ankietę &#x279f;</span>
-        </a>
     </c:if>
 </section>
