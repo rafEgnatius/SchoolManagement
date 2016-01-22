@@ -10,7 +10,6 @@ import entity.Obecnosc;
 import helper.LessonHelper;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.ejb.EJB;
@@ -55,16 +54,6 @@ public class LessonController extends HttpServlet {
     @EJB
     private PersistenceManager persistenceManager;
 
-//    mainEntity
-    int intMainEntityId = 0;
-    String mainEntityId = "";
-
-//    general 
-    private String userPath; // this one to see what to do
-
-//    pagination
-    List<List> listOfPages = new ArrayList<>(); // list of lists of single page records
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -78,9 +67,12 @@ public class LessonController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        int intLekcjaId;
+        String lekcjaId;
+
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  VIEW ALL
@@ -105,21 +97,21 @@ public class LessonController extends HttpServlet {
 // EDIT             
             case "/edytujLekcje":
                 // get mainEntityId from request
-                mainEntityId = request.getQueryString();
+                lekcjaId = request.getQueryString();
 
                 // cast it to the integer
                 try {
-                    intMainEntityId = Integer.parseInt(mainEntityId);
+                    intLekcjaId = Integer.parseInt(lekcjaId);
                 } catch (NumberFormatException e) {
-                    intMainEntityId = 0; // (it seems that we have some kind of a problem)
+                    intLekcjaId = 0; // (it seems that we have some kind of a problem)
                 }
 
-                if (intMainEntityId > 0) {
+                if (intLekcjaId > 0) {
 
                     // set as a request attribute all the fields
                     // and this is so because of the form validation
                     // when we give the form values that are correct
-                    mainEntity = mainEntityFacade.find(intMainEntityId);
+                    mainEntity = mainEntityFacade.find(intLekcjaId);
 
                     request.setAttribute("id", mainEntity.getId());
                     request.setAttribute("data", mainEntity.getData());
@@ -139,13 +131,13 @@ public class LessonController extends HttpServlet {
                 String odwolana = request.getParameter("odwolana");
                 String kursId = request.getParameter("kursId");
 
-                intMainEntityId = persistenceManager.saveLessonToDatabase(id, data, Boolean.parseBoolean(odwolana),
+                intLekcjaId = persistenceManager.saveLessonToDatabase(id, data, Boolean.parseBoolean(odwolana),
                         kursFacade.find(Integer.parseInt(kursId)));
 
-                mainEntityId = intMainEntityId + "";
+                lekcjaId = intLekcjaId + "";
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = mainEntityHelper.prepareEntityView(request, lekcjaId);
 
                 // prepare redirect
                 userPath = "/course/lesson/viewOne";
@@ -154,10 +146,10 @@ public class LessonController extends HttpServlet {
 // VIEW ONE
             case "/pokazLekcje":
 
-                mainEntityId = request.getQueryString();
+                lekcjaId = request.getQueryString();
 
                 // use helper to get lektor list prepared in our request
-                request = mainEntityHelper.prepareEntityView(request, mainEntityId);
+                request = mainEntityHelper.prepareEntityView(request, lekcjaId);
 
                 // prepare redirect
                 userPath = "/course/lesson/viewOne";
@@ -186,9 +178,11 @@ public class LessonController extends HttpServlet {
             throws ServletException, IOException {
         //processRequest(request, response);
 
+        String lekcjaId;
+        
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 // CONFIRM
@@ -229,8 +223,8 @@ public class LessonController extends HttpServlet {
             case "/dodajObecnosc":
 
                 // prepare main Entity
-                mainEntityId = request.getParameter("lekcjaId");
-                mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId));
+                lekcjaId = request.getParameter("lekcjaId");
+                mainEntity = mainEntityFacade.find(Integer.parseInt(lekcjaId));
 
                 // get list of obecnosc for this lekcja
                 List obecnoscList = (List) mainEntity.getObecnoscCollection();
@@ -248,12 +242,12 @@ public class LessonController extends HttpServlet {
 
                         // change the value in Entity and persis
                         persistenceManager.savePresence(false, mainEntity, obecnosc.getKursant(), obecny);
-                        
+
                     }
                 }
 
                 // use helper to get lektor list prepared in our request
-                request.setAttribute("lekcjaId", mainEntityId);
+                request.setAttribute("lekcjaId", lekcjaId);
 
                 // prepare redirect
                 userPath = "/course/lesson/confirmation";

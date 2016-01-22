@@ -27,7 +27,7 @@
         </tr>
     </table>
 
-    <c:if test="${!empty mainEntityList}">
+    <c:if test="${!empty wyplataList}">
 
         <table class="listTable">
 
@@ -42,18 +42,18 @@
                 <td><a href="wyplaty?sortBy=lektor&changeSort=true&sortAsc=${sortAsc}">&#x25B2; lektor &#x25BC;</a></td>
             </tr>
 
-            <c:forEach var="mainEntity" items="${mainEntityList}" varStatus="iter">
+            <c:forEach var="wyplata" items="${wyplataList}" varStatus="iter">
 
                 <tr class="${((iter.index % 2) == 1) ? 'lightBlue' : 'white'} tableRow"
-                    onclick="document.location.href = 'pokazWyplate?${mainEntity.id}'">
+                    onclick="document.location.href = 'pokazWyplate?${wyplata.id}'">
 
-                    <td><a href="pokazWyplate?${mainEntity.id}">${mainEntity.id}</a></td>
-                    <td><a href="pokazWyplate?${mainEntity.id}">${mainEntity.data}</a></td>
-                    <td><a href="pokazWyplate?${mainEntity.id}">${mainEntity.kwota}</a></td>
+                    <td><a href="pokazWyplate?${wyplata.id}">${wyplata.id}</a></td>
+                    <td><a href="pokazWyplate?${wyplata.id}">${wyplata.data}</a></td>
+                    <td><a href="pokazWyplate?${wyplata.id}">${wyplata.kwota}</a></td>
                         <c:forEach var="lektor" items="${lektorList}">
                             <c:choose>
-                                <c:when test="${lektor eq mainEntity.lektor}">
-                                    <td><a href="pokazWyplate?${mainEntity.id}">${lektor.nazwa}</a></td>
+                                <c:when test="${lektor eq wyplata.lektor}">
+                                    <td><a href="pokazWyplate?${wyplata.id}">${lektor.nazwa}</a></td>
                             </c:when>
                             </c:choose>
                     </c:forEach>

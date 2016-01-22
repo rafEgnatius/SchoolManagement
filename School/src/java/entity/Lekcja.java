@@ -66,6 +66,7 @@ public class Lekcja extends AbstractEntity implements Serializable {
         this.id = id;
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
@@ -74,6 +75,7 @@ public class Lekcja extends AbstractEntity implements Serializable {
         this.id = id;
     }
 
+    @Override
     public LocalDate getData() {
         return data;
     }
@@ -90,6 +92,7 @@ public class Lekcja extends AbstractEntity implements Serializable {
         this.odwolana = odwolana;
     }
 
+    @Override
     public Kurs getKurs() {
         return kurs;
     }
@@ -121,10 +124,7 @@ public class Lekcja extends AbstractEntity implements Serializable {
             return false;
         }
         Lekcja other = (Lekcja) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
     }
 
     @Override

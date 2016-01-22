@@ -5,11 +5,12 @@
  */
 package helper;
 
-import entity.Lektor;
-import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
+import session.ProgramFacade;
 import sorter.FieldSorter;
 
 /**
@@ -17,29 +18,31 @@ import sorter.FieldSorter;
  * @author Rafa
  */
 @Stateless
-public class ProgrammeListHelper {
+public class ProgrammeHelper {
 
-    private static final int pageSize = 10; // number of records on one page
+    @EJB
+    ProgramFacade programFacade;
 
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<>(); // list of lists of single page records
-    private int pageNumber; // current page number
-
-//    private String searchPhrase;
-//    private String searchOption;
-    
+    @Resource(name = "pageSize")
+    Integer pageSize;
 
     /**
      * Handles preparation of the lector list
      *
      * @param request
-     * @param programList
      * @return HttpServletRequest
      */
-    public HttpServletRequest prepareEntityList(HttpServletRequest request, List programList) {
+    public HttpServletRequest prepareEntityList(HttpServletRequest request) {
+
+        /* main lists that we will use */
+        List programList = programFacade.findAll();
+        
+        /* technical */
+        Boolean sortAsc; // and this one to check how to sort
+        String sortBy; // so we know how to sort
+        Boolean changeSort; // this one to know whether to change sorting order
+        int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
+        int pageNumber; // current page number
 
         // sorting and pagination works this way:
         // if there is no sortBy it means we are here for the first time
@@ -47,8 +50,10 @@ public class ProgrammeListHelper {
         // if not it means that we are really for the first time here
         // let's get initial data...
         // ... like page number
-        List<Lektor> resultList;
 
+        /* and now process */
+        // SORT & SEARCH
+        // get pageNumber from request
         try {
             pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
         } catch (NumberFormatException e) {
@@ -113,7 +118,7 @@ public class ProgrammeListHelper {
         // pageToDisplay is subList - we check if not get past last index
         int fromIndex = ((pageNumber - 1) * pageSize);
         int toIndex = fromIndex + pageSize;
-        resultList = programList.subList(fromIndex,
+        List resultList = programList.subList(fromIndex,
                 toIndex > programList.size() ? programList.size() : toIndex);
 
         // SEND

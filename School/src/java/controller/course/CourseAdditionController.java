@@ -11,7 +11,7 @@ import helper.CourseHelper;
 import helper.CustomerHelper;
 import helper.LectorHelper;
 import helper.ParticipantHelper;
-import helper.ProgrammeListHelper;
+import helper.ProgrammeHelper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -69,6 +69,9 @@ public class CourseAdditionController extends HttpServlet {
 
     @EJB
     JezykFacade jezykFacade;
+    
+    @EJB
+    ParticipantHelper participantHelper;
 
     @EJB
     KursFacade kursFacade;
@@ -92,7 +95,7 @@ public class CourseAdditionController extends HttpServlet {
     PersistenceManager persistenceManager;
     
     @EJB
-    ProgrammeListHelper programmeHelper;
+    ProgrammeHelper programmeHelper;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -108,11 +111,7 @@ public class CourseAdditionController extends HttpServlet {
             throws ServletException, IOException {
         
         List kursantList;
-        List jezykList;
-        List jezykLektoraList;
-        List lektorList;
-        List programList;
-                
+        
         String firmaId;
         String kursId;
         String kursantId;
@@ -175,11 +174,6 @@ public class CourseAdditionController extends HttpServlet {
 
 //  ADD LECTOR
             case "/dodajLektoraDoKursu":
-
-                // get the necessary lists for the request
-                lektorList = lektorFacade.findAll();
-                jezykList = jezykFacade.findAll();
-                jezykLektoraList = jezykLektoraFacade.findAll();
 
                 // use helper to get lektor list prepared in our request
                 request = lectorHelper.prepareEntityList(request);
@@ -247,10 +241,8 @@ public class CourseAdditionController extends HttpServlet {
                 }
 
                 // use helper to get lektor list prepared in our request
-                ParticipantHelper participantListHelper = new ParticipantHelper(); //  we need a helper
-                List onlyOneFirma = new ArrayList();
-                onlyOneFirma.add(firma); // get the firma we need
-                request = participantListHelper.prepareEntityList(request, kursantList, onlyOneFirma); // only one customer (firma)
+                List shortKursantList = (List) firma.getKursantCollection();
+                request = participantHelper.prepareEntityList(request, shortKursantList); // only from one customer (firma)
 
                 request.setAttribute("kursId", kursId);
 
@@ -297,11 +289,8 @@ public class CourseAdditionController extends HttpServlet {
 //  ADD PROGRAMME
             case "/dodajProgramDoKursu":
 
-                // entity list
-                programList = programFacade.findAll();
-
                 // use helper to get lektor list prepared in our request
-                request = programmeHelper.prepareEntityList(request, programList);
+                request = programmeHelper.prepareEntityList(request);
 
                 // tell the kurs id
                 request.setAttribute("kursId", request.getParameter("kursId")); // it should be set if we are here

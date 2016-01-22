@@ -75,6 +75,7 @@ public class Kursant extends AbstractEntity implements Serializable {
         this.id = id;
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
@@ -83,6 +84,7 @@ public class Kursant extends AbstractEntity implements Serializable {
         this.id = id;
     }
 
+    @Override
     public String getNazwa() {
         return nazwa;
     }
@@ -91,6 +93,7 @@ public class Kursant extends AbstractEntity implements Serializable {
         this.nazwa = nazwa;
     }
 
+    @Override
     public String getTelefon() {
         return telefon;
     }
@@ -99,6 +102,7 @@ public class Kursant extends AbstractEntity implements Serializable {
         this.telefon = telefon;
     }
 
+    @Override
     public String getEmail() {
         return email;
     }
@@ -116,12 +120,14 @@ public class Kursant extends AbstractEntity implements Serializable {
         this.ankietaCollection = ankietaCollection;
     }
 
+    @Override
     public Firma getFirma() {
         return firma;
     }
 
     public void setFirma(Firma firma) {
         this.firma = firma;
+        firma.addKursant(this);
     }
 
     @XmlTransient
@@ -174,10 +180,7 @@ public class Kursant extends AbstractEntity implements Serializable {
             return false;
         }
         Kursant other = (Kursant) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
     }
 
     @Override

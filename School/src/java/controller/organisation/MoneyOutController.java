@@ -6,12 +6,10 @@
 package controller.organisation;
 
 import entity.Wyplata;
-import helper.BillHelper;
 import helper.MoneyOutHelper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -38,25 +36,18 @@ import validator.FormValidator;
             "/edytujWyplate"})
 public class MoneyOutController extends HttpServlet {
 
-    // mainEntity meaning entity of this controller
+    // wyplata meaning entity of this controller
     @EJB
-    private WyplataFacade mainEntityFacade;
-    private Wyplata mainEntity;
-    private List mainEntityList = new ArrayList();
+    private WyplataFacade wyplataFacade;
 
     @EJB
     LektorFacade lektorFacade;
-    private List lektorList = new ArrayList();
 
     @EJB
+    MoneyOutHelper moneyOutHelper;
+    
+    @EJB
     private PersistenceManager persistenceManager;
-
-//    main
-//    GENERAL 
-    private String userPath; // this one to see what to do
-
-//    pagination
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -71,25 +62,22 @@ public class MoneyOutController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Wyplata wyplata;
+        List lektorList;
+
         int intMainEntityId;
-        String mainEntityId;
-        MoneyOutHelper mainEntityListHelper;
+        String wyplataId;
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  VIEW ALL
             case "/wyplaty":
 
-                // get the necessary lists for the request
-                mainEntityList = mainEntityFacade.findAll();
-                lektorList = lektorFacade.findAll();
-
                 // use helper to get lektor list prepared in our request
-                mainEntityListHelper = new MoneyOutHelper(); //  we need a helper
-                request = mainEntityListHelper.prepareEntityList(request, mainEntityList, lektorList);
+                request = moneyOutHelper.prepareEntityList(request);
 
                 // and tell the container where to redirect
                 userPath = "/organisation/moneyOut/viewAll";
@@ -107,26 +95,26 @@ public class MoneyOutController extends HttpServlet {
 // EDIT             
             case "/edytujWyplate":
                 // get id from request
-                mainEntityId = request.getQueryString();
+                wyplataId = request.getQueryString();
 
                 // cast it to the integer
                 try {
-                    intMainEntityId = Integer.parseInt(mainEntityId);
+                    intMainEntityId = Integer.parseInt(wyplataId);
                 } catch (NumberFormatException e) {
                     intMainEntityId = 0; // (it seems that we have some kind of a problem)
                 }
 
                 if (intMainEntityId > 0) {
                     // find the lektor entity
-                    mainEntity = mainEntityFacade.find(intMainEntityId);
+                    wyplata = wyplataFacade.find(intMainEntityId);
                     // set as a request attribute all the fields
                     // and this is so because of the form validation
                     // when we give the form values that are correct
-                    request.setAttribute("id", mainEntity.getId());
-                    request.setAttribute("data", mainEntity.getData());
-                    request.setAttribute("kwota", mainEntity.getKwota());
-                    request.setAttribute("opis", mainEntity.getOpis());
-                    request.setAttribute("lektor", mainEntity.getLektor());
+                    request.setAttribute("id", wyplata.getId());
+                    request.setAttribute("data", wyplata.getData());
+                    request.setAttribute("kwota", wyplata.getKwota());
+                    request.setAttribute("opis", wyplata.getOpis());
+                    request.setAttribute("lektor", wyplata.getLektor());
                     request.setAttribute("lektorList", lektorFacade.findAll());
                 }
                 // then ask for a form 
@@ -145,8 +133,8 @@ public class MoneyOutController extends HttpServlet {
 
                 intMainEntityId = persistenceManager.saveMoneyOutToDatabase(id, data, kwota, opis, lektorFacade.find(Integer.parseInt(lektorId)));
 
-                mainEntityId = intMainEntityId + "";
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request to view one needs
+                wyplataId = intMainEntityId + "";
+                request = moneyOutHelper.prepareEntityView(request, wyplataId); // set all the attributes that request to view one needs
 
                 // finally show the newly created lector (so it can be further processed)
                 userPath = "/organisation/moneyOut/viewOne";
@@ -157,7 +145,7 @@ public class MoneyOutController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: jezyk, jezykLektora, wypozyczenia etc.
 
-                request = prepareRequest(request, request.getQueryString()); // set all the attributes that request needs
+                request = moneyOutHelper.prepareEntityView(request, request.getQueryString()); // set all the attributes that request needs
 
                 userPath = "/organisation/moneyOut/viewOne";
                 break;
@@ -187,7 +175,7 @@ public class MoneyOutController extends HttpServlet {
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 // CONFIRM
@@ -246,20 +234,6 @@ public class MoneyOutController extends HttpServlet {
             request.getRequestDispatcher(url).forward(request, response);
         } catch (ServletException | IOException ex) {
         }
-    }
-
-    /**
-     * This one prepares request to show one lector it is not to multiply code
-     * when adding and showing new mainEntity entity
-     */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String mainEntityId) {
-
-        mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId));
-
-        request.setAttribute("mainEntity", mainEntity);
-        request.setAttribute("lektor", mainEntity.getLektor());
-
-        return request;
     }
 
 }

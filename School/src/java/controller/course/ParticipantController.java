@@ -10,8 +10,6 @@ import entity.Jezyk;
 import entity.Kursant;
 import helper.ParticipantHelper;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import session.FirmaFacade;
 import session.JezykFacade;
-import session.JezykKursantaFacade;
 import session.KursantFacade;
 import session.persistence.PersistenceManager;
 import validator.FormValidator;
@@ -41,36 +38,21 @@ import validator.FormValidator;
             "/usunJezykKursanta"})
 public class ParticipantController extends HttpServlet {
 
-    // mainEntity meaning entity of this controller
+    // kursant meaning entity of this controller
     @EJB
-    private KursantFacade mainEntityFacade;
-    private Kursant mainEntity;
-    private List mainEntityList = new ArrayList();
+    KursantFacade kursantFacade;
 
     @EJB
-    private FirmaFacade firmaFacade;
-    private Firma firma;
-    private List firmaList = new ArrayList();
+    FirmaFacade firmaFacade;
 
     @EJB
-    private JezykFacade jezykFacade;
+    JezykFacade jezykFacade;
 
     @EJB
-    private JezykKursantaFacade jezykKursantaFacade;
+    ParticipantHelper participantHelper;
 
     @EJB
-    private PersistenceManager persistenceManager;
-
-//    mainEntity
-    int intMainEntityId = 0;
-    String mainEntityId = "";
-    ParticipantHelper mainEntityListHelper;
-
-//    general 
-    private String userPath; // this one to see what to do
-
-//    pagination
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
+    PersistenceManager persistenceManager;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -85,25 +67,25 @@ public class ParticipantController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Kursant kursant;
+        Firma firma;
+
+        int intMainEntityId;
+        String kursantId;
+
         String jezykId;
         Jezyk jezyk;
         String poziom;
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  VIEW ALL
             case "/kursanci":
 
-                // get the necessary lists for the request
-                mainEntityList = mainEntityFacade.findAll();
-                firmaList = firmaFacade.findAll();
-
-                // use helper to get entity list prepared in our request
-                mainEntityListHelper = new ParticipantHelper(); //  we need a helper
-                request = mainEntityListHelper.prepareEntityList(request, mainEntityList, firmaList);
+                request = participantHelper.prepareEntityList(request);
 
                 // and tell the container where to redirect
                 userPath = "/course/participant/viewAll";
@@ -119,27 +101,27 @@ public class ParticipantController extends HttpServlet {
                 break;
 // EDIT             
             case "/edytujKursanta":
-                // get mainEntityId from request
-                mainEntityId = request.getQueryString();
+                // get kursantId from request
+                kursantId = request.getQueryString();
 
                 // cast it to the integer
                 try {
-                    intMainEntityId = Integer.parseInt(mainEntityId);
+                    intMainEntityId = Integer.parseInt(kursantId);
                 } catch (NumberFormatException e) {
                     intMainEntityId = 0; // (it seems that we have some kind of a problem)
                 }
 
                 if (intMainEntityId > 0) {
                     // find the main entity
-                    mainEntity = mainEntityFacade.find(intMainEntityId);
+                    kursant = kursantFacade.find(intMainEntityId);
                     // set as a request attribute all the fields
                     // and this is so because of the form validation
                     // when we give the form values that are correct
-                    request.setAttribute("id", mainEntity.getId());
-                    request.setAttribute("nazwa", mainEntity.getNazwa());
-                    request.setAttribute("telefon", mainEntity.getTelefon());
-                    request.setAttribute("email", mainEntity.getEmail());
-                    request.setAttribute("firma", mainEntity.getFirma());
+                    request.setAttribute("id", kursant.getId());
+                    request.setAttribute("nazwa", kursant.getNazwa());
+                    request.setAttribute("telefon", kursant.getTelefon());
+                    request.setAttribute("email", kursant.getEmail());
+                    request.setAttribute("firma", kursant.getFirma());
                 }
                 // then ask for a form
                 request.setAttribute("firmaList", firmaFacade.findAll());
@@ -158,8 +140,8 @@ public class ParticipantController extends HttpServlet {
 
                 intMainEntityId = persistenceManager.saveParticipantToDatabase(id, nazwa, telefon, email, firma);
 
-                mainEntityId = intMainEntityId + "";
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
+                kursantId = intMainEntityId + "";
+                request = participantHelper.prepareEntityView(request, kursantId); // set all the attributes that request needs
 
                 // finally show the newly created entity (so it can be further processed)
                 userPath = "/course/participant/viewOne";
@@ -169,41 +151,41 @@ public class ParticipantController extends HttpServlet {
                 // first get entity id from request
                 // then prepare another lists that we will need
 
-                request = prepareRequest(request, request.getQueryString()); // set all the attributes that request needs
+                request = participantHelper.prepareEntityView(request, request.getQueryString()); // set all the attributes that request needs
 
                 userPath = "/course/participant/viewOne";
                 break;
 // ADD PARTICIPANT'S LANGUAGE
             case "/dodajJezykKursanta":
                 // first: get three values from the form
-                mainEntityId = request.getParameter("kursantId");
+                kursantId = request.getParameter("kursantId");
                 jezykId = request.getParameter("jezykId");
                 poziom = request.getParameter("poziom"); // we are looking for "ON" value
 
                 // in case we ran out of languages and do not want user to see big fat 500
                 if (jezykId != null) {
-                    mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
+                    kursant = kursantFacade.find(Integer.parseInt(kursantId)); // we should try/catch it later
                     jezyk = jezykFacade.find(Integer.parseInt(jezykId)); // we should try/catch it later
                     // now persist:
-                    persistenceManager.saveParticipantsLanguageToDatabase(mainEntity, jezyk, poziom);
+                    persistenceManager.saveParticipantsLanguageToDatabase(kursant, jezyk, poziom);
                 }
 
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
+                request = participantHelper.prepareEntityView(request, kursantId); // set all the attributes that request needs
 
                 userPath = "/course/participant/viewOne"; // and show once more - now with another language
                 break;
 // REMOVE PARTICIPANT'S LANGUAGE
             case "/usunJezykKursanta":
-                mainEntityId = request.getParameter("kursantId");
+                kursantId = request.getParameter("kursantId");
                 jezykId = request.getParameter("jezykId");
 
-                mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId)); // we should try/catch it later
+                kursant = kursantFacade.find(Integer.parseInt(kursantId)); // we should try/catch it later
                 jezyk = jezykFacade.find(Integer.parseInt(jezykId)); // we should try/catch it later
 
                 // now persist:
-                persistenceManager.deleteParticipantsLanguageFromDatabase(mainEntity, jezyk);
+                persistenceManager.deleteParticipantsLanguageFromDatabase(kursant, jezyk);
 
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
+                request = participantHelper.prepareEntityView(request, kursantId); // set all the attributes that request needs
                 userPath = "/course/participant/viewOne"; // and show once more - now with another language
                 break;
 // FORWARD
@@ -231,7 +213,7 @@ public class ParticipantController extends HttpServlet {
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 // CONFIRM
@@ -289,20 +271,4 @@ public class ParticipantController extends HttpServlet {
         } catch (ServletException | IOException ex) {
         }
     }
-
-    /**
-     * This one prepares request to show one entity it is not to multiply code
-     * when adding and showing new mainEntity entity
-     */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String mainEntityId) {
-
-        mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId));
-
-        request.setAttribute("kursant", mainEntity);
-        request.setAttribute("jezykKursantaList", jezykKursantaFacade.findAll());
-        request.setAttribute("jezykList", jezykFacade.findAll());
-
-        return request;
-    }
-
 }

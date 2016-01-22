@@ -15,6 +15,7 @@ import finder.SchoolFinder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
@@ -43,14 +44,15 @@ public class QuestionnaireHelper {
 
     @EJB
     PersistenceManager persistanceManager;
+    
+    @Resource(name = "pageSize")
+    Integer pageSize;
 
     List mainEntityList;
     List kursList;
     List kursantList;
     List lektorList;
     List firmaList;
-
-    private static final int pageSize = 10; // number of records on one page
 
     private Boolean sortAsc = true; // and this one to check how to sort
     private String sortBy; // so we know how to sort

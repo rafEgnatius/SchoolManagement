@@ -10,7 +10,6 @@ import helper.MoneyInHelper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -37,29 +36,17 @@ import validator.FormValidator;
             "/edytujWplate"})
 public class MoneyInController extends HttpServlet {
 
-    // mainEntity meaning entity of this controller
     @EJB
-    private WplataFacade mainEntityFacade;
-    private Wplata mainEntity;
-    private List mainEntityList = new ArrayList();
+    WplataFacade mainEntityFacade;
 
     @EJB
-    private FirmaFacade firmaFacade;
-    private List firmaList = new ArrayList();
+    FirmaFacade firmaFacade;
 
     @EJB
-    private PersistenceManager persistenceManager;
+    MoneyInHelper moneyInHelper;
 
-//    main
-    int intMainEntityId = 0;
-    String mainEntityId = "";
-    MoneyInHelper mainEntityListHelper;
-
-//    GENERAL 
-    private String userPath; // this one to see what to do
-
-//    pagination
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
+    @EJB
+    PersistenceManager persistenceManager;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -74,21 +61,21 @@ public class MoneyInController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Wplata wplata;
+        int intWplataId;
+        String wplataId;
+        List firmaList;
+
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  VIEW ALL
             case "/wplaty":
 
-                // get the necessary lists for the request
-                mainEntityList = mainEntityFacade.findAll();
-                firmaList = firmaFacade.findAll();
-
-                // use helper to get lektor list prepared in our request
-                mainEntityListHelper = new MoneyInHelper(); //  we need a helper
-                request = mainEntityListHelper.prepareEntityList(request, mainEntityList, firmaList);
+                // use helper to get list prepared in our request
+                request = moneyInHelper.prepareEntityList(request);
 
                 // and tell the container where to redirect
                 userPath = "/organisation/moneyIn/viewAll";
@@ -106,26 +93,26 @@ public class MoneyInController extends HttpServlet {
 // EDIT             
             case "/edytujWplate":
                 // get lektorId from request
-                mainEntityId = request.getQueryString();
+                wplataId = request.getQueryString();
 
                 // cast it to the integer
                 try {
-                    intMainEntityId = Integer.parseInt(mainEntityId);
+                    intWplataId = Integer.parseInt(wplataId);
                 } catch (NumberFormatException e) {
-                    intMainEntityId = 0; // (it seems that we have some kind of a problem)
+                    intWplataId = 0; // (it seems that we have some kind of a problem)
                 }
 
-                if (intMainEntityId > 0) {
+                if (intWplataId > 0) {
                     // find the lektor entity
-                    mainEntity = mainEntityFacade.find(intMainEntityId);
+                    wplata = mainEntityFacade.find(intWplataId);
                     // set as a request attribute all the fields
                     // and this is so because of the form validation
                     // when we give the form values that are correct
-                    request.setAttribute("id", mainEntity.getId());
-                    request.setAttribute("data", mainEntity.getData());
-                    request.setAttribute("kwota", mainEntity.getKwota());
-                    request.setAttribute("opis", mainEntity.getOpis());
-                    request.setAttribute("firma", mainEntity.getFirma());
+                    request.setAttribute("id", wplata.getId());
+                    request.setAttribute("data", wplata.getData());
+                    request.setAttribute("kwota", wplata.getKwota());
+                    request.setAttribute("opis", wplata.getOpis());
+                    request.setAttribute("firma", wplata.getFirma());
                     request.setAttribute("firmaList", firmaFacade.findAll());
                 }
                 // then ask for a form 
@@ -142,10 +129,10 @@ public class MoneyInController extends HttpServlet {
                 String opis = request.getParameter("opis");
                 String firmaId = request.getParameter("firmaId");
 
-                intMainEntityId = persistenceManager.saveMoneyInToDatabase(id, data, kwota, opis, firmaFacade.find(Integer.parseInt(firmaId)));
+                intWplataId = persistenceManager.saveMoneyInToDatabase(id, data, kwota, opis, firmaFacade.find(Integer.parseInt(firmaId)));
 
-                mainEntityId = intMainEntityId + "";
-                request = prepareRequest(request, mainEntityId); // set all the attributes that request needs
+                wplataId = intWplataId + "";
+                request = prepareEntityView(request, wplataId); // set all the attributes that request needs
 
                 // finally show the newly created lector (so it can be further processed)
                 userPath = "/organisation/moneyIn/viewOne";
@@ -156,7 +143,7 @@ public class MoneyInController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: jezyk, jezykLektora, wypozyczenia etc.
 
-                request = prepareRequest(request, request.getQueryString()); // set all the attributes that request needs
+                request = prepareEntityView(request, request.getQueryString()); // set all the attributes that request needs
 
                 userPath = "/organisation/moneyIn/viewOne";
                 break;
@@ -186,7 +173,7 @@ public class MoneyInController extends HttpServlet {
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 // CONFIRM
@@ -251,12 +238,12 @@ public class MoneyInController extends HttpServlet {
      * This one prepares request to show one lector it is not to multiply code
      * when adding and showing new mainEntity entity
      */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String mainEntityId) {
+    private HttpServletRequest prepareEntityView(HttpServletRequest request, String wplataId) {
 
-        mainEntity = mainEntityFacade.find(Integer.parseInt(mainEntityId));
+        Wplata wplata = mainEntityFacade.find(Integer.parseInt(wplataId));
 
-        request.setAttribute("mainEntity", mainEntity);
-        request.setAttribute("firma", mainEntity.getFirma());
+        request.setAttribute("mainEntity", wplata);
+        request.setAttribute("firma", wplata.getFirma());
 
         return request;
     }

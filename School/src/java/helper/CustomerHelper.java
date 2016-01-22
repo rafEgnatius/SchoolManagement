@@ -44,6 +44,13 @@ public class CustomerHelper {
         int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
         int pageNumber; // current page number
 
+        // sorting and pagination works this way:
+        // if there is no sortBy it means we are here for the first time
+        // so we check if we have pageNumber
+        // if not it means that we are really for the first time here
+        // let's get initial data...
+        // ... like page number
+        
         /* and now process */
         // SORT & SEARCH
         // get pageNumber from request

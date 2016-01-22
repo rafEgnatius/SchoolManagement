@@ -6,9 +6,8 @@ package controller.course;
  * and open the template in the editor.
  */
 import entity.Program;
-import helper.ProgrammeListHelper;
+import helper.ProgrammeHelper;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -36,34 +35,14 @@ public class ProgrammeController extends HttpServlet {
 
     @EJB
     private ProgramFacade programFacade;
-    private Program program;
-    private List programList = new ArrayList();
-    ProgrammeListHelper programmeListHelper;
 
     @EJB
     private PersistenceManager persistenceManager;
 
-//    program
-    int intProgramId = 0;
-    String programId = "";
-
-//    GENERAL 
-    private String userPath; // this one to see what to do
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-
-//    pagination
-    private static final int pageSize = 10; // number of records on one page
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
-    private int pageNumber; // current page number
-    private List pageToDisplay; // which one should be displayed to user
-
-//    search and filter
-    private String searchPhrase; // entity search (TEXT)
-    private String searchOption; // language selector (OPTION)
-
+    
+    @EJB
+    ProgrammeHelper programmeHelper;
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -77,9 +56,15 @@ public class ProgrammeController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+         Program program;
+     List programList;
+    ProgrammeHelper programmeListHelper;
+    int intProgramId;
+    String programId;
+        
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
             case "/programy":
@@ -87,9 +72,8 @@ public class ProgrammeController extends HttpServlet {
                 // entity list
                 programList = programFacade.findAll();
                 
-                // use helper to get lektor list prepared in our request
-                programmeListHelper = new ProgrammeListHelper(); //  we need a helper
-                request = programmeListHelper.prepareEntityList(request, programList);
+                // use helper to get list prepared in our request
+                request = programmeHelper.prepareEntityList(request);
 
                 userPath = "/course/programme/viewAll";
                 break;
@@ -148,8 +132,7 @@ public class ProgrammeController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: jezyk, jezykLektora, wypozyczenia etc.
 
-                String programId = request.getQueryString();
-                program = programFacade.find(Integer.parseInt(programId));
+                program = programFacade.find(Integer.parseInt(request.getQueryString()));
                 request.setAttribute("program", program);
                 userPath = "/course/programme/viewOne";
                 break;
@@ -160,8 +143,7 @@ public class ProgrammeController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
     }
 
@@ -177,10 +159,10 @@ public class ProgrammeController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         //processRequest(request, response);
-
+        
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 
@@ -208,7 +190,7 @@ public class ProgrammeController extends HttpServlet {
 
                     request.setAttribute("id", id);
                     request.setAttribute("referencja", referencja);
-                    request.setAttribute("metodaId", translateMethod(program.getMetoda())); // because we are checking by string representing number
+                    request.setAttribute("metodaId", translateMethod(metoda)); // because we are checking by string representing number
 
                     userPath = "/course/programme/form";
                 } else {
@@ -226,21 +208,15 @@ public class ProgrammeController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
     }
 
     /**
-     * This one prepares request to show one entity it is not to multiply code
-     * when adding and showing new Entity entity
+     * 
+     * @param metoda
+     * @return 
      */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String podrecznikId) {
-
-        // ANYTHING THAT WE WOULD NEED HERE
-        return request;
-    }
-
     private String translateMethod(String metoda) {
 
         switch (metoda) {
@@ -256,6 +232,11 @@ public class ProgrammeController extends HttpServlet {
         return null;
     }
 
+    /**
+     * 
+     * @param metodaId
+     * @return 
+     */
     private String translateBackMethod(String metodaId) {
 
         switch (metodaId) {

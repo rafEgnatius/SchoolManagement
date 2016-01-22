@@ -8,7 +8,7 @@ package controller.organisation;
 import entity.Firma;
 import helper.CustomerHelper;
 import helper.LectorHelper;
-import helper.ProgrammeListHelper;
+import helper.ProgrammeHelper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class CustomerAdditionController extends HttpServlet {
 // additional
     int intMainEntityId = 0;
     String mainEntityId = "";
-    ProgrammeListHelper programmeListHelper;
+    ProgrammeHelper programmeListHelper;
 
 //    GENERAL 
     private String userPath; // this one to see what to do

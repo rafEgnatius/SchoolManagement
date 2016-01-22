@@ -7,7 +7,7 @@
 
 
 <%-- customerRecord is requested --%>
-<c:if test="${!empty mainEntity}">
+<c:if test="${!empty wyplata}">
 
     <section id="section-szkola-one-column">
 
@@ -17,7 +17,7 @@
             </tr>
             <tr>
                 <th>Id:</th>
-                <td>${mainEntity.id}</td>
+                <td>${wyplata.id}</td>
             </tr>
             <tr>
                 <th>Lektor: </th>
@@ -25,19 +25,19 @@
             </tr>
             <tr>
                 <th>Data: </th>
-                <td>${mainEntity.data}</td>
+                <td>${wyplata.data}</td>
             </tr>
             <tr>
                 <th>Kwota: </th>
-                <td>${mainEntity.kwota} PLN</td>
+                <td>${wyplata.kwota} PLN</td>
             </tr>
             <tr>
                 <th>Opis: </th>
-                <td>${mainEntity.opis}</td>
+                <td>${wyplata.opis}</td>
             </tr>
         </table>
 
-        <a  class="smallButton" href="edytujWyplate?${mainEntity.id}">
+        <a  class="smallButton" href="edytujWyplate?${wyplata.id}">
             <span class="smallButtonText">edytuj dane wypłaty &#x279f;</span>
         </a>
 

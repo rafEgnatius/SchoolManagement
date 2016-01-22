@@ -243,5 +243,9 @@ public class Firma extends AbstractEntity implements Serializable {
     public String toString() {
         return "entity.Firma[ id=" + id + " ]";
     }
+
+    void addKursant(Kursant kursant) {
+        kursantCollection.add(kursant);
+    }
     
 }

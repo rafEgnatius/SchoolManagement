@@ -14,6 +14,7 @@ import finder.SchoolFinder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
@@ -38,43 +39,25 @@ public class LessonHelper {
     KursFacade kursFacade;
 
     @EJB
+    LekcjaFacade lekcjaFacade;
+
+    @EJB
     ObecnoscFacade obecnoscFacade;
 
     @EJB
     PersistenceManager persistanceManager;
 
-    List mainEntityList;
-    List kursList;
-    List kursantList;
-    List firmaList;
-
-    private static final int pageSize = 10; // number of records on one page
-
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
-    private int pageNumber; // current page number
-
-    private String searchPhrase;
-    private String searchOption;
-
-    private List filterKurs(List mainEntityList, String kursId) {
-        List resultList = new ArrayList();
-        Kurs kurs = kursFacade.find(Integer.parseInt(kursId));
-
-        Iterator it = mainEntityList.iterator();
-        while (it.hasNext()) {
-            Lekcja lekcja = (Lekcja) it.next();
-            if (lekcja.getKurs().equals(kurs)) {
-                resultList.add(lekcja);
-            }
-        }
-        return resultList;
-    }
+    @Resource(name = "pageSize")
+    Integer pageSize;
 
     // return only these that have proper lesson
+    /**
+     *
+     * @param obecnoscList
+     * @param lekcja
+     * @param kurs
+     * @return
+     */
     private List filterLesson(List obecnoscList, Lekcja lekcja, Kurs kurs) {
         List resultList = new ArrayList();
 
@@ -86,13 +69,11 @@ public class LessonHelper {
             }
         }
 
-        // there is a problem when there is a kursant that is member of the kur Collection
+        // there is a problem when there is a kursant that is member of the kurs Collection
         // but not on our resultList
         // now check if anyone is missing
         // we do it by checking elements of the Collection
         it = kurs.getKursKursantaCollection().iterator();
-
-        List testowaLista = (List) kurs.getKursKursantaCollection();
 
         while (it.hasNext()) {
             KursKursanta kursKursanta = (KursKursanta) it.next();
@@ -120,6 +101,26 @@ public class LessonHelper {
 
         return resultList;
     }
+    
+    /**
+     * 
+     * @param mainEntityList
+     * @param kursId
+     * @return 
+     */
+    private List filterKurs(List mainEntityList, String kursId) {
+        List resultList = new ArrayList();
+        Kurs kurs = kursFacade.find(Integer.parseInt(kursId));
+
+        Iterator it = mainEntityList.iterator();
+        while (it.hasNext()) {
+            Lekcja lekcja = (Lekcja) it.next();
+            if (lekcja.getKurs().equals(kurs)) {
+                resultList.add(lekcja);
+            }
+        }
+        return resultList;
+    }
 
     /**
      * Handles preparation of the list
@@ -130,9 +131,11 @@ public class LessonHelper {
      */
     public HttpServletRequest prepareEntityList(HttpServletRequest request) {
 
-        mainEntityList = mainEntityFacade.findAll();
-        kursList = kursFacade.findAll();
+        /* main lists that we will use */
+        List mainEntityList = lekcjaFacade.findAll();
+        List kursList = kursFacade.findAll();
 
+        /* specific to this entity */
         // we need only those those lessons that have appropiriate course (kurs)
         // in this case we need to filter the results in case we need specific kurs
         String kursId = request.getParameter("kursId");
@@ -140,19 +143,36 @@ public class LessonHelper {
             mainEntityList = filterKurs(mainEntityList, kursId);
             request.setAttribute("kursId", kursId);
         }
+        
+        /* technical */
+        boolean sortAsc; // and this one to check how to sort
+        String sortBy; // so we know how to sort
+        boolean changeSort; // this one to know whether to change sorting order
+        int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
+        int pageNumber; // current page number
+        String searchPhrase; // what we are looking for
+        String searchOption;
 
-        List resultList;
-
+        // sorting and pagination works this way:
+        // if there is no sortBy it means we are here for the first time
+        // so we check if we have pageNumber
+        // if not it means that we are really for the first time here
+        // let's get initial data...
+        // ... like page number
+        
+        /* and now process */
+        // SORT & SEARCH
+        // get pageNumber from request
         try {
             pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
         } catch (NumberFormatException e) {
             pageNumber = 1; // (it seems that we do not have page number yet)
         }
 
-        // SORT & SEARCH
         // check whether to change sorting direction
         changeSort = Boolean.parseBoolean(request.getParameter("changeSort"));
         String stringSortAsc = request.getParameter("sortAsc");
+
         try {
             sortAsc = Boolean.parseBoolean(stringSortAsc);
         } catch (Exception e) {
@@ -223,7 +243,7 @@ public class LessonHelper {
         // pageToDisplay is subList - we check if not get past last index
         int fromIndex = ((pageNumber - 1) * pageSize);
         int toIndex = fromIndex + pageSize;
-        resultList = mainEntityList.subList(fromIndex,
+        List resultList = mainEntityList.subList(fromIndex,
                 toIndex > mainEntityList.size() ? mainEntityList.size() : toIndex);
 
         // SEND
@@ -242,19 +262,24 @@ public class LessonHelper {
         return request;
     }
 
-    public HttpServletRequest prepareEntityView(HttpServletRequest request, String mainEntityId) {
+    public HttpServletRequest prepareEntityView(HttpServletRequest request, String lekcjaId) {
+
         // set attributes for main part
-        int i = Integer.parseInt(mainEntityId);
+        int i = Integer.parseInt(lekcjaId);
         Lekcja lekcja = mainEntityFacade.find(i); // we should try/catch it later
         request.setAttribute("lekcja", lekcja);
         request.setAttribute("kurs", lekcja.getKurs());
 
         // and now for obecnosc list
         List obecnoscList = obecnoscFacade.findAll();
-
+        
         // now filter only relevant ones
         obecnoscList = filterLesson(obecnoscList, lekcja, lekcja.getKurs());
-
+        
+        
+        // TO DO
+        
+        
         request.setAttribute("obecnoscList", obecnoscList);
 
         return request;
