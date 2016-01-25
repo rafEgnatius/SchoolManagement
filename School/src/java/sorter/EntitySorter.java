@@ -38,24 +38,24 @@ public class EntitySorter {
 
             // we have to make another loop finding only empty firma fields (null)
             if (firma == null) {
-                for (AbstractEntity abstractEntity : entityList) {
+                entityList.stream().forEach((abstractEntity) -> {
                     if (abstractEntity.getFirma() == null) {
                         int index = entityList.indexOf(abstractEntity);
                         resultList.add(entityList.get(index)); // 
                     } else {
-                        auxiliaryList.add(abstractEntity); // not firma!
+                        auxiliaryList.add(abstractEntity); // 
                     }
-                }
+                });
             } else {
                 // add in a loop entities to the result list
-                for (AbstractEntity abstractEntity : entityList) {
+                entityList.stream().forEach((abstractEntity) -> {
                     if (abstractEntity.getFirma().equals(firma)) {
                         int index = entityList.indexOf(abstractEntity);
                         resultList.add(entityList.get(index)); // 
                     } else {
-                        auxiliaryList.add(abstractEntity); // not firma!
+                        auxiliaryList.add(abstractEntity); // 
                     }
-                }
+                });
             }
 
             entityList.clear(); // to make it smaller
@@ -86,16 +86,15 @@ public class EntitySorter {
 
             // create a new list that will contain all the firms except the first one
             List<AbstractEntity> auxiliaryList = new ArrayList<>(); // we recreate this  list on every loop
-
             // add in a loop entities to the result list
-            for (AbstractEntity abstractEntity : entityList) {
+            entityList.stream().forEach((abstractEntity) -> {
                 if (abstractEntity.getJezyk().equals(jezyk)) {
                     int index = entityList.indexOf(abstractEntity);
                     resultList.add(entityList.get(index));
                 } else {
                     auxiliaryList.add(abstractEntity); // not firma!
                 }
-            }
+            });
 
             entityList.clear(); // to make it smaller
             entityList.addAll(auxiliaryList); // by selecting only those that are not equal
@@ -124,16 +123,15 @@ public class EntitySorter {
 
             // create a new list that will contain all the kurs entities except the first one
             List<AbstractEntity> auxiliaryList = new ArrayList<>(); // we recreate this list on every loop
-
             // add in a loop entities to the result list
-            for (AbstractEntity abstractEntity : entityList) {
+            entityList.stream().forEach((abstractEntity) -> {
                 if (abstractEntity.getKurs().equals(kurs)) {
                     int index = entityList.indexOf(abstractEntity);
                     resultList.add(entityList.get(index)); // add to result list
                 } else {
                     auxiliaryList.add(abstractEntity); // add to the list with all but smallest
                 }
-            }
+            });
 
             entityList.clear(); // to make it smaller
             entityList.addAll(auxiliaryList); // by selecting only those that are not equal
@@ -162,16 +160,15 @@ public class EntitySorter {
 
             // create a new list that will contain all the firms except the first one
             List<AbstractEntity> auxiliaryList = new ArrayList<>(); // we recreate this  list on every loop
-
             // add in a loop entities to the result list
-            for (AbstractEntity abstractEntity : entityList) {
+            entityList.stream().forEach((abstractEntity) -> {
                 if (abstractEntity.getKursant().equals(kursant)) {
                     int index = entityList.indexOf(abstractEntity);
                     resultList.add(entityList.get(index));
                 } else {
                     auxiliaryList.add(abstractEntity); // not firma!
                 }
-            }
+            });
 
             entityList.clear(); // to make it smaller
             entityList.addAll(auxiliaryList); // by selecting only those that are not equal
@@ -203,24 +200,24 @@ public class EntitySorter {
 
             // we have to make a loop finding only empty firma fields (null)
             if (lektor == null) {
-                for (AbstractEntity abstractEntity : entityList) {
+                entityList.stream().forEach((abstractEntity) -> {
                     if (abstractEntity.getLektor() == null) {
                         int index = entityList.indexOf(abstractEntity);
                         resultList.add(entityList.get(index)); // 
                     } else {
                         auxiliaryList.add(abstractEntity); //
                     }
-                }
+                });
             } else {
                 // add in a loop entities to the result list
-                for (AbstractEntity abstractEntity : entityList) {
+                entityList.stream().forEach((abstractEntity) -> {
                     if (abstractEntity.getLektor().equals(lektor)) {
                         int index = entityList.indexOf(abstractEntity);
                         resultList.add(entityList.get(index));
                     } else {
                         auxiliaryList.add(abstractEntity); //
                     }
-                }
+                });
             }
             entityList.clear(); // to make it smaller
             entityList.addAll(auxiliaryList); // by selecting only those that are not equal

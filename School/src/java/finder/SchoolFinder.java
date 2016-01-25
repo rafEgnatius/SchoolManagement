@@ -68,15 +68,13 @@ public class SchoolFinder {
     public static List<Lektor> findLector(List<Lektor> lektorList, String searchPhrase) {
         List resultList = new ArrayList<>(); // to send back
 //        for every field in Lektor entity check whether it contains searchPhrase
-//        use toLower to find everything no matter wheter capital      
-        for (Lektor lektor : lektorList) {
-            if (lektor.getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())
-                    || lektor.getEmail().toLowerCase().contains(searchPhrase.toLowerCase())
-                    || lektor.getMiasto().toLowerCase().contains(searchPhrase.toLowerCase())
-                    || lektor.getTelefon().toLowerCase().contains(searchPhrase.toLowerCase())) {
-                resultList.add(lektor);
-            }
-        }
+//        use toLower to find everything no matter wheter capital
+        lektorList.stream().filter((lektor) -> (lektor.getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())
+                || lektor.getEmail().toLowerCase().contains(searchPhrase.toLowerCase())
+                || lektor.getMiasto().toLowerCase().contains(searchPhrase.toLowerCase())
+                || lektor.getTelefon().toLowerCase().contains(searchPhrase.toLowerCase()))).forEach((lektor) -> {
+                    resultList.add(lektor);
+                });
         return resultList;
     }
 
@@ -168,13 +166,11 @@ public class SchoolFinder {
     public static List findLanguage(List<Jezyk> jezykList, String searchPhrase) {
         List resultList = new ArrayList<>(); // to send back
 //        for every field in entity check whether it contains searchPhrase
-//        use toLower to find everything no matter wheter capital      
-        for (Jezyk jezyk : jezykList) {
-            if (jezyk.getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())
-                    || jezyk.getSymbol().toLowerCase().contains(searchPhrase.toLowerCase())) {
-                resultList.add(jezyk);
-            }
-        }
+//        use toLower to find everything no matter wheter capital
+        jezykList.stream().filter((jezyk) -> (jezyk.getNazwa().toLowerCase().contains(searchPhrase.toLowerCase())
+                || jezyk.getSymbol().toLowerCase().contains(searchPhrase.toLowerCase()))).forEach((jezyk) -> {
+                    resultList.add(jezyk);
+                });
         return resultList;
     }
 
@@ -200,16 +196,11 @@ public class SchoolFinder {
 //        find what languages he speaks
 //        taking it from language lector list (jezykLektora)
 //        check if this language is the same as searchLanguage
-
-        for (Lektor lektor : lektorList) {
-            for (JezykLektora jezykLektora : jezykLektoraList) {
-                if (lektor.equals(jezykLektora.getLektor())) {
-                    if (jezykLektora.getJezyk().getId().toString().equals(searchOption)) {
-                        resultList.add(lektor);
-                    }
-                }
-            }
-        }
+        lektorList.stream().forEach((lektor) -> {
+            jezykLektoraList.stream().filter((jezykLektora) -> (lektor.equals(jezykLektora.getLektor()))).filter((jezykLektora) -> (jezykLektora.getJezyk().getId().toString().equals(searchOption))).forEach((_item) -> {
+                resultList.add(lektor);
+            });
+        });
         return resultList;
     }
 
