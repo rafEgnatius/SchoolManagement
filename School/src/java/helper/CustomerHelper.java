@@ -11,6 +11,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
 import session.FirmaFacade;
+import session.StawkaFirmyFacade;
 import sorter.FieldSorter;
 
 /**
@@ -22,6 +23,9 @@ public class CustomerHelper {
 
     @EJB
     FirmaFacade firmaFacade;
+    
+    @EJB
+    StawkaFirmyFacade stawkaFirmyFacade;
 
     @Resource(name = "pageSize")
     Integer pageSize;
@@ -138,6 +142,22 @@ public class CustomerHelper {
         request.setAttribute("sortAsc", sortAsc);
 
         request.setAttribute("firmaList", resultList);
+
+        return request;
+    }
+    
+    
+    /**
+     * This one prepares request to show one entity it is not to multiply code
+     * when adding and showing new Entity entity
+     * @param request
+     * @param firmaId
+     * @return 
+     */
+    public HttpServletRequest prepareEntityView(HttpServletRequest request, String firmaId) {
+
+        request.setAttribute("firma", firmaFacade.find(Integer.parseInt(firmaId)));
+        request.setAttribute("stawkaFirmyList", stawkaFirmyFacade.findAll());
 
         return request;
     }

@@ -37,7 +37,7 @@ import validator.FormValidator;
 public class MoneyInController extends HttpServlet {
 
     @EJB
-    WplataFacade mainEntityFacade;
+    WplataFacade wplataFacade;
 
     @EJB
     FirmaFacade firmaFacade;
@@ -104,7 +104,7 @@ public class MoneyInController extends HttpServlet {
 
                 if (intWplataId > 0) {
                     // find the lektor entity
-                    wplata = mainEntityFacade.find(intWplataId);
+                    wplata = wplataFacade.find(intWplataId);
                     // set as a request attribute all the fields
                     // and this is so because of the form validation
                     // when we give the form values that are correct
@@ -132,7 +132,7 @@ public class MoneyInController extends HttpServlet {
                 intWplataId = persistenceManager.saveMoneyInToDatabase(id, data, kwota, opis, firmaFacade.find(Integer.parseInt(firmaId)));
 
                 wplataId = intWplataId + "";
-                request = prepareEntityView(request, wplataId); // set all the attributes that request needs
+                request = moneyInHelper.prepareEntityView(request, wplataId); // set all the attributes that request needs
 
                 // finally show the newly created lector (so it can be further processed)
                 userPath = "/organisation/moneyIn/viewOne";
@@ -143,7 +143,7 @@ public class MoneyInController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: jezyk, jezykLektora, wypozyczenia etc.
 
-                request = prepareEntityView(request, request.getQueryString()); // set all the attributes that request needs
+                request = moneyInHelper.prepareEntityView(request, request.getQueryString()); // set all the attributes that request needs
 
                 userPath = "/organisation/moneyIn/viewOne";
                 break;
@@ -234,18 +234,6 @@ public class MoneyInController extends HttpServlet {
         }
     }
 
-    /**
-     * This one prepares request to show one lector it is not to multiply code
-     * when adding and showing new mainEntity entity
-     */
-    private HttpServletRequest prepareEntityView(HttpServletRequest request, String wplataId) {
-
-        Wplata wplata = mainEntityFacade.find(Integer.parseInt(wplataId));
-
-        request.setAttribute("mainEntity", wplata);
-        request.setAttribute("firma", wplata.getFirma());
-
-        return request;
-    }
+    
 
 }

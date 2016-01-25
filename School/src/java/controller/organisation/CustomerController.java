@@ -35,10 +35,10 @@ public class CustomerController extends HttpServlet {
 
     @EJB
     FirmaFacade firmaFacade;
-    
+
     @EJB
     StawkaFirmyFacade stawkaFirmyFacade;
-    
+
     @EJB
     PersistenceManager persistenceManager;
 
@@ -58,13 +58,11 @@ public class CustomerController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-    Firma firma;
-    
-    int intFirmaId;
-    String firmaId;
-    
-        
-        
+        Firma firma;
+
+        int intFirmaId;
+        String firmaId;
+
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
         String userPath = request.getServletPath(); // this way we know where to go
@@ -79,7 +77,6 @@ public class CustomerController extends HttpServlet {
                 // if not it means that we are really for the first time here
                 // let's get initial data...
                 // ... like page number
-
                 // use helper to get lektor list prepared in our request
                 request = customerHelper.prepareEntityList(request);
 
@@ -120,7 +117,6 @@ public class CustomerController extends HttpServlet {
                     request.setAttribute("komorka", firma.getKomorka());
                     request.setAttribute("email", firma.getEmail());
                     request.setAttribute("adres", firma.getAdres());
-                    
 
                 }
                 // then ask for a form 
@@ -145,7 +141,9 @@ public class CustomerController extends HttpServlet {
 
                 intFirmaId = persistenceManager.saveCustomerToDatabase(id, nip, nazwa, symbol, miasto, osoba, telefon, komorka, email, adres);
 
-                request.setAttribute("firma", firmaFacade.find(intFirmaId));
+                // prepare request for one customer
+                request = customerHelper.prepareEntityView(request, intFirmaId+"");
+                
                 userPath = "/organisation/customer/viewOne";
                 break;
 
@@ -155,8 +153,8 @@ public class CustomerController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: entity etc.
 
-                request = prepareRequest(request, request.getQueryString());
-                                
+                request = customerHelper.prepareEntityView(request, request.getQueryString());
+
                 userPath = "/organisation/customer/viewOne";
                 break;
 
@@ -246,7 +244,7 @@ public class CustomerController extends HttpServlet {
                     request.setAttribute("nipError", "*");
                     formError = true;
                 }
-                
+
                 if (formError) {
                     request.setAttribute("formError", "formError");
 
@@ -280,17 +278,4 @@ public class CustomerController extends HttpServlet {
         }
 
     }
-
-    /**
-     * This one prepares request to show one entity it is not to multiply code
-     * when adding and showing new Entity entity
-     */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String firmaId) {
-
-        request.setAttribute("firma", firmaFacade.find(Integer.parseInt(firmaId)));
-        request.setAttribute("stawkaFirmyList", stawkaFirmyFacade.findAll());
-                
-        return request;
-    }
-
 }

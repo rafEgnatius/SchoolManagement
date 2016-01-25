@@ -5,6 +5,7 @@
  */
 package helper;
 
+import entity.Wplata;
 import finder.SchoolFinder;
 import java.util.List;
 import javax.annotation.Resource;
@@ -25,17 +26,17 @@ public class MoneyInHelper {
 
     @EJB
     WplataFacade wplataFacade;
-    
+
     @EJB
     FirmaFacade firmaFacade;
-    
+
     @Resource(name = "pageSize")
     Integer pageSize;
 
     /**
      * Handles preparation of the list
      *
-     * 
+     *
      * @param request
      * @return HttpServletRequest
      */
@@ -59,7 +60,6 @@ public class MoneyInHelper {
         // if not it means that we are really for the first time here
         // let's get initial data...
         // ... like page number
-        
         /* and now process */
         // SORT & SEARCH
         // get pageNumber from request
@@ -95,7 +95,6 @@ public class MoneyInHelper {
         } else {
             searchPhrase = "";
         }
-
 
         // now we check if we have to sort things (out)
         // (by the way - we sort using auxiliary abstract class)
@@ -138,7 +137,7 @@ public class MoneyInHelper {
                 break;
         }
 
-                // PAGINATE
+        // PAGINATE
         // and here goes pagination part
         numberOfPages = ((wplataList.size()) / pageSize) + 1; // check how many pages
 
@@ -148,13 +147,13 @@ public class MoneyInHelper {
         List resultList = wplataList.subList(fromIndex,
                 toIndex > wplataList.size() ? wplataList.size() : toIndex);
 
-                // SEND
+        // SEND
         // now prepare things for our JSP
         request.setAttribute("numberOfPages", numberOfPages);
         request.setAttribute("pageNumber", pageNumber);
         request.setAttribute("sortBy", sortBy);
         request.setAttribute("sortAsc", sortAsc);
-        
+
         request.setAttribute("searchPhrase", searchPhrase);
         //request.setAttribute("searchOption", searchOption);
 
@@ -164,4 +163,21 @@ public class MoneyInHelper {
         return request;
     }
 
+    /**
+     * This one prepares request to show one lector it is not to multiply code
+     * when adding and showing new mainEntity entity
+     *
+     * @param request
+     * @param wplataId
+     * @return
+     */
+    public HttpServletRequest prepareEntityView(HttpServletRequest request, String wplataId) {
+
+        Wplata wplata = wplataFacade.find(Integer.parseInt(wplataId));
+
+        request.setAttribute("mainEntity", wplata);
+        request.setAttribute("firma", wplata.getFirma());
+
+        return request;
+    }
 }

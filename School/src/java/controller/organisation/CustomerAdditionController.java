@@ -5,14 +5,9 @@
  */
 package controller.organisation;
 
-import entity.Firma;
 import helper.CustomerHelper;
-import helper.LectorHelper;
-import helper.ProgrammeHelper;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -37,40 +32,16 @@ import validator.FormValidator;
 public class CustomerAdditionController extends HttpServlet {
 
     @EJB
-    private FirmaFacade mainEntityFacade;
-    private Firma mainEntity;
+    private FirmaFacade firmaFacade;
 
     @EJB
     private StawkaFirmyFacade stawkaFirmyFacade;
-    private List stawkaFirmyList = new ArrayList();
 
     @EJB
+    CustomerHelper customerHelper;
+    
+    @EJB
     private PersistenceManager persistenceManager;
-
-//    main
-    int intKursId = 0;
-    String kursId = "";
-
-// additional
-    int intFirmaId = 0;
-    String firmaId = "";
-    CustomerHelper customerListHelper;
-
-// additional
-    int intLektorId = 0;
-    String lektorId = "";
-    LectorHelper lectorListHelper;
-
-// additional
-    int intMainEntityId = 0;
-    String mainEntityId = "";
-    ProgrammeHelper programmeListHelper;
-
-//    GENERAL 
-    private String userPath; // this one to see what to do
-
-//    pagination
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -84,10 +55,12 @@ public class CustomerAdditionController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
+        String firmaId;
+
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 
@@ -95,14 +68,14 @@ public class CustomerAdditionController extends HttpServlet {
             case "/usunStawkeNativeSpeakeraDlaFirmy":
 
                 // check parameters
-                mainEntityId = request.getQueryString();
+                firmaId = request.getQueryString();
 
                 // now persist:
-                persistenceManager.deleteCustomerNativeSpeakerRateFromDatabase(Integer.parseInt(mainEntityId));
+                persistenceManager.deleteCustomerNativeSpeakerRateFromDatabase(Integer.parseInt(firmaId));
 
                 // prepare request for one customer
-                request = prepareRequest(request, mainEntityId);
-                
+                request = customerHelper.prepareEntityView(request, firmaId);
+
                 // and tell the container where to redirect
                 userPath = "/organisation/customer/viewOne";
                 break;
@@ -110,26 +83,25 @@ public class CustomerAdditionController extends HttpServlet {
             case "/usunStawkeLektoraDlaFirmy":
 
                 // check parameters
-                mainEntityId = request.getQueryString();
+                firmaId = request.getQueryString();
 
                 // now persist:
-                persistenceManager.deleteCustomerLectorRateFromDatabase(Integer.parseInt(mainEntityId));
+                persistenceManager.deleteCustomerLectorRateFromDatabase(Integer.parseInt(firmaId));
 
                 // prepare request for one customer
-                request = prepareRequest(request, mainEntityId);
-                
+                request = customerHelper.prepareEntityView(request, firmaId);
+
                 // and tell the container where to redirect
                 userPath = "/organisation/customer/viewOne";
                 break;
-                
+
 // FORWARD
         } // close main swith
         String url = "/WEB-INF/view" + userPath + ".jsp";
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
     }
 
@@ -146,19 +118,21 @@ public class CustomerAdditionController extends HttpServlet {
             throws ServletException, IOException {
         //processRequest(request, response);
 
+        String firmaId;
+
         BigDecimal bigDecimalAmount;
         String stawka;
-        
+
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  ADD RATE (native)
             case "/dodajStawkeNativeSpeakeraDlaFirmy":
 
                 // get Parameters
-                mainEntityId = request.getParameter("id"); // it should be set if we are here
+                firmaId = request.getParameter("id"); // it should be set if we are here
                 stawka = request.getParameter("stawkaNative");
 
                 // validate
@@ -167,21 +141,21 @@ public class CustomerAdditionController extends HttpServlet {
                 if ((bigDecimalAmount = FormValidator.validateMoney(stawka)) == null) {
                     request.setAttribute("stawkaNativeError", "błędne dane");
                 } else {
-                    persistenceManager.saveCustomerNativeSpeakerRateToDatabase(Integer.parseInt(mainEntityId), bigDecimalAmount);
+                    persistenceManager.saveCustomerNativeSpeakerRateToDatabase(Integer.parseInt(firmaId), bigDecimalAmount);
                 }
 
                 // prepare request for one customer
-                request = prepareRequest(request, mainEntityId);
-                
+                request = customerHelper.prepareEntityView(request, firmaId);
+
                 // and tell the container where to redirect
                 userPath = "/organisation/customer/viewOne";
                 break;
-                
+
 //  ADD RATE (lector)
             case "/dodajStawkeLektoraDlaFirmy":
 
                 // get Parameters
-                mainEntityId = request.getParameter("id"); // it should be set if we are here
+                firmaId = request.getParameter("id"); // it should be set if we are here
                 stawka = request.getParameter("stawkaLektor");
 
                 // validate
@@ -190,41 +164,24 @@ public class CustomerAdditionController extends HttpServlet {
                 if ((bigDecimalAmount = FormValidator.validateMoney(stawka)) == null) {
                     request.setAttribute("stawkaLektorError", "błędne dane");
                 } else {
-                    persistenceManager.saveCustomerLectorRateToDatabase(Integer.parseInt(mainEntityId), bigDecimalAmount);
+                    persistenceManager.saveCustomerLectorRateToDatabase(Integer.parseInt(firmaId), bigDecimalAmount);
                 }
 
                 // prepare request for one customer
-                request = prepareRequest(request, mainEntityId);
-                
+                request = customerHelper.prepareEntityView(request, firmaId);
+
                 // and tell the container where to redirect
                 userPath = "/organisation/customer/viewOne";
                 break;
-                
+
 // FORWARD
         } // close main swith
         String url = "/WEB-INF/view" + userPath + ".jsp";
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
 
     }
-
-    /**
-     * This one prepares request to show one entity it is not to multiply code
-     * when adding and showing new Entity entity
-     */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String firmaId) {
-
-        mainEntity = mainEntityFacade.find(Integer.parseInt(firmaId));
-        request.setAttribute("firma", mainEntity);
-
-        stawkaFirmyList = stawkaFirmyFacade.findAll();
-        request.setAttribute("stawkaFirmyList", stawkaFirmyList);
-
-        return request;
-    }
-
 }

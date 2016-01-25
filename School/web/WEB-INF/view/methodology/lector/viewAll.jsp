@@ -47,11 +47,11 @@
             </tr>
 
             <tr class="tableHeading">
-                <td><a href="lektorzy?sortBy=id&changeSort=true&sortAsc=${sortAsc}">&#x25B2; id &#x25BC;</a></td>
-                <td><a href="lektorzy?sortBy=nazwa&changeSort=true&sortAsc=${sortAsc}">&#x25B2; imię i nazwisko &#x25BC;</a></td>
-                <td><a href="lektorzy?sortBy=miasto&changeSort=true&sortAsc=${sortAsc}">&#x25B2; miasto &#x25BC;</a></td>
-                <td><a href="lektorzy?sortBy=telefon&changeSort=true&sortAsc=${sortAsc}">&#x25B2; telefon &#x25BC;</a></td>
-                <td><a href="lektorzy?sortBy=email&changeSort=true&sortAsc=${sortAsc}">&#x25B2; email &#x25BC;</a></td>
+                <td><a href="lektorzy?sortBy=id&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; id &#x25BC;</a></td>
+                <td><a href="lektorzy?sortBy=nazwa&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; imię i nazwisko &#x25BC;</a></td>
+                <td><a href="lektorzy?sortBy=miasto&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; miasto &#x25BC;</a></td>
+                <td><a href="lektorzy?sortBy=telefon&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; telefon &#x25BC;</a></td>
+                <td><a href="lektorzy?sortBy=email&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; email &#x25BC;</a></td>
                 <td>język</td>
             </tr>
 

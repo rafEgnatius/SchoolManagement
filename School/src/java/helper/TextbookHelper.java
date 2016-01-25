@@ -5,16 +5,16 @@
  */
 package helper;
 
-import entity.Faktura;
+import entity.Podrecznik;
 import finder.SchoolFinder;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
-import session.FakturaFacade;
-import session.FirmaFacade;
-import sorter.EntitySorter;
+import session.JezykFacade;
+import session.PodrecznikFacade;
+import session.WypozyczenieFacade;
 import sorter.FieldSorter;
 
 /**
@@ -22,19 +22,22 @@ import sorter.FieldSorter;
  * @author Rafa
  */
 @Stateless
-public class InvoiceHelper {
+public class TextbookHelper {
 
     @EJB
-    FakturaFacade fakturaFacade;
+    PodrecznikFacade podrecznikFacade;
 
     @EJB
-    FirmaFacade firmaFacade;
+    private JezykFacade jezykFacade;
+
+    @EJB
+    private WypozyczenieFacade wypozyczenieFacade;
 
     @Resource(name = "pageSize")
     Integer pageSize;
 
     /**
-     * Handles preparation of the faktura list
+     * Handles preparation of the rachunek list
      *
      *
      * @param request
@@ -43,8 +46,9 @@ public class InvoiceHelper {
     public HttpServletRequest prepareEntityList(HttpServletRequest request) {
 
         /* main lists that we will use */
-        List fakturaList = fakturaFacade.findAll();
-        List firmaList = firmaFacade.findAll();
+        List podrecznikList = podrecznikFacade.findAll();
+        List jezykList = jezykFacade.findAll();
+        List wypozyczenieList = wypozyczenieFacade.findAll();
 
         /* technical */
         boolean sortAsc; // and this one to check how to sort
@@ -53,6 +57,7 @@ public class InvoiceHelper {
         int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
         int pageNumber; // current page number
         String searchPhrase; // what we are looking for
+        String searchOption; // selector (OPTION)
 
         // sorting and pagination works this way:
         // if there is no sortBy it means we are here for the first time
@@ -60,6 +65,7 @@ public class InvoiceHelper {
         // if not it means that we are really for the first time here
         // let's get initial data...
         // ... like page number
+        
         /* and now process */
         // SORT & SEARCH
         // get pageNumber from request
@@ -90,12 +96,18 @@ public class InvoiceHelper {
 
         // and check if searching
         searchPhrase = request.getParameter("searchPhrase");
-        if (searchPhrase
-                != null && !searchPhrase.equals(
-                        "")) {
-            fakturaList = SchoolFinder.findRachunek(fakturaList, firmaList, searchPhrase);
+        if (searchPhrase != null && !searchPhrase.equals("")) {
+            podrecznikList = SchoolFinder.findTextbook(podrecznikList, searchPhrase);
         } else {
             searchPhrase = "";
+        }
+
+        // and what option was chosen
+        searchOption = request.getParameter("searchOption");
+        if (searchOption != null && !searchOption.equals("")) {
+            podrecznikList = SchoolFinder.findLanguageForTextbook(podrecznikList, searchOption);
+        } else {
+            searchOption = "";
         }
 
         // now we check if we have to sort things (out)
@@ -103,46 +115,28 @@ public class InvoiceHelper {
         switch (sortBy) {
             case ("id"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    fakturaList = FieldSorter.sortIdDesc(fakturaList);
+                    podrecznikList = FieldSorter.sortIdDesc(podrecznikList);
                     sortAsc = false;
                 } else {
-                    fakturaList = FieldSorter.sortId(fakturaList);
+                    podrecznikList = FieldSorter.sortId(podrecznikList);
                     sortAsc = true;
                 }
                 break;
-            case ("numer"):
+            case ("nazwa"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    fakturaList = FieldSorter.sortNumerDesc(fakturaList);
+                    podrecznikList = FieldSorter.sortNazwaDesc(podrecznikList);
                     sortAsc = false;
                 } else {
-                    fakturaList = FieldSorter.sortNumer(fakturaList);
+                    podrecznikList = FieldSorter.sortNazwa(podrecznikList);
                     sortAsc = true;
                 }
                 break;
-            case ("data"):
+            case ("poziom"):
                 if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    fakturaList = FieldSorter.sortDataDesc(fakturaList);
+                    podrecznikList = FieldSorter.sortPoziomDesc(podrecznikList);
                     sortAsc = false;
                 } else {
-                    fakturaList = FieldSorter.sortData(fakturaList);
-                    sortAsc = true;
-                }
-                break;
-            case ("kwota"):
-                if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    fakturaList = FieldSorter.sortKwotaDesc(fakturaList);
-                    sortAsc = false;
-                } else {
-                    fakturaList = FieldSorter.sortKwota(fakturaList);
-                    sortAsc = true;
-                }
-                break;
-            case ("firma"):
-                if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                    fakturaList = EntitySorter.sortFirmaDesc(fakturaList);
-                    sortAsc = false;
-                } else {
-                    fakturaList = EntitySorter.sortFirma(fakturaList);
+                    podrecznikList = FieldSorter.sortPoziom(podrecznikList);
                     sortAsc = true;
                 }
                 break;
@@ -150,15 +144,16 @@ public class InvoiceHelper {
 
         // PAGINATE
         // and here goes pagination part
-        numberOfPages = ((fakturaList.size()) / pageSize) + 1; // check how many pages
+        numberOfPages = ((podrecznikList.size()) / pageSize) + 1; // check how many pages
 
         // pageToDisplay is subList - we check if not get past last index
         int fromIndex = ((pageNumber - 1) * pageSize);
         int toIndex = fromIndex + pageSize;
-        List resultList = fakturaList.subList(fromIndex,
-                toIndex > fakturaList.size() ? fakturaList.size() : toIndex);
+        List resultList = podrecznikList.subList(fromIndex,
+                toIndex > podrecznikList.size() ? podrecznikList.size() : toIndex);
 
-        // SEND
+
+        /* final things */
         // now prepare things for our JSP
         request.setAttribute("numberOfPages", numberOfPages);
         request.setAttribute("pageNumber", pageNumber);
@@ -166,29 +161,36 @@ public class InvoiceHelper {
         request.setAttribute("sortAsc", sortAsc);
 
         request.setAttribute("searchPhrase", searchPhrase);
-        //request.setAttribute("searchOption", searchOption);
+        request.setAttribute("searchOption", searchOption);
 
-        request.setAttribute("mainEntityList", resultList);
-        request.setAttribute("firmaList", firmaList);
+        // set request atributes for necessary lists
+        request.setAttribute("podrecznikList", resultList);
+        request.setAttribute("jezykList", jezykList);
+        request.setAttribute("wypozyczenieList", wypozyczenieList);
 
         return request;
     }
 
     /**
-     * This one prepares request to show one lector it is not to multiply code
-     * when adding and showing new mainEntity
-     *
+     * This one prepares request to show one entity it is not to multiply code
+     * when adding and showing new Entity entity
      * @param request
-     * @param fakturaId
-     * @return
+     * @param podrecznikId
+     * @return 
      */
-    public HttpServletRequest prepareEntityView(HttpServletRequest request, String fakturaId) {
+    public HttpServletRequest prepareEntityView(HttpServletRequest request, String podrecznikId) {
 
-        Faktura faktura = fakturaFacade.find(Integer.parseInt(fakturaId));
+        Podrecznik podrecznik = podrecznikFacade.find(Integer.parseInt(podrecznikId));
+        List jezykList = jezykFacade.findAll();
+        List wypozyczenieList = wypozyczenieFacade.findAll();
+        List podrecznikList = podrecznikFacade.findAll();
 
-        request.setAttribute("mainEntity", faktura);
-        request.setAttribute("firma", faktura.getFirma());
+        request.setAttribute("podrecznik", podrecznik);
+        request.setAttribute("jezykList", jezykList);
+        request.setAttribute("wypozyczenieList", wypozyczenieList);
+        request.setAttribute("podrecznikList", podrecznikList);
 
         return request;
     }
+
 }

@@ -47,9 +47,9 @@
             </tr>
 
             <tr class="tableHeading">
-                <td><a href="podreczniki?sortBy=id&changeSort=true">&#x25B2; id &#x25BC;</a></td>
-                <td><a href="podreczniki?sortBy=nazwa&changeSort=true">&#x25B2; tytuł &#x25BC;</a></td>
-                <td><a href="podreczniki?sortBy=poziom&changeSort=true">&#x25B2; poziom &#x25BC;</a></td>
+                <td><a href="podreczniki?sortBy=id&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; id &#x25BC;</a></td>
+                <td><a href="podreczniki?sortBy=nazwa&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; tytuł &#x25BC;</a></td>
+                <td><a href="podreczniki?sortBy=poziom&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}&searchOption=${searchOption}">&#x25B2; poziom &#x25BC;</a></td>
                 <td>język</td>
                 <td>wypożyczenie</td>
             </tr>

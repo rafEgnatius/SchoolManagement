@@ -135,7 +135,7 @@ public class InvoiceController extends HttpServlet {
                 intFakturaId = persistenceManager.saveInvoiceToDatabase(id, numer, data, kwota, opis, firmaFacade.find(Integer.parseInt(firmaId)));
 
                 fakturaId = intFakturaId + "";
-                request = prepareRequest(request, fakturaId); // set all the attributes that request needs
+                request = invoiceHelper.prepareEntityView(request, fakturaId); // set all the attributes that request needs
 
                 // finally show the newly created lector (so it can be further processed)
                 userPath = "/organisation/invoice/viewOne";
@@ -146,7 +146,7 @@ public class InvoiceController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: jezyk, jezykLektora, wypozyczenia etc.
 
-                request = prepareRequest(request, request.getQueryString()); // set all the attributes that request needs
+                request = invoiceHelper.prepareEntityView(request, request.getQueryString()); // set all the attributes that request needs
 
                 userPath = "/organisation/invoice/viewOne";
                 break;
@@ -243,18 +243,6 @@ public class InvoiceController extends HttpServlet {
         }
     }
 
-    /**
-     * This one prepares request to show one lector it is not to multiply code
-     * when adding and showing new mainEntity entity
-     */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String fakturaId) {
-
-        Faktura faktura = fakturaFacade.find(Integer.parseInt(fakturaId));
-
-        request.setAttribute("mainEntity", faktura);
-        request.setAttribute("firma", faktura.getFirma());
-
-        return request;
-    }
+    
 
 }

@@ -125,16 +125,16 @@ public class PersistenceManager {
     /**
      * Handles removal of the entity from the database
      *
-     * @param lektor Lektor
-     * @param podrecznik Podrecznik
+     * @param intLektorId
+     * @param intPodrecznikId
      */
-    public void deleteBorrowingFromDatabase(Lektor lektor, Podrecznik podrecznik) {
+    public void deleteBorrowingFromDatabase(int intLektorId, int intPodrecznikId) {
 
         // to remove we probably have to find a proper primary key object
         // then try to remove an object with it
         // will have to check this solution - if we can set the same language for this lector
         // set up primary key object
-        WypozyczeniePK wypozyczeniePK = new WypozyczeniePK(lektor.getId(), podrecznik.getId());
+        WypozyczeniePK wypozyczeniePK = new WypozyczeniePK(intPodrecznikId, intLektorId);
         Wypozyczenie wypozyczenie = em.find(Wypozyczenie.class, wypozyczeniePK);
 
         em.remove(wypozyczenie);

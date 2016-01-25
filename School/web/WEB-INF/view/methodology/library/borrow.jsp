@@ -18,22 +18,22 @@
                 <tr>
                     <td>
                         <form action="wyszukajLektoraDoWypozyczenia" method="POST">
-                            <input type="text" name="searchEntity" value="${searchEntity}" />
+                            <input type="text" name="searchPhrase" value="${searchPhrase}" />
                             <input type="hidden" name="podrecznikId" value="${podrecznikId}" />
                             <input type="submit" value="Szukaj" />
                         </form>
                     </td>
                     <td class="cellWithPagination">
                         <ul class="pagination">
-                            <li><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=1&sortBy=${sortBy}&changeSort=false&searchEntity=${searchEntity}">&laquo;</a></li>
-                            <li><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${pageNumber<2 ? 1 : (pageNumber-1)}&sortBy=${sortBy}&changeSort=false&searchEntity=${searchEntity}">&lsaquo;</a></li>
+                            <li><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=1&sortBy=${sortBy}&changeSort=false&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&laquo;</a></li>
+                            <li><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${pageNumber<2 ? 1 : (pageNumber-1)}&sortBy=${sortBy}&changeSort=false&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&lsaquo;</a></li>
                                 ${pageNumber-2>1 ? "<li><a href=\"#\">...</a></li>" : "" }
                                 <c:forEach begin="${pageNumber-2>1 ? pageNumber-2 : 1}" end="${pageNumber+2<numberOfPages ? pageNumber+2 : numberOfPages}" var="i">
-                                <li><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${i}&sortBy=${sortBy}&changeSort=false&searchEntity=${searchEntity}" class="${i eq pageNumber ? "active" : ""}">${i}</a></li>    
+                                <li><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${i}&sortBy=${sortBy}&changeSort=false&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}" class="${i eq pageNumber ? "active" : ""}">${i}</a></li>    
                                 </c:forEach>
                                 ${pageNumber+2>numberOfPages ? "" : "<li><a href=\"#\">...</a></li>" }
-                            <li><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${(pageNumber+1)>(numberOfPages) ? numberOfPages : (pageNumber+1)}&sortBy=${sortBy}&changeSort=false&searchEntity=${searchEntity}">&rsaquo;</a></li>
-                            <li><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${numberOfPages}&sortBy=${sortBy}&changeSort=false&searchEntity=${searchEntity}">&raquo;</a></li>
+                            <li><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${(pageNumber+1)>(numberOfPages) ? numberOfPages : (pageNumber+1)}&sortBy=${sortBy}&changeSort=false&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&rsaquo;</a></li>
+                            <li><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${numberOfPages}&sortBy=${sortBy}&changeSort=false&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&raquo;</a></li>
                         </ul>
                 </tr>
             </table>
@@ -46,9 +46,9 @@
                     </tr>
 
                     <tr class="tableHeading">
-                        <td><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&sortBy=id&changeSort=true">&#x25B2; id &#x25BC;</a></td>
-                        <td><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&sortBy=nazwa&changeSort=true">&#x25B2; imię i nazwisko &#x25BC;</a></td>
-                        <td><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&sortBy=miasto&changeSort=true">&#x25B2; miasto &#x25BC;</a></td>
+                        <td><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&sortBy=id&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&#x25B2; id &#x25BC;</a></td>
+                        <td><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&sortBy=nazwa&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&#x25B2; imię i nazwisko &#x25BC;</a></td>
+                        <td><a href="dodajLektoraDoWypozyczenia?podrecznikId=${podrecznikId}&sortBy=miasto&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&#x25B2; miasto &#x25BC;</a></td>
                     </tr>
 
                     <c:forEach var="lektor" items="${lektorList}" varStatus="iter">
@@ -77,21 +77,23 @@
             <table class="viewAllTable">
                 <tr>
                     <td>
-                        <form action="dodajPodrecznikDoWypozyczenia">
-                            <input type="text" name="searchEntity" value="${searchEntity}" /><input type="submit" value="Szukaj" />
+                        <form action="wyszukajPodrecznikDoWypozyczenia" method="POST">
+                            <input type="text" name="searchPhrase" value="${searchPhrase}" />
+                            <input type="hidden" name="lektorId" value="${lektorId}" />
+                            <input type="submit" value="Szukaj" />
                         </form>
                     </td>
                     <td class="cellWithPagination">
                         <ul class="pagination">
-                            <li><a href="dodajPodrecznikDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=1&sortBy=${sortBy}&changeSort=false&searchEntity=${searchEntity}">&laquo;</a></li>
-                            <li><a href="dodajPodrecznikDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${pageNumber<2 ? 1 : (pageNumber-1)}&sortBy=${sortBy}&changeSort=false&searchEntity=${searchEntity}">&lsaquo;</a></li>
+                            <li><a href="dodajPodrecznikDoWypozyczenia?lektorId=${lektorId}&pageNumber=1&sortBy=${sortBy}&changeSort=false&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&laquo;</a></li>
+                            <li><a href="dodajPodrecznikDoWypozyczenia?lektorId=${lektorId}&pageNumber=${pageNumber<2 ? 1 : (pageNumber-1)}&sortBy=${sortBy}&changeSort=false&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&lsaquo;</a></li>
                                 ${pageNumber-2>1 ? "<li><a href=\"#\">...</a></li>" : "" }
                                 <c:forEach begin="${pageNumber-2>1 ? pageNumber-2 : 1}" end="${pageNumber+2<numberOfPages ? pageNumber+2 : numberOfPages}" var="i">
-                                <li><a href="dodajPodrecznikDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${i}&sortBy=${sortBy}&changeSort=false&searchEntity=${searchEntity}" class="${i eq pageNumber ? "active" : ""}">${i}</a></li>    
+                                <li><a href="dodajPodrecznikDoWypozyczenia?lektorId=${lektorId}&pageNumber=${i}&sortBy=${sortBy}&changeSort=false&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}" class="${i eq pageNumber ? "active" : ""}">${i}</a></li>    
                                 </c:forEach>
                                 ${pageNumber+2>numberOfPages ? "" : "<li><a href=\"#\">...</a></li>" }
-                            <li><a href="dodajPodrecznikDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${(pageNumber+1)>(numberOfPages) ? numberOfPages : (pageNumber+1)}&sortBy=${sortBy}&changeSort=false&searchEntity=${searchEntity}">&rsaquo;</a></li>
-                            <li><a href="dodajPodrecznikDoWypozyczenia?podrecznikId=${podrecznikId}&pageNumber=${numberOfPages}&sortBy=${sortBy}&changeSort=false&searchEntity=${searchEntity}">&raquo;</a></li>
+                            <li><a href="dodajPodrecznikDoWypozyczenia?lektorId=${lektorId}&lektorId=${lektorId}&pageNumber=${(pageNumber+1)>(numberOfPages) ? numberOfPages : (pageNumber+1)}&sortBy=${sortBy}&changeSort=false&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&rsaquo;</a></li>
+                            <li><a href="dodajPodrecznikDoWypozyczenia?lektorId=${lektorId}&lektorId=${lektorId}&pageNumber=${numberOfPages}&sortBy=${sortBy}&changeSort=false&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&raquo;</a></li>
                         </ul>
                 </tr>
             </table>
@@ -104,9 +106,9 @@
                     </tr>
 
                     <tr class="tableHeading">
-                        <td><a href="dodajPodrecznikDoWypozyczenia?podrecznikId=${podrecznikId}&sortBy=id&changeSort=true">&#x25B2; id &#x25BC;</a></td>
-                        <td><a href="dodajPodrecznikDoWypozyczenia?podrecznikId=${podrecznikId}&sortBy=nazwa&changeSort=true">&#x25B2; imię i nazwisko &#x25BC;</a></td>
-                        <td><a href="dodajPodrecznikDoWypozyczenia?podrecznikId=${podrecznikId}&sortBy=miasto&changeSort=true">&#x25B2; miasto &#x25BC;</a></td>
+                        <td><a href="dodajPodrecznikDoWypozyczenia?lektorId=${lektorId}&sortBy=id&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&#x25B2; id &#x25BC;</a></td>
+                        <td><a href="dodajPodrecznikDoWypozyczenia?lektorId=${lektorId}&sortBy=nazwa&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&#x25B2; tytuł &#x25BC;</a></td>
+                        <td><a href="dodajPodrecznikDoWypozyczenia?lektorId=${lektorId}&sortBy=poziom&changeSort=true&sortAsc=${sortAsc}&searchPhrase=${searchPhrase}">&#x25B2; poziom &#x25BC;</a></td>
                     </tr>
 
                     <c:forEach var="podrecznik" items="${podrecznikList}">

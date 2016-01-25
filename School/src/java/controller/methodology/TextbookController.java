@@ -6,11 +6,9 @@
 package controller.methodology;
 
 import entity.Jezyk;
-import entity.Lektor;
 import entity.Podrecznik;
-import finder.SchoolFinder;
+import helper.TextbookHelper;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -19,11 +17,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import session.JezykFacade;
-import session.LektorFacade;
 import session.PodrecznikFacade;
 import session.WypozyczenieFacade;
 import session.persistence.PersistenceManager;
-import sorter.FieldSorter;
 import validator.FormValidator;
 
 /**
@@ -41,55 +37,19 @@ import validator.FormValidator;
 public class TextbookController extends HttpServlet {
 
     @EJB
-    private JezykFacade jezykFacade;
-    private Jezyk jezyk;
-    private List jezykList = new ArrayList();
+    JezykFacade jezykFacade;
+    
+    @EJB
+    PodrecznikFacade podrecznikFacade;
 
     @EJB
-    private LektorFacade lektorFacade;
-    private Lektor lektor;
-    private List lektorList = new ArrayList();
+    WypozyczenieFacade wypozyczenieFacade;
 
     @EJB
-    private PodrecznikFacade podrecznikFacade;
-    private Podrecznik podrecznik;
-    private List podrecznikList = new ArrayList();
-
+    PersistenceManager persistenceManager;
+    
     @EJB
-    private WypozyczenieFacade wypozyczenieFacade;
-    private List wypozyczenieList = new ArrayList();
-
-    @EJB
-    private PersistenceManager persistenceManager;
-
-//    jezyk
-    int intJezykId = 0;
-    String jezykId = "";
-
-//    lektor
-    int intLektorId = 0;
-    String lektorId = "";
-
-//    podrecznik
-    int intPodrecznikId = 0;
-    String podrecznikId = "";
-
-//    GENERAL 
-    private String userPath; // this one to see what to do
-    private Boolean sortAsc = true; // and this one to check how to sort
-    private String sortBy; // so we know how to sort
-    private Boolean changeSort = false; // this one to know whether to change sorting order
-
-//    pagination
-    private static final int pageSize = 10; // number of records on one page
-    private int numberOfPages; // auxiliary field for calculating number of pages (based on the list size)
-    List<List> listOfPages = new ArrayList<List>(); // list of lists of single page records
-    private int pageNumber; // current page number
-    private List pageToDisplay; // which one should be displayed to user
-
-//    search and filter
-    private String searchPhrase; // entity search (TEXT)
-    private String searchOption; // language selector (OPTION)
+    TextbookHelper textbookHelper;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -104,118 +64,29 @@ public class TextbookController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Jezyk jezyk;
+        List jezykList;
+        Podrecznik podrecznik;
+        
+//    jezyk
+        int intJezykId;
+        String jezykId;
+
+//    podrecznik
+        int intPodrecznikId;
+        String podrecznikId;
+
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 //  VIEW ALL
             case "/podreczniki":
-                // we need here different lists - similar to lektor
-                // and we need to combine them
+                // use helper to get list prepared in our request
+                request = textbookHelper.prepareEntityList(request);
 
-                // sorting and pagination works this way:
-                // if there is no sortBy it means we are here for the first time
-                // so we check if we have pageNumber
-                // if not it means that we are really for the first time here
-                // let's get initial data...
-                // ... like page number
-                try {
-                    pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
-                } catch (NumberFormatException e) {
-                    pageNumber = 1; // (it seems that we do not have page number yet)
-                }
-
-                // prepare lists other than main
-                jezykList = jezykFacade.findAll();
-                wypozyczenieList = wypozyczenieFacade.findAll();
-
-                // mainList
-                podrecznikList = podrecznikFacade.findAll();
-
-                // SORT & SEARCH
-                // check whether to change sorting direction
-                changeSort = Boolean.parseBoolean(request.getParameter("changeSort"));
-
-                // check if sorting...
-                sortBy = request.getParameter("sortBy");
-                // if not sorting let's sort by id
-                if (sortBy == null) {
-                    sortBy = "id";
-                    sortAsc = true; // to start from the beginning
-                    changeSort = false;
-                }
-
-                // and check if searching
-                searchPhrase = request.getParameter("searchPhrase");
-                if (searchPhrase != null && !searchPhrase.equals("")) {
-                    podrecznikList = SchoolFinder.findTextbook(podrecznikList, searchPhrase);
-                } else {
-                    searchPhrase = "";
-                }
-
-                // and what language was chosen
-                searchOption = request.getParameter("searchOption");
-                if (searchOption != null && !searchOption.equals("")) {
-                    podrecznikList = SchoolFinder.findLanguageForTextbook(podrecznikList, searchOption);
-                } else {
-                    searchOption = "";
-                }
-
-                // now we check if we have to sort things (out)
-                // (by the way - we sort using auxiliary abstract class)
-                switch (sortBy) {
-                    case ("id"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            podrecznikList = FieldSorter.sortIdDesc(podrecznikList);
-                            sortAsc = false;
-                        } else {
-                            podrecznikList = FieldSorter.sortId(podrecznikList);
-                            sortAsc = true;
-                        }
-                        break;
-                    case ("nazwa"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            podrecznikList = FieldSorter.sortNazwaDesc(podrecznikList);
-                            sortAsc = false;
-                        } else {
-                            podrecznikList = FieldSorter.sortNazwa(podrecznikList);
-                            sortAsc = true;
-                        }
-                        break;
-                    case ("poziom"):
-                        if ((sortAsc && changeSort) || (!sortAsc && !changeSort)) {
-                            podrecznikList = FieldSorter.sortPoziomDesc(podrecznikList);
-                            sortAsc = false;
-                        } else {
-                            podrecznikList = FieldSorter.sortPoziom(podrecznikList);
-                            sortAsc = true;
-                        }
-                        break;
-                }
-
-                // PAGINATE                     -> pageToDisplay
-                numberOfPages = ((podrecznikList.size()) / pageSize) + 1; // check how many pages
-
-                // pageToDisplay is subList - we check if not get past last index
-                int fromIndex = ((pageNumber - 1) * pageSize);
-                int toIndex = fromIndex + pageSize;
-                pageToDisplay = podrecznikList.subList(fromIndex,
-                        toIndex > podrecznikList.size() ? podrecznikList.size() : toIndex);
-
-                // SEND
-                // now prepare things for our JSP
-                request.setAttribute("numberOfPages", numberOfPages);
-                request.setAttribute("pageNumber", pageNumber);
-                request.setAttribute("sortBy", sortBy);
-                request.setAttribute("searchPhrase", searchPhrase);
-                request.setAttribute("searchOption", searchOption);
-
-                // set request atributes for necessary lists
-                request.setAttribute("podrecznikList", pageToDisplay);
-                request.setAttribute("jezykList", jezykList);
-                request.setAttribute("wypozyczenieList", wypozyczenieList);
-
+                // and tell the container where to redirect
                 userPath = "/methodology/textbook/viewAll";
                 break;
 // ADD             
@@ -271,11 +142,11 @@ public class TextbookController extends HttpServlet {
                 // we need language, not its id, or a string representing it
                 intJezykId = Integer.parseInt(jezykId); // I better be sure about that one not to try it
                 jezyk = jezykFacade.find(intJezykId);
-                                
+
                 intPodrecznikId = persistenceManager.saveTextbookToDatabase(id, nazwa, poziom, jezyk);
 
                 podrecznikId = intPodrecznikId + "";
-                request = prepareRequest(request, podrecznikId); // set all the attributes that request needs
+                request = textbookHelper.prepareEntityView(request, podrecznikId); // set all the attributes that request needs
 
                 // finally show the newly created lector (so it can be further processed)
                 userPath = "/methodology/textbook/viewOne";
@@ -286,7 +157,7 @@ public class TextbookController extends HttpServlet {
                 // then prepare another lists that we will need
                 // meaning: jezyk, jezykLektora, wypozyczenia etc.
 
-                request = prepareRequest(request, request.getQueryString()); // set all the attributes that request needs
+                request = textbookHelper.prepareEntityView(request, request.getQueryString()); // set all the attributes that request needs
 
                 userPath = "/methodology/textbook/viewOne";
                 break;
@@ -297,8 +168,7 @@ public class TextbookController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
     }
 
@@ -314,10 +184,15 @@ public class TextbookController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         //processRequest(request, response);
+        
+        //    jezyk
+        Jezyk jezyk;
+        int intJezykId;
+        String jezykId;        
 
         //HttpSession session = request.getSession(); // let's get session - we might need it
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-        userPath = request.getServletPath(); // this way we know where to go
+        String userPath = request.getServletPath(); // this way we know where to go
 
         switch (userPath) {
 // CONFIRM
@@ -332,7 +207,7 @@ public class TextbookController extends HttpServlet {
                 String nazwa = request.getParameter("nazwa");
                 String poziom = request.getParameter("poziom");
                 jezykId = request.getParameter("jezykId");
-                
+
                 intJezykId = Integer.parseInt(jezykId);
                 jezyk = jezykFacade.find(intJezykId);
 
@@ -371,29 +246,11 @@ public class TextbookController extends HttpServlet {
 
         try {
             request.getRequestDispatcher(url).forward(request, response);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ServletException | IOException ex) {
         }
 
     }
 
-    /**
-     * This one prepares request to show one entity it is not to multiply code
-     * when adding and showing new Entity entity
-     */
-    private HttpServletRequest prepareRequest(HttpServletRequest request, String podrecznikId) {
-
-        podrecznik = podrecznikFacade.find(Integer.parseInt(podrecznikId));
-        jezykList = jezykFacade.findAll();
-        wypozyczenieList = wypozyczenieFacade.findAll();
-        podrecznikList = podrecznikFacade.findAll();
-
-        request.setAttribute("podrecznik", podrecznik);
-        request.setAttribute("jezykList", jezykList);
-        request.setAttribute("wypozyczenieList", wypozyczenieList);
-        request.setAttribute("podrecznikList", podrecznikList);
-
-        return request;
-    }
+   
 
 }
