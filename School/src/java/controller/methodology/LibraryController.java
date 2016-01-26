@@ -135,6 +135,8 @@ public class LibraryController extends HttpServlet {
                 // now persist:
                 persistenceManager.saveBorrowingToDatabase(lektor, podrecznik);
 
+                request.setAttribute("lektorId", lektorId);
+                request.setAttribute("podrecznikId", podrecznikId);
                 userPath = "/methodology/confirmation"; // and show once more - now with another language
                 break;
 
@@ -147,6 +149,8 @@ public class LibraryController extends HttpServlet {
 
                 // now persist:
                 persistenceManager.deleteBorrowingFromDatabase(Integer.parseInt(lektorId), Integer.parseInt(podrecznikId));
+                request.setAttribute("lektorId", lektorId);
+                request.setAttribute("podrecznikId", podrecznikId);
 
                 userPath = "/methodology/confirmation"; // and show once more - now with another language
                 break;

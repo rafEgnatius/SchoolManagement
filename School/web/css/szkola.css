@@ -448,6 +448,11 @@ table.cancelSaveTable td.rightCell {
     padding-left: 15px;
 }
 
+table.cancelSaveTable td.textInCellsOnLeft {
+    text-align: left;
+    padding-left: 20px;
+}
+
 
 /* table with pagination */
 
