@@ -11,7 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -21,12 +21,10 @@ import javax.servlet.http.HttpServletResponse;
         loadOnStartup = 1,
         urlPatterns = {"/metodyka",
             "/kurs",
-            "/organizacja"})
+            "/organizacja",
+            "/wyloguj"})
 public class MainController extends HttpServlet {
 
-//    general 
-    private String userPath; // this one to see what to do
- 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -41,29 +39,28 @@ public class MainController extends HttpServlet {
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8"); // for Polish characters
-
-        userPath = request.getServletPath();
+        HttpSession session = request.getSession(true);
+        String userPath = request.getServletPath();
 
         switch (userPath) {
             case "/kurs":
-                userPath = "/course/index";
+                userPath = "/WEB-INF/view/course/index";
                 break;
-        }
-        
-        switch (userPath) {
             case "/metodyka":
-                userPath = "/methodology/index";
+                userPath = "/WEB-INF/view/methodology/index";
                 break;
-        }
-        
-        switch (userPath) {
             case "/organizacja":
-                userPath = "/organisation/index";
+                userPath = "/WEB-INF/view/methodology/index";
                 break;
+            case "/wyloguj":
+                session = request.getSession();
+                session.invalidate();   // terminate session
+                response.sendRedirect("/School/");
+                return;
         }
 
 // FORWARD
-        String url = "/WEB-INF/view" + userPath + ".jsp";
+        String url = userPath + ".jsp";
 
         try {
             request.getRequestDispatcher(url).forward(request, response);

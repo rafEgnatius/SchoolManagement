@@ -12,6 +12,8 @@ import helper.TextbookHelper;
 import java.io.IOException;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +35,9 @@ import session.persistence.PersistenceManager;
             "/potwierdzWypozyczeniePodrecznika",
             "/wypozyczPodrecznikZBiblioteki",
             "/oddajPodrecznikDoBiblioteki"})
+@ServletSecurity(
+    @HttpConstraint(rolesAllowed = {"schoolAdmin", "metodyk"})
+)
 public class LibraryController extends HttpServlet {
 
     @EJB

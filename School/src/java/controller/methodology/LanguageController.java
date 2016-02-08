@@ -11,6 +11,8 @@ import java.io.IOException;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +33,9 @@ import validator.FormValidator;
             "/dodajJezykPotwierdz", // POST
             "/dodajJezykZapisz",
             "/edytujJezyk"})
+@ServletSecurity(
+    @HttpConstraint(rolesAllowed = {"schoolAdmin", "metodyk"})
+)
 public class LanguageController extends HttpServlet {
 
     @EJB

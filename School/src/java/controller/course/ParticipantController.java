@@ -259,6 +259,7 @@ public class ParticipantController extends HttpServlet {
                 request.setAttribute("telefon", telefon);
                 request.setAttribute("email", email);
                 request.setAttribute("firma", firmaFacade.find(Integer.parseInt(firmaId)));
+                request.setAttribute("firmaList", firmaFacade.findAll());
                 // forward it to confirmation
                 break;
 

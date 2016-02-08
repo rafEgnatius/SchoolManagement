@@ -12,6 +12,8 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +32,9 @@ import session.persistence.PersistenceManager;
             "/dodajAnkietePotwierdz", // POST
             "/dodajAnkieteZapisz",
             "/edytujAnkiete"})
+@ServletSecurity(
+    @HttpConstraint(rolesAllowed = {"schoolAdmin", "metodyk"})
+)
 public class QuestionnaireController extends HttpServlet {
 
     @EJB

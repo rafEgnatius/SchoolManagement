@@ -28,10 +28,10 @@ public class TextbookHelper {
     PodrecznikFacade podrecznikFacade;
 
     @EJB
-    private JezykFacade jezykFacade;
+    JezykFacade jezykFacade;
 
     @EJB
-    private WypozyczenieFacade wypozyczenieFacade;
+    WypozyczenieFacade wypozyczenieFacade;
 
     @Resource(name = "pageSize")
     Integer pageSize;

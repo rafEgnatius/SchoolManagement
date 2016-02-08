@@ -17,9 +17,28 @@
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>/faces/*</url-pattern>
     </servlet-mapping>
+    
+    <welcome-file-list>
+        <welcome-file>faces/index.jsp</welcome-file>
+    </welcome-file-list>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error/error404.jsp</location>
+    </error-page>
+    
+    <resource-ref>
+        <description>Connects to database for School application</description>
+        <res-ref-name>jdbc/schoolManagement</res-ref-name>
+        <res-type>javax.sql.ConnectionPoolDataSource</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Shareable</res-sharing-scope>
+    </resource-ref>
+    
+    
     <session-config>
         <session-timeout>5</session-timeout>
     </session-config>
+    
     <jsp-config>
         <jsp-property-group>
             <description>header and footer (INDEX)</description>
@@ -28,8 +47,20 @@
             <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
         </jsp-property-group>
         <jsp-property-group>
+            <description>header and footer (LOGIN)</description>
+            <url-pattern>/login.jsp</url-pattern>
+            <include-prelude>/WEB-INF/jspf/header.jspf</include-prelude>
+            <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
+        </jsp-property-group>
+        <jsp-property-group>
             <description>header and footer (ERROR)</description>
             <url-pattern>/error.jsp</url-pattern>
+            <include-prelude>/WEB-INF/jspf/header.jspf</include-prelude>
+            <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
+        </jsp-property-group>
+        <jsp-property-group>
+            <description>header and footer (ERROR)</description>
+            <url-pattern>/error/*</url-pattern>
             <include-prelude>/WEB-INF/jspf/header.jspf</include-prelude>
             <include-coda>/WEB-INF/jspf/footer.jspf</include-coda>
         </jsp-property-group>
@@ -125,34 +156,57 @@
             <include-prelude>/WEB-INF/script/organisation/moneyOut.jspf</include-prelude>
         </jsp-property-group>
     </jsp-config>
-    <welcome-file-list>
-        <welcome-file>faces/index.jsp</welcome-file>
-    </welcome-file-list>
-    <error-page>
-        <error-code>404</error-code>
-        <location>/error.jsp</location>
-    </error-page>
-    <resource-ref>
-        <description>Connects to database for School application</description>
-        <res-ref-name>jdbc/schoolManagement</res-ref-name>
-        <res-type>javax.sql.ConnectionPoolDataSource</res-type>
-        <res-auth>Container</res-auth>
-        <res-sharing-scope>Shareable</res-sharing-scope>
-    </resource-ref>
+    
     <context-param>
         <param-name>languageLevels</param-name>
         <param-value>A0A1A2B1B2C1C2</param-value>
     </context-param>
-    <listener>
-        <listener-class>
-            listener.SetUpListener
-        </listener-class>
-    </listener>
     <env-entry>
         <description>This sets number of entries on single page</description>
         <env-entry-name>pageSize</env-entry-name>
         <env-entry-type>java.lang.Integer</env-entry-type>
         <env-entry-value>10</env-entry-value>
     </env-entry>
+    <listener>
+        <listener-class>
+            listener.SetUpListener
+        </listener-class>
+    </listener>
     
+<!--    <security-constraint>
+        <display-name>administrator</display-name>
+        <web-resource-collection>
+            <web-resource-name>school administrator</web-resource-name>
+            <description/>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <description/>
+            <role-name>schoolAdmin</role-name>
+        </auth-constraint>
+    </security-constraint>-->
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <realm-name>file</realm-name>
+        <form-login-config>
+            <form-login-page>/login.jsp</form-login-page>
+            <form-error-page>/error.jsp</form-error-page>
+        </form-login-config>
+    </login-config>
+<!--    <security-role>
+        <description/>
+        <role-name>schoolAdmin</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>metodyk</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>organizator</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>lektor</role-name>
+    </security-role>-->
 </web-app>

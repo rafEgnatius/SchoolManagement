@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +35,9 @@ import validator.FormValidator;
             "/dodajKursPotwierdz",
             "/dodajKursZapisz",
             "/edytujKurs"})
+@ServletSecurity(
+    @HttpConstraint(rolesAllowed = {"schoolAdmin", "metodyk", "lektor"})
+)
 public class CourseController extends HttpServlet {
 
     @EJB

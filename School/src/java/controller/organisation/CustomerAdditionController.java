@@ -10,12 +10,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import session.FirmaFacade;
-import session.StawkaFirmyFacade;
 import session.persistence.PersistenceManager;
 import validator.FormValidator;
 
@@ -29,19 +29,16 @@ import validator.FormValidator;
             "/dodajStawkeLektoraDlaFirmy",
             "/usunStawkeNativeSpeakeraDlaFirmy",
             "/usunStawkeLektoraDlaFirmy"})
+@ServletSecurity(
+    @HttpConstraint(rolesAllowed = {"schoolAdmin", "organizator"})
+)
 public class CustomerAdditionController extends HttpServlet {
-
-    @EJB
-    private FirmaFacade firmaFacade;
-
-    @EJB
-    private StawkaFirmyFacade stawkaFirmyFacade;
 
     @EJB
     CustomerHelper customerHelper;
     
     @EJB
-    private PersistenceManager persistenceManager;
+    PersistenceManager persistenceManager;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

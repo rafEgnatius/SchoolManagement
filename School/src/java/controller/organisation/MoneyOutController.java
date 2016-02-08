@@ -13,6 +13,8 @@ import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -34,11 +36,14 @@ import validator.FormValidator;
             "/dodajWyplatePotwierdz",
             "/dodajWyplateZapisz",
             "/edytujWyplate"})
+@ServletSecurity(
+    @HttpConstraint(rolesAllowed = {"schoolAdmin", "organizator"})
+)
 public class MoneyOutController extends HttpServlet {
 
     // wyplata meaning entity of this controller
     @EJB
-    private WyplataFacade wyplataFacade;
+    WyplataFacade wyplataFacade;
 
     @EJB
     LektorFacade lektorFacade;
